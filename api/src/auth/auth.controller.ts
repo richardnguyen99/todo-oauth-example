@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   HttpStatus,
   Next,
   Post,
@@ -14,18 +15,35 @@ import {
 } from "express";
 import { AuthGuard } from "@nestjs/passport";
 
+import { AuthService } from "./auth.service";
+import { User } from "src/users/schemas/user.schema";
+
 @Controller("auth")
 export class AuthController {
-  @UseGuards(AuthGuard(["local"]))
-  @Post("/login")
-  async loginWithLocal(
+  constructor(private authService: AuthService) {}
+
+  @UseGuards(AuthGuard(["discord"]))
+  @Get("/discord")
+  async loginWithLocal(@Res() res: ExpressResponse) {
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "oauth",
+      data: null,
+    });
+  }
+
+  @UseGuards(AuthGuard(["discord"]))
+  @Get("/discord/callback")
+  async loginRedirect(
     @Request() req: ExpressRequest,
     @Res() res: ExpressResponse,
   ) {
+    const data = await this.authService.login(req.user as User);
+
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       message: "logged in",
-      data: req.user,
+      data,
     });
   }
 
