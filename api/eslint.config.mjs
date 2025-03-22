@@ -31,7 +31,6 @@ export default defineConfig([
         "error",
         {
           singleQuote: false,
-          parser: "flow",
         },
       ],
     },
