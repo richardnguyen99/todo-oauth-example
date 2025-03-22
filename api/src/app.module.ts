@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
@@ -13,15 +13,17 @@ import { UsersModule } from "./users/users.module";
     AuthModule,
     UsersModule,
     MongooseModule.forRootAsync({
-      useFactory: async () => ({
-        uri: "mongodb://0.0.0.0:27018",
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>("MONGODB_URI"),
         auth: {
-          username: "admin",
-          password: "admin",
+          username: configService.get<string>("MONGODB_USERNAME"),
+          password: configService.get<string>("MONGODB_PASSWORD"),
         },
-        dbName: "oauth-example",
+        dbName: configService.get<string>("MONGODB_DBNAME"),
         directConnection: true,
       }),
+      inject: [ConfigService],
     }),
   ],
   controllers: [AppController],
