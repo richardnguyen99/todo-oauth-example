@@ -68,7 +68,10 @@ export class UsersService {
         username: updateUserWithOauthDto.username,
       },
       {
-        ...updateUserWithOauthDto,
+        username: updateUserWithOauthDto.username,
+        email: updateUserWithOauthDto.email,
+        avatar: updateUserWithOauthDto.avatar,
+        emailVerified: updateUserWithOauthDto.emailVerified,
       },
     );
 
@@ -82,7 +85,10 @@ export class UsersService {
       {
         oauthId: updateUserWithOauthDto.oauthId,
       },
-      {},
+      {
+        oauthId: updateUserWithOauthDto.oauthId,
+        oauthProvider: updateUserWithOauthDto.oauthProvider,
+      },
     );
 
     if (!accountResult.acknowledged || accountResult.matchedCount === 0) {
@@ -99,9 +105,9 @@ export class UsersService {
   async findOneWithOAuth(
     oauthUserDto: OauthUserDto,
   ): Promise<User | undefined> {
-    return this.userModel.findOne({
-      "accounts.oauthId": oauthUserDto.oauthId,
-      "accounts.oauthProvider": oauthUserDto.oauthProvider,
+    return this.accountModel.findOne({
+      oauthId: oauthUserDto.oauthId,
+      oauthProvider: oauthUserDto.oauthProvider,
     });
   }
 

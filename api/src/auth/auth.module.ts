@@ -7,6 +7,7 @@ import { UsersModule } from "src/users/users.module";
 import { AuthController } from "./auth.controller";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { DiscordStrategy } from "./strategies/discord.strategy";
+import { GoogleStrategy } from "./strategies/google.strategy";
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { DiscordStrategy } from "./strategies/discord.strategy";
       }),
     }),
   ],
-  providers: [AuthService, ConfigService, DiscordStrategy],
+  providers: [AuthService, ConfigService, DiscordStrategy, GoogleStrategy],
   controllers: [AuthController],
   exports: [AuthService],
 })

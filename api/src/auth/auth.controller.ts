@@ -24,7 +24,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard(["discord"]))
   @Get("/discord")
-  async loginWithLocal(@Res() res: ExpressResponse) {
+  async loginWithDiscord(@Res() res: ExpressResponse) {
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       message: "oauth",
@@ -34,7 +34,32 @@ export class AuthController {
 
   @UseGuards(AuthGuard(["discord"]))
   @Get("/discord/callback")
-  async loginRedirect(
+  async loginWithDiscordRedirect(
+    @Request() req: ExpressRequest,
+    @Res() res: ExpressResponse,
+  ) {
+    const data = await this.authService.login(req.user as User);
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "logged in",
+      data,
+    });
+  }
+
+  @UseGuards(AuthGuard(["google-oauth2"]))
+  @Get("/google")
+  async loginWithGoogle(@Res() res: ExpressResponse) {
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "oauth",
+      data: null,
+    });
+  }
+
+  @UseGuards(AuthGuard(["google-oauth2"]))
+  @Get("/google/callback")
+  async loginWithGoogleRedirect(
     @Request() req: ExpressRequest,
     @Res() res: ExpressResponse,
   ) {
