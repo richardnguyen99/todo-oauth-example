@@ -26,15 +26,15 @@ export class UsersController {
     });
   }
 
-  @Get(":username")
+  @Get(":id")
   @Header("Content-Type", "application/json")
-  async fineOne(@Param("username") username: string, @Res() res: Response) {
-    const user = await this.userService.findOne(username);
+  async fineOne(@Param("id") id: string, @Res() res: Response) {
+    const user = await this.userService.findOneById(id);
 
     if (!user) {
       res.status(HttpStatus.NOT_FOUND).json({
         statusCode: HttpStatus.NOT_FOUND,
-        message: `Username '${username}' does not exist`,
+        message: `Username 'id=${id}' does not exist`,
         data: null,
       });
       return;

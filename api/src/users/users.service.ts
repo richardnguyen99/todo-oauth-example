@@ -111,6 +111,10 @@ export class UsersService {
     });
   }
 
+  async findOneById(id: string): Promise<User | undefined> {
+    return this.userModel.findById(id).populate("accounts").exec();
+  }
+
   async findOne(username: string): Promise<User | undefined> {
     return this.userModel.findOne({
       username: username,

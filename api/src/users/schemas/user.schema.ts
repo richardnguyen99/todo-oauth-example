@@ -5,7 +5,7 @@ import mongoose, { Document, HydratedDocument } from "mongoose";
   collection: "accounts",
 })
 export class Account extends Document {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, required: true, ref: "users" })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" })
   userId: mongoose.Types.ObjectId;
 
   @Prop({ type: mongoose.Schema.Types.String, required: true })
@@ -34,7 +34,7 @@ export class User {
   @Prop({ type: mongoose.Schema.Types.String, required: false })
   avatar?: string;
 
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: "accounts" })
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: "Account" })
   accounts: Array<mongoose.Types.ObjectId>;
 }
 
