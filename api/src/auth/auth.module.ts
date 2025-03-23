@@ -11,7 +11,11 @@ import { DiscordStrategy } from "./strategies/discord.strategy";
 @Module({
   imports: [
     UsersModule,
-    PassportModule,
+    PassportModule.registerAsync({
+      useFactory: () => ({
+        session: false,
+      }),
+    }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

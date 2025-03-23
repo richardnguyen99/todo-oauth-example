@@ -12,3 +12,12 @@ export interface CreateUserWithOauthDto {
   readonly oauthId: string;
   readonly oauthProvider: string;
 }
+
+export interface UpdateUserWithOauthDto {
+  readonly username: string;
+  readonly email: string;
+  readonly emailVerified: boolean;
+  readonly avatar: string;
+  readonly oauthId: string;
+  readonly oauthProvider: string;
+}

@@ -1,10 +1,15 @@
-import { Injectable } from "@nestjs/common";
-import { type Model } from "mongoose";
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from "@nestjs/common";
+import mongoose, { type Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 
 import {
   type CreateUserWithOauthDto,
   type CreateUserDto,
+  UpdateUserWithOauthDto,
 } from "./dto/create-user.dto";
 import { Account, User } from "./schemas/user.schema";
 import { OauthUserDto } from "./dto/oauth-user.dto";
@@ -48,12 +53,43 @@ export class UsersService {
       emailVerified,
     });
 
-    user.accounts.push(account);
+    account.userId = user._id;
+    user.accounts.push(account._id as mongoose.Types.ObjectId);
 
-    account.save();
-    user.save();
+    await account.save();
+    await user.save();
 
     return user;
+  }
+
+  async updateWithOauth(updateUserWithOauthDto: UpdateUserWithOauthDto) {
+    const userResult = await this.userModel.updateOne(
+      {
+        username: updateUserWithOauthDto.username,
+      },
+      {
+        ...updateUserWithOauthDto,
+      },
+    );
+
+    if (!userResult.acknowledged || userResult.matchedCount === 0) {
+      throw new UnauthorizedException(
+        `User ${updateUserWithOauthDto.username} not found`,
+      );
+    }
+
+    const accountResult = await this.accountModel.updateOne(
+      {
+        oauthId: updateUserWithOauthDto.oauthId,
+      },
+      {},
+    );
+
+    if (!accountResult.acknowledged || accountResult.matchedCount === 0) {
+      throw new InternalServerErrorException(
+        `Cannot update account on User '${updateUserWithOauthDto.username}'`,
+      );
+    }
   }
 
   async findAll(): Promise<User[]> {

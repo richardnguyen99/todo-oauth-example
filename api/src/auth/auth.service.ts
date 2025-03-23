@@ -24,6 +24,8 @@ export class AuthService {
       return newUser;
     }
 
+    await this.usersService.updateWithOauth(validateUserDto);
+
     return user;
   }
 

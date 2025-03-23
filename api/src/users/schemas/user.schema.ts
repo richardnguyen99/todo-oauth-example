@@ -5,6 +5,9 @@ import mongoose, { Document, HydratedDocument } from "mongoose";
   collection: "accounts",
 })
 export class Account extends Document {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, required: true, ref: "users" })
+  userId: mongoose.Types.ObjectId;
+
   @Prop({ type: mongoose.Schema.Types.String, required: true })
   oauthProvider: string;
 
@@ -31,10 +34,8 @@ export class User {
   @Prop({ type: mongoose.Schema.Types.String, required: false })
   avatar?: string;
 
-  @Prop({
-    type: [AccountSchema],
-  })
-  accounts: Array<Account>;
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: "accounts" })
+  accounts: Array<mongoose.Types.ObjectId>;
 }
 
 export type UserDocument = HydratedDocument<User>;
