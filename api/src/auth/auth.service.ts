@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 
 import { UsersService } from "src/users/users.service";
-import { User } from "src/users/schemas/user.schema";
+import { User, UserDocument } from "src/users/schemas/user.schema";
 import { ValidateUserDto } from "./dto/user.dto";
 
 @Injectable()
@@ -29,10 +29,19 @@ export class AuthService {
     return user;
   }
 
-  async login(user: User) {
-    const payload = { username: user.username, sub: user.username };
+  async login(user: UserDocument) {
+    const payload = {
+      username: user.username,
+      sub: user.username,
+      userId: user._id,
+    };
+    const refreshPayload = { userId: user._id };
+
     return {
       access_token: this.jwtService.sign(payload),
+      refresh_token: this.jwtService.sign(refreshPayload, {
+        expiresIn: "30d",
+      }),
     };
   }
 }

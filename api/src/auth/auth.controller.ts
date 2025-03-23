@@ -16,7 +16,7 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 
 import { AuthService } from "./auth.service";
-import { User } from "src/users/schemas/user.schema";
+import { UserDocument } from "src/users/schemas/user.schema";
 
 @Controller("auth")
 export class AuthController {
@@ -38,7 +38,10 @@ export class AuthController {
     @Request() req: ExpressRequest,
     @Res() res: ExpressResponse,
   ) {
-    const data = await this.authService.login(req.user as User);
+    const data = await this.authService.login(req.user as UserDocument);
+
+    res.cookie("access_token", data.access_token);
+    res.cookie("refresh_token", data.refresh_token);
 
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
@@ -63,7 +66,7 @@ export class AuthController {
     @Request() req: ExpressRequest,
     @Res() res: ExpressResponse,
   ) {
-    const data = await this.authService.login(req.user as User);
+    const data = await this.authService.login(req.user as UserDocument);
 
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,

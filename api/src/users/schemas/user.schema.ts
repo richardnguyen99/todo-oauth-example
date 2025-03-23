@@ -3,6 +3,7 @@ import mongoose, { Document, HydratedDocument } from "mongoose";
 
 @Schema({
   collection: "accounts",
+  timestamps: true,
 })
 export class Account extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" })
@@ -20,6 +21,7 @@ export const AccountSchema = SchemaFactory.createForClass(Account);
 
 @Schema({
   collection: "users",
+  timestamps: true,
 })
 export class User {
   @Prop({ type: mongoose.Schema.Types.String, required: true })
