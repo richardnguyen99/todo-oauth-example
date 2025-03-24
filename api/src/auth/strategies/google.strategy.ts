@@ -4,6 +4,7 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
 import { AuthService } from "../auth.service";
+import { EncryptionService } from "src/encryption/encryption.service";
 
 type VerifyCallback = (
   err?: Error | null | unknown,
@@ -19,6 +20,7 @@ export class GoogleStrategy extends PassportStrategy(
   constructor(
     private configService: ConfigService,
     private authService: AuthService,
+    private encryptionService: EncryptionService,
   ) {
     super({
       clientID: configService.get<string>("GOOGLE_CLIENT_ID"),
@@ -34,12 +36,18 @@ export class GoogleStrategy extends PassportStrategy(
   }
 
   async validate(
-    _accessToken: string,
-    _refreshToken: string,
+    accessToken: string,
+    refreshToken: string,
     _params: any,
     profile: Profile,
     cb: VerifyCallback,
   ) {
+    const encryptedAccessToken = this.encryptionService.encrypt(accessToken);
+    const encryptedRefreshToken = this.encryptionService.encrypt(refreshToken);
+
+    const encryptedAccessTokenString = encryptedAccessToken.toString("hex");
+    const encryptedRefreshTokenString = encryptedRefreshToken.toString("hex");
+
     const {
       id,
       username,
@@ -54,6 +62,8 @@ export class GoogleStrategy extends PassportStrategy(
       username: username || email,
       email: email,
       emailVerified: email_verified,
+      oauthAccessToken: encryptedAccessTokenString,
+      oauthRefreshToken: encryptedRefreshTokenString,
     });
 
     cb(null, user);

@@ -8,6 +8,8 @@ import { AuthController } from "./auth.controller";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { DiscordStrategy } from "./strategies/discord.strategy";
 import { GoogleStrategy } from "./strategies/google.strategy";
+import { EncryptionService } from "src/encryption/encryption.service";
+import { EncryptionModule } from "src/encryption/encryption.module";
 
 @Module({
   imports: [
@@ -18,15 +20,21 @@ import { GoogleStrategy } from "./strategies/google.strategy";
       }),
     }),
     JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
+      imports: [ConfigModule, EncryptionModule],
+      inject: [ConfigService, EncryptionService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>("JWT_SECRET"),
         signOptions: { expiresIn: "300s" },
       }),
     }),
   ],
-  providers: [AuthService, ConfigService, DiscordStrategy, GoogleStrategy],
+  providers: [
+    AuthService,
+    ConfigService,
+    EncryptionService,
+    DiscordStrategy,
+    GoogleStrategy,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })

@@ -7,13 +7,19 @@ import mongoose, { Document, HydratedDocument } from "mongoose";
 })
 export class Account extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" })
-  userId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId | User;
 
   @Prop({ type: mongoose.Schema.Types.String, required: true })
   oauthProvider: string;
 
   @Prop({ type: mongoose.Schema.Types.String, required: true })
   oauthId: string;
+
+  @Prop({ type: mongoose.Schema.Types.String, required: false })
+  oauthAccessToken?: string | null;
+
+  @Prop({ type: mongoose.Schema.Types.String, required: false })
+  oauthRefreshToken?: string | null;
 }
 
 export type AccountDocument = HydratedDocument<Account>;
@@ -37,7 +43,7 @@ export class User {
   avatar?: string;
 
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: "Account" })
-  accounts: Array<mongoose.Types.ObjectId>;
+  accounts: Array<mongoose.Types.ObjectId | Account>;
 }
 
 export type UserDocument = HydratedDocument<User>;

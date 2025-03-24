@@ -11,7 +11,7 @@ import {
   type CreateUserDto,
   UpdateUserWithOauthDto,
 } from "./dto/create-user.dto";
-import { Account, User } from "./schemas/user.schema";
+import { Account, User, UserDocument } from "./schemas/user.schema";
 import { OauthUserDto } from "./dto/oauth-user.dto";
 
 @Injectable()
@@ -39,11 +39,15 @@ export class UsersService {
       oauthId,
       oauthProvider,
       username,
+      oauthAccessToken,
+      oauthRefreshToken,
     } = createUserWithOauth;
 
     const account = new this.accountModel({
       oauthId,
       oauthProvider,
+      oauthAccessToken,
+      oauthRefreshToken,
     });
 
     const user = new this.userModel({
@@ -88,6 +92,8 @@ export class UsersService {
       {
         oauthId: updateUserWithOauthDto.oauthId,
         oauthProvider: updateUserWithOauthDto.oauthProvider,
+        oauthAccessToken: updateUserWithOauthDto.oauthAccessToken,
+        oauthRefreshToken: updateUserWithOauthDto.oauthRefreshToken,
       },
     );
 
@@ -111,7 +117,7 @@ export class UsersService {
     });
   }
 
-  async findOneById(id: string): Promise<User | undefined> {
+  async findOneById(id: string): Promise<UserDocument | undefined> {
     return this.userModel.findById(id).populate("accounts").exec();
   }
 

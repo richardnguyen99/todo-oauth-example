@@ -13,4 +13,6 @@ export interface ValidateUserDto {
   readonly email: string;
   readonly emailVerified: boolean;
   readonly avatar: string;
+  readonly oauthAccessToken: string;
+  readonly oauthRefreshToken: string;
 }

@@ -11,6 +11,8 @@ export interface CreateUserWithOauthDto {
   readonly avatar: string;
   readonly oauthId: string;
   readonly oauthProvider: string;
+  readonly oauthAccessToken: string;
+  readonly oauthRefreshToken: string;
 }
 
 export interface UpdateUserWithOauthDto {
@@ -20,4 +22,6 @@ export interface UpdateUserWithOauthDto {
   readonly avatar: string;
   readonly oauthId: string;
   readonly oauthProvider: string;
+  readonly oauthAccessToken: string;
+  readonly oauthRefreshToken: string;
 }
