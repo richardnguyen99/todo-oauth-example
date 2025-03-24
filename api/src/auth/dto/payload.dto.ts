@@ -5,5 +5,5 @@ export interface AccessTokenPayloadDto {
 }
 
 export interface RefreshTokenPayloadDto {
-  userId: string;
+  sub: string;
 }

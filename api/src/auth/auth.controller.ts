@@ -109,4 +109,22 @@ export class AuthController {
       });
     });
   }
+
+  @UseGuards(AuthGuard(["refresh-token"]))
+  @Get("/refresh")
+  async refresh(@Req() req: ExpressRequest, @Res() res: ExpressResponse) {
+    const userId = req.user["sub"];
+    const refreshToken = req.user["refreshToken"];
+
+    const data = await this.authService.refreshToken(userId, refreshToken);
+
+    res.cookie("access_token", data.access_token, this.cookieOptions);
+    res.cookie("refresh_token", data.refresh_token, this.cookieOptions);
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "logged in",
+      data,
+    });
+  }
 }

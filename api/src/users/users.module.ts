@@ -11,7 +11,6 @@ import {
   User,
   UserSchema,
 } from "./schemas/user.schema";
-import { EncryptionModule } from "src/encryption/encryption.module";
 import { EncryptionService } from "src/encryption/encryption.service";
 import { JwtStrategy } from "src/auth/strategies/jwt.strategy";
 
@@ -29,8 +28,8 @@ import { JwtStrategy } from "src/auth/strategies/jwt.strategy";
     ]),
 
     JwtModule.registerAsync({
-      imports: [ConfigModule, EncryptionModule],
-      inject: [ConfigService, EncryptionService],
+      imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>("JWT_SECRET"),
         signOptions: { expiresIn: "300s" },

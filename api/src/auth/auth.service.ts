@@ -1,5 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
 
 import { UsersService } from "src/users/users.service";
 import { User, UserDocument } from "src/users/schemas/user.schema";
@@ -11,6 +12,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async validateUser(validateUserDto: ValidateUserDto): Promise<User> {
@@ -30,6 +32,21 @@ export class AuthService {
     return user;
   }
 
+  async refreshToken(userId: string, _refreshToken: string) {
+    const user = await this.usersService.findOneById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    const { access_token, refresh_token } = await this.login(user);
+
+    return {
+      access_token,
+      refresh_token,
+    };
+  }
+
   async login(user: UserDocument) {
     const payload = {
       sub: user._id,
@@ -37,12 +54,13 @@ export class AuthService {
     };
 
     const refreshPayload = {
-      userId: user._id.toString(),
+      sub: user._id.toString(),
     } satisfies RefreshTokenPayloadDto;
 
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(refreshPayload, {
       expiresIn: "30d",
+      secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
     });
 
     return {
