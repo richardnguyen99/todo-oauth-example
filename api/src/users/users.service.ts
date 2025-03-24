@@ -111,10 +111,16 @@ export class UsersService {
   async findOneWithOAuth(
     oauthUserDto: OauthUserDto,
   ): Promise<User | undefined> {
-    return this.accountModel.findOne({
-      oauthId: oauthUserDto.oauthId,
-      oauthProvider: oauthUserDto.oauthProvider,
-    });
+    return this.userModel
+      .findOne({
+        accounts: {
+          $elemMatch: {
+            oauthProvider: oauthUserDto.oauthProvider,
+            oauthId: oauthUserDto.oauthId,
+          },
+        },
+      })
+      .populate("accounts");
   }
 
   async findOneById(id: string): Promise<UserDocument | undefined> {

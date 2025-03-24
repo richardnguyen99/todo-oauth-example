@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
   }
 
   async validate(payload: AccessTokenPayloadDto) {
-    return { userId: payload.userId, username: payload.username };
+    return { userId: payload.sub, username: payload.username };
   }
 
   private static extractJWT(req: RequestType): string | null {

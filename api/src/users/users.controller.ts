@@ -8,13 +8,13 @@ import {
   Param,
   UseGuards,
 } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
 import {
   type Response as ExpressResponse,
   type Request as ExpressRequest,
 } from "express";
 
 import { UsersService } from "./users.service";
+import { JwtAuthGuard } from "src/auth/guards/jwt.guard";
 
 @Controller("users")
 export class UsersController {
@@ -32,7 +32,7 @@ export class UsersController {
     });
   }
 
-  @UseGuards(AuthGuard(["jwt"]))
+  @UseGuards(JwtAuthGuard)
   @Get(":id")
   @Header("Content-Type", "application/json")
   async fineOne(

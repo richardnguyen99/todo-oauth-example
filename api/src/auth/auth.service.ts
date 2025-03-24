@@ -4,10 +4,7 @@ import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "src/users/users.service";
 import { User, UserDocument } from "src/users/schemas/user.schema";
 import { ValidateUserDto } from "./dto/user.dto";
-import {
-  AccessTokenPayloadDto,
-  RefreshTokenPayloadDto,
-} from "./dto/payload.dto";
+import { RefreshTokenPayloadDto } from "./dto/payload.dto";
 
 @Injectable()
 export class AuthService {
@@ -35,20 +32,22 @@ export class AuthService {
 
   async login(user: UserDocument) {
     const payload = {
+      sub: user._id,
       username: user.username,
-      sub: user.username,
-      userId: user._id.toString(),
-    } satisfies AccessTokenPayloadDto;
+    };
 
     const refreshPayload = {
       userId: user._id.toString(),
     } satisfies RefreshTokenPayloadDto;
 
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(refreshPayload, {
+      expiresIn: "30d",
+    });
+
     return {
-      access_token: this.jwtService.sign(payload),
-      refresh_token: this.jwtService.sign(refreshPayload, {
-        expiresIn: "30d",
-      }),
+      access_token: accessToken,
+      refresh_token: refreshToken,
     };
   }
 }
