@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Next,
   Post,
+  Req,
   Request,
   Res,
   UseGuards,
@@ -20,7 +21,18 @@ import { UserDocument } from "src/users/schemas/user.schema";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  private cookieOptions: object;
+
+  constructor(private authService: AuthService) {
+    this.cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV,
+      sameSite: "lax",
+      path: "/",
+      domain: process.env.NODE_ENV ? `.${process.env.DOMAIN}` : "",
+      maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 year
+    };
+  }
 
   @UseGuards(AuthGuard(["discord"]))
   @Get("/discord")
@@ -35,13 +47,13 @@ export class AuthController {
   @UseGuards(AuthGuard(["discord"]))
   @Get("/discord/callback")
   async loginWithDiscordRedirect(
-    @Request() req: ExpressRequest,
+    @Req() req: ExpressRequest,
     @Res() res: ExpressResponse,
   ) {
     const data = await this.authService.login(req.user as UserDocument);
 
-    res.cookie("access_token", data.access_token);
-    res.cookie("refresh_token", data.refresh_token);
+    res.cookie("access_token", data.access_token, this.cookieOptions);
+    res.cookie("refresh_token", data.refresh_token, this.cookieOptions);
 
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
@@ -63,10 +75,13 @@ export class AuthController {
   @UseGuards(AuthGuard(["google-oauth2"]))
   @Get("/google/callback")
   async loginWithGoogleRedirect(
-    @Request() req: ExpressRequest,
+    @Req() req: ExpressRequest,
     @Res() res: ExpressResponse,
   ) {
     const data = await this.authService.login(req.user as UserDocument);
+
+    res.cookie("access_token", data.access_token, this.cookieOptions);
+    res.cookie("refresh_token", data.refresh_token, this.cookieOptions);
 
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
