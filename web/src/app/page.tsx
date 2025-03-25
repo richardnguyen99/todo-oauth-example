@@ -1,7 +1,19 @@
+"use client";
+
 import React, { type JSX } from "react";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Home(): JSX.Element {
+  const { isPending, error, data } = useQuery({
+    queryKey: ["todos"],
+    queryFn: () => fetch("http://localhost:7777/v1/api/users/@me"),
+  });
+
+  if (isPending) return <p>"Loading..."</p>;
+
+  if (error) return <p>An error has occurred: {error.message}</p>;
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
