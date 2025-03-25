@@ -2,8 +2,7 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Next,
-  Post,
+  Inject,
   Req,
   Request,
   Res,
@@ -12,9 +11,10 @@ import {
 import {
   type Request as ExpressRequest,
   type Response as ExpressResponse,
-  type NextFunction as ExpressNextFunction,
 } from "express";
 import { AuthGuard } from "@nestjs/passport";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Cache } from "cache-manager";
 
 import { AuthService } from "./auth.service";
 import { UserDocument } from "src/users/schemas/user.schema";
@@ -23,7 +23,10 @@ import { UserDocument } from "src/users/schemas/user.schema";
 export class AuthController {
   private cookieOptions: object;
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {
     this.cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV,
@@ -90,23 +93,27 @@ export class AuthController {
     });
   }
 
-  @UseGuards(AuthGuard(["local"]))
-  @Post("/logout")
-  async logout(
-    @Request() req: ExpressRequest,
-    @Res() res: ExpressResponse,
-    @Next() next: ExpressNextFunction,
-  ) {
-    return req.logout((err) => {
-      if (err) next(err);
+  @UseGuards(AuthGuard(["jwt"]))
+  @Get("/logout")
+  async logout(@Request() req: ExpressRequest, @Res() res: ExpressResponse) {
+    const userId = req.user["userId"] as string;
+    const accessToken = req.user["access_token"] as string;
+    const refreshToken = req.user["refresh_token"] as string;
 
-      res.status(HttpStatus.OK).json({
-        statusCode: HttpStatus.OK,
-        message: "logged out",
-        data: {
-          location: "/",
-        },
-      });
+    await this.cacheManager.set(`${userId}:${accessToken}`, 1, 5 * 60 * 1000);
+    await this.cacheManager.set(
+      `${userId}:${refreshToken}`,
+      1,
+      30 * 24 * 60 * 60 * 1000,
+    );
+
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "logged out successfully",
+      data: null,
     });
   }
 
@@ -116,6 +123,18 @@ export class AuthController {
     const userId = req.user["sub"];
     const refreshToken = req.user["refreshToken"];
 
+    const refreshTokenInCache = await this.cacheManager.get<number>(
+      `${userId}:${refreshToken}`,
+    );
+
+    if (refreshTokenInCache) {
+      res.status(HttpStatus.FORBIDDEN).json({
+        statusCoe: HttpStatus.FORBIDDEN,
+        message: "refreshToken invalid",
+        data: null,
+      });
+    }
+
     const data = await this.authService.refreshToken(userId, refreshToken);
 
     res.cookie("access_token", data.access_token, this.cookieOptions);
@@ -123,7 +142,7 @@ export class AuthController {
 
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
-      message: "logged in",
+      message: "refreshed new access token",
       data,
     });
   }

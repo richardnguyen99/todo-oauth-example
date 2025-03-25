@@ -108,19 +108,40 @@ export class UsersService {
     return this.userModel.find().exec();
   }
 
-  async findOneWithOAuth(
-    oauthUserDto: OauthUserDto,
-  ): Promise<User | undefined> {
-    return this.userModel
-      .findOne({
-        accounts: {
-          $elemMatch: {
-            oauthProvider: oauthUserDto.oauthProvider,
-            oauthId: oauthUserDto.oauthId,
-          },
+  async findOneWithOAuth(oauthUserDto: OauthUserDto): Promise<User | null> {
+    const users = await this.userModel.aggregate([
+      // Lookup to join accounts collection
+      {
+        $lookup: {
+          from: "accounts",
+          localField: "accounts",
+          foreignField: "_id",
+          as: "accountDocs",
         },
-      })
-      .populate("accounts");
+      },
+      // Unwind the accounts array to filter them
+      { $unwind: "$accountDocs" },
+      // Match on oauthProvider and oauthId
+      {
+        $match: {
+          "accountDocs.oauthProvider": oauthUserDto.oauthProvider,
+          "accountDocs.oauthId": oauthUserDto.oauthId,
+        },
+      },
+      {
+        $project: {
+          username: 1,
+          email: 1,
+          emailVerified: 1,
+          avatar: 1,
+          accounts: 1,
+          accountDocs: 1, // contains matched account
+        },
+      },
+    ]);
+
+    // Return first matching user (or null)
+    return users[0] || null;
   }
 
   async findOneById(id: string): Promise<UserDocument | undefined> {
