@@ -8,6 +8,9 @@ async function bootstrap() {
 
   app.setGlobalPrefix("/v1/api");
   app.use(cookieParser());
+  app.enableCors({
+    origin: "http://localhost:8888",
+  });
 
   await app.listen(7777);
 }
