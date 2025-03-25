@@ -14,10 +14,13 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
   }
 
   handleRequest(err: any, user: any, _info: any) {
+    console.log("user", user);
+
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
       throw err || new UnauthorizedException();
     }
+
     return user;
   }
 }

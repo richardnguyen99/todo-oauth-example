@@ -33,6 +33,28 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get("@me")
+  @Header("Content-Type", "application/json")
+  async findMyAccount(@Req() req: ExpressRequest, @Res() res: ExpressResponse) {
+    const user = await this.userService.findOneById((req.user as any).userId);
+
+    if (!user) {
+      res.status(HttpStatus.NOT_FOUND).json({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: `Username 'id=${(req.user as any).userId}' does not exist`,
+        data: null,
+      });
+      return;
+    }
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "OK",
+      data: user,
+    });
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get(":id")
   @Header("Content-Type", "application/json")
   async fineOne(

@@ -58,11 +58,7 @@ export class AuthController {
     res.cookie("access_token", data.access_token, this.cookieOptions);
     res.cookie("refresh_token", data.refresh_token, this.cookieOptions);
 
-    res.status(HttpStatus.OK).json({
-      statusCode: HttpStatus.OK,
-      message: "logged in",
-      data,
-    });
+    res.redirect(`${process.env.WEB_URL}/`);
   }
 
   @UseGuards(AuthGuard(["google-oauth2"]))
@@ -86,11 +82,7 @@ export class AuthController {
     res.cookie("access_token", data.access_token, this.cookieOptions);
     res.cookie("refresh_token", data.refresh_token, this.cookieOptions);
 
-    res.status(HttpStatus.OK).json({
-      statusCode: HttpStatus.OK,
-      message: "logged in",
-      data,
-    });
+    res.redirect(`${process.env.WEB_URL}/`);
   }
 
   @UseGuards(AuthGuard(["jwt"]))
