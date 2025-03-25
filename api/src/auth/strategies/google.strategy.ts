@@ -31,14 +31,22 @@ export class GoogleStrategy extends PassportStrategy(
         "openid",
         "https://www.googleapis.com/auth/userinfo.profile",
       ],
-      passReqToCallback: true,
     });
+  }
+
+  /**
+   * Use to request refresh_token from Google OAuth2 response
+   */
+  authorizationParams(): { [key: string]: string } {
+    return {
+      access_type: "offline",
+      prompt: "consent",
+    };
   }
 
   async validate(
     accessToken: string,
     refreshToken: string,
-    _params: any,
     profile: Profile,
     cb: VerifyCallback,
   ) {
