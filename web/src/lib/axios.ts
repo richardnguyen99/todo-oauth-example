@@ -5,6 +5,17 @@ import axios, {
   AxiosResponse,
 } from "axios";
 
+interface FetchItemOptions {
+  method: string;
+  body?: unknown;
+}
+
+class FetchError extends Error {
+  constructor(public res: Response, message?: string) {
+    super(message);
+  }
+}
+
 let isRefreshing = false;
 let failedQueue: {
   resolve: (value?: unknown) => void;

@@ -9,12 +9,31 @@ import AnonymousCard from "./features/anonymous-card";
 import AuthenticatedCard from "./features/authenticated-card";
 import api from "@/lib/axios";
 import ErrorCard from "./features/error-card";
+import { useUserStore } from "@/providers/user-store-provider";
 
-export default function Home(): JSX.Element {
+export default function UserCard(): JSX.Element {
+  const { user, login } = useUserStore((state) => state);
   const { isPending, error, data } = useQuery<any, AxiosError>({
     queryKey: ["@me"],
     queryFn: async () => {
       const { data } = await api.get("/users/@me");
+
+      login({
+        user: {
+          id: data.data._id,
+          username: data.data.username,
+          email: data.data.email,
+          avatar: data.data.avatar,
+          createdAt: new Date(data.data.createdAt),
+          updatedAt: new Date(data.data.updatedAt),
+          verified: true,
+          accounts: data.data.accounts.map((account: any) => ({
+            oauthId: account.oauthId,
+            oauthProvider: account.oauthProvider,
+          })),
+        },
+      });
+
       return data;
     },
     retry: false,
@@ -33,17 +52,7 @@ export default function Home(): JSX.Element {
   if (isPending) return <SkeletonCard />;
 
   return !error && data.statusCode === 200 ? (
-    <AuthenticatedCard
-      user={{
-        id: data.data._id,
-        username: data.data.username,
-        email: data.data.email,
-        profilePicture: data.data.avatar,
-        createdAt: data.data.createdAt,
-        updatedAt: data.data.updatedAt,
-        verified: true,
-      }}
-    />
+    <AuthenticatedCard />
   ) : (
     <AnonymousCard />
   );

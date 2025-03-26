@@ -2,6 +2,7 @@
 
 import React, { type JSX } from "react";
 import { CalendarDays, Mail, Edit, LogOut } from "lucide-react";
+import clsx from "clsx";
 
 import {
   Card,
@@ -12,26 +13,15 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import clsx from "clsx";
+import { useUserStore } from "@/providers/user-store-provider";
 
-// Define the User type
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  profilePicture?: string;
-  createdAt: string;
-  updatedAt: string;
-  verified: boolean;
-}
+export default function AuthenticatedCard(): JSX.Element {
+  const { user } = useUserStore((state) => state);
 
-interface UserProfileCardProps {
-  user: User;
-}
+  if (user === null) {
+    throw new Error("User is not authenticated");
+  }
 
-export default function AuthenticatedCard({
-  user,
-}: UserProfileCardProps): JSX.Element {
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
     return name
@@ -46,25 +36,25 @@ export default function AuthenticatedCard({
       <CardHeader className="pt-6 flex flex-col items-center space-y-3">
         <div className="relative">
           <Avatar className="h-24 w-24 border-4 border-background">
-            <AvatarImage src={user.profilePicture} alt={user.username} />
+            <AvatarImage src={user.avatar} alt={user.username} />
             <AvatarFallback className="text-xl">
-              {getInitials(user.username)}
+              {getInitials(user.username || "")}
             </AvatarFallback>
           </Avatar>
           <span
             className={clsx(
               "absolute bottom-1 right-1 h-4 w-4 rounded-full ring-2 ring-background",
               {
-                "bg-green-500": user.verified,
-                "bg-gray-400": !user.verified,
+                "bg-green-500": user?.verified,
+                "bg-gray-400": !user?.verified,
               }
             )}
             title={`${user.verified ? "Verified" : "Not verified"}`}
           />
         </div>
 
-        <div className="text-center space-y-1">
-          <h2 className="text-2xl font-bold">{user.username}</h2>
+        <div className="text-center space-y-1 w-full">
+          <h2 className="text-2xl font-bold line-clamp-1">{user.username}</h2>
           <Badge variant="secondary" className="font-normal">
             {user.id}
           </Badge>
@@ -81,7 +71,7 @@ export default function AuthenticatedCard({
           <CalendarDays className="h-4 w-4" />
           <span>
             Joined{" "}
-            {new Date(user.createdAt).toLocaleDateString("en-US", {
+            {user.createdAt.toLocaleDateString("en-US", {
               year: "numeric",
               month: "short",
               day: "2-digit",
