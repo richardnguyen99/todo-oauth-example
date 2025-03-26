@@ -2,25 +2,37 @@
 
 import React, { type JSX } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 import SkeletonCard from "./features/skeleton-card";
 import AnonymousCard from "./features/anonymous-card";
 import AuthenticatedCard from "./features/authenticated-card";
+import api from "@/lib/axios";
+import ErrorCard from "./features/error-card";
 
 export default function Home(): JSX.Element {
-  const { isPending, error, data } = useQuery({
+  const { isPending, error, data } = useQuery<any, AxiosError>({
     queryKey: ["@me"],
-    queryFn: () =>
-      fetch("http://localhost:7777/v1/api/users/@me", {
-        credentials: "include",
-      }).then((res) => res.json()),
+    queryFn: async () => {
+      const { data } = await api.get("/users/@me");
+      return data;
+    },
+    retry: false,
+    refetchInterval: 5 * 60 * 1000,
   });
 
-  if (error) return <p>An error has occurred: {error.message}</p>;
+  if (error && error.status !== 401)
+    return (
+      <ErrorCard
+        statusCode={error.status || 500}
+        message={error.message}
+        title={error.code || "An error occurred"}
+      />
+    );
 
   if (isPending) return <SkeletonCard />;
 
-  return data.statusCode === 200 ? (
+  return !error && data.statusCode === 200 ? (
     <AuthenticatedCard
       user={{
         id: data.data._id,

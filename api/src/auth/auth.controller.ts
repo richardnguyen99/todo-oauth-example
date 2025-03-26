@@ -18,6 +18,7 @@ import { Cache } from "cache-manager";
 
 import { AuthService } from "./auth.service";
 import { UserDocument } from "src/users/schemas/user.schema";
+import { ResponsePayloadDto } from "src/dto/response.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -102,11 +103,7 @@ export class AuthController {
     res.clearCookie("access_token");
     res.clearCookie("refresh_token");
 
-    res.status(HttpStatus.OK).json({
-      statusCode: HttpStatus.OK,
-      message: "logged out successfully",
-      data: null,
-    });
+    res.redirect(`${process.env.WEB_URL}/`);
   }
 
   @UseGuards(AuthGuard(["refresh-token"]))
@@ -121,10 +118,10 @@ export class AuthController {
 
     if (refreshTokenInCache) {
       res.status(HttpStatus.FORBIDDEN).json({
-        statusCoe: HttpStatus.FORBIDDEN,
+        statusCode: HttpStatus.FORBIDDEN,
         message: "refreshToken invalid",
         data: null,
-      });
+      } satisfies ResponsePayloadDto);
     }
 
     const data = await this.authService.refreshToken(userId, refreshToken);
@@ -136,6 +133,6 @@ export class AuthController {
       statusCode: HttpStatus.OK,
       message: "refreshed new access token",
       data,
-    });
+    } satisfies ResponsePayloadDto);
   }
 }

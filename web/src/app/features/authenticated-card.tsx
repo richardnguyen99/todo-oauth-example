@@ -9,7 +9,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import clsx from "clsx";
@@ -99,18 +99,23 @@ export default function AuthenticatedCard({
               onClick={() => console.log("Edit profile clicked")}
             >
               <Edit className="h-4 w-4 mr-2" />
-              Edit Profile
+              Update username
             </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              className="justify-start text-destructive hover:text-destructive"
-              onClick={() => console.log("Logout clicked")}
+            <a
+              href={`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`}
+              className={clsx(
+                buttonVariants({
+                  variant: "outline",
+                  size: "sm",
+                  className:
+                    "justify-start text-destructive hover:text-destructive",
+                })
+              )}
             >
               <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
+              Log out
+            </a>
           </div>
         </div>
       </CardContent>
