@@ -1,5 +1,3 @@
-"use client";
-
 import React, { type JSX } from "react";
 import { CalendarDays, Mail, Edit, LogOut } from "lucide-react";
 import clsx from "clsx";
@@ -14,14 +12,13 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useUserStore } from "@/providers/user-store-provider";
+import { UserState, User } from "@/stores/user-store";
 
-export default function AuthenticatedCard(): JSX.Element {
-  const { user } = useUserStore((state) => state);
+type Props = {
+  user: User;
+};
 
-  if (user === null) {
-    throw new Error("User is not authenticated");
-  }
-
+export default function AuthenticatedCard({ user }: Props): JSX.Element {
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
     return name

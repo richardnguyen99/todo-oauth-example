@@ -1,3 +1,4 @@
+import { Axios, AxiosError } from "axios";
 import { createStore } from "zustand/vanilla";
 
 export type Account = {
@@ -16,17 +17,25 @@ export type User = {
   accounts: Account[];
 };
 
+type Status = "success" | "error" | "loading" | "idle";
+
 export type UserState = {
   user: User | null;
+  error: AxiosError | null;
+  status: Status;
 };
 
 export type UserActions = {
   login: (user: UserState) => void;
   logout: () => void;
+  setStatus: (status: Status) => void;
+  setError: (error: AxiosError) => void;
 };
 
 export const defaultInitState: UserState = {
   user: null,
+  status: "loading",
+  error: null,
 };
 
 export type UserStore = UserState & UserActions;
@@ -34,7 +43,10 @@ export type UserStore = UserState & UserActions;
 export const createUserStore = (initState: UserState = defaultInitState) => {
   return createStore<UserStore>()((set) => ({
     ...initState,
-    login: (newState) => set((state) => ({ ...state, user: newState.user })),
-    logout: () => set({ user: null }),
+    login: (newState) =>
+      set((state) => ({ ...state, user: newState.user, status: "success" })),
+    logout: () => set({ user: null, status: "idle" }),
+    setStatus: (status) => set((state) => ({ ...state, status })),
+    setError: (error) => set((state) => ({ ...state, error })),
   }));
 };

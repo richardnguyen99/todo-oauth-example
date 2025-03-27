@@ -1,59 +1,33 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 
-import SkeletonCard from "./features/skeleton-card";
 import AnonymousCard from "./features/anonymous-card";
 import AuthenticatedCard from "./features/authenticated-card";
-import api from "@/lib/axios";
-import ErrorCard from "./features/error-card";
 import { useUserStore } from "@/providers/user-store-provider";
+import ErrorCard from "./features/error-card";
+import SkeletonCard from "./features/skeleton-card";
 
 export default function UserCard(): JSX.Element {
-  const { user, login } = useUserStore((state) => state);
-  const { isPending, error, data } = useQuery<any, AxiosError>({
-    queryKey: ["@me"],
-    queryFn: async () => {
-      const { data } = await api.get("/users/@me");
+  const { user, status, error } = useUserStore((state) => state);
 
-      login({
-        user: {
-          id: data.data._id,
-          username: data.data.username,
-          email: data.data.email,
-          avatar: data.data.avatar,
-          createdAt: new Date(data.data.createdAt),
-          updatedAt: new Date(data.data.updatedAt),
-          verified: true,
-          accounts: data.data.accounts.map((account: any) => ({
-            oauthId: account.oauthId,
-            oauthProvider: account.oauthProvider,
-          })),
-        },
-      });
+  if (user === null && status === "idle") {
+    return <AnonymousCard />;
+  }
 
-      return data;
-    },
-    retry: false,
-    refetchInterval: 5 * 60 * 1000,
-  });
+  if (status === "loading") {
+    return <SkeletonCard />;
+  }
 
-  if (error && error.status !== 401)
+  if (status === "error") {
     return (
       <ErrorCard
-        statusCode={error.status || 500}
-        message={error.message}
-        title={error.code || "An error occurred"}
+        statusCode={error?.status || 400}
+        message={error?.message || "Bad Request"}
+        title={error?.name || "BAD_REQUEST"}
       />
     );
+  }
 
-  if (isPending) return <SkeletonCard />;
-
-  return !error && data.statusCode === 200 ? (
-    <AuthenticatedCard />
-  ) : (
-    <AnonymousCard />
-  );
+  return <AuthenticatedCard user={user!} />;
 }

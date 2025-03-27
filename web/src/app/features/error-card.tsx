@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
 
 interface ErrorCardProps {
   statusCode: number;
