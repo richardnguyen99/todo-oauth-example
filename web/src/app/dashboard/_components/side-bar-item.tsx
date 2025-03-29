@@ -2,6 +2,7 @@
 
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
+import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { Workspace } from "../_types/workspace";
@@ -11,22 +12,23 @@ type Props = {
   workspace: Workspace;
   isActive: boolean;
   isSidebarOpen: boolean;
-  onClick: (workspace: Workspace) => void;
+  href: string;
 };
 
 export default function SideBarItem({
   workspace,
   isActive,
   isSidebarOpen,
-  onClick,
+  href,
 }: Props): JSX.Element {
   const Icon = LucideReact[
     workspace.icon as keyof typeof LucideReact
   ] as React.ComponentType<LucideReact.LucideProps>;
 
   return (
-    <button
+    <Link
       key={workspace.id}
+      href={href}
       className={cn(
         `flex items-center w-full rounded-md py-2 px-2 text-sm font-medium transition-colors`,
         {
@@ -34,7 +36,6 @@ export default function SideBarItem({
           "hover:bg-accent/50 hover:text-accent-foreground": !isActive,
         }
       )}
-      onClick={() => onClick(workspace)}
       title={workspace.name}
     >
       <div
@@ -56,6 +57,6 @@ export default function SideBarItem({
       >
         {workspace.name}
       </span>
-    </button>
+    </Link>
   );
 }

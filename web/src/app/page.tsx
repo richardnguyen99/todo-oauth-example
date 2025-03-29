@@ -328,8 +328,9 @@ export default function HomePage() {
                       ))}
                     </div>
                     <p className="text-muted-foreground">
-                      "I&apos;ve tried many todo apps, but TaskMaster is by far
-                      the most intuitive and feature-rich. Highly recommend!"
+                      &ldquo;I&apos;ve tried many todo apps, but TaskMaster is
+                      by far the most intuitive and feature-rich. Highly
+                      recommend!&rdquo;
                     </p>
                   </div>
                   <div className="mt-6 flex items-center space-x-3">

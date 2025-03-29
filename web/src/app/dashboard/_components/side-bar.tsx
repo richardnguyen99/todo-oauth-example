@@ -9,19 +9,17 @@ import SideBarItem from "./side-bar-item";
 
 type Props = {
   workspaces: Workspace[];
-  activeWorkspace: Workspace;
-  setActiveWorkspace: (workspace: Workspace) => void;
+  activeWorkspace?: Workspace;
 };
 
 export default function SideBar({
   workspaces,
   activeWorkspace,
-  setActiveWorkspace,
 }: Props): JSX.Element {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [isMobile, setIsMobile] = React.useState(false);
   const sidebarRef = React.useRef<HTMLElement>(null);
-  const [sidebarWidth, setSidebarWidth] = React.useState(0);
+  const [, setSidebarWidth] = React.useState(0);
 
   React.useEffect(() => {
     // Check if we're on mobile when component mounts
@@ -79,11 +77,14 @@ export default function SideBar({
         <nav className="space-y-1">
           {workspaces.map((workspace) => (
             <SideBarItem
+              href={`/dashboard/workspace/${workspace.id}`}
               workspace={workspace}
-              isActive={activeWorkspace.id === workspace.id}
+              isActive={
+                typeof activeWorkspace !== "undefined" &&
+                activeWorkspace.id === workspace.id
+              }
               isSidebarOpen={sidebarOpen}
               key={workspace.id}
-              onClick={setActiveWorkspace}
             />
           ))}
         </nav>

@@ -2,11 +2,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import React, { useEffect } from "react";
+import React from "react";
+import { AxiosError } from "axios";
 
 import { useUserStore } from "@/providers/user-store-provider";
 import api from "@/lib/axios";
-import { AxiosError } from "axios";
 
 type ResponseData = {
   statusCode: number;
