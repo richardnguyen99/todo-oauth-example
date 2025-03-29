@@ -1,8 +1,11 @@
+"use client";
+
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Workspace } from "../_types/workspace";
+import SideBarItem from "./side-bar-item";
 
 type Props = {
   workspaces: Workspace[];
@@ -14,7 +17,7 @@ export default function SideBar({
   workspaces,
   activeWorkspace,
   setActiveWorkspace,
-}: Props) {
+}: Props): JSX.Element {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [isMobile, setIsMobile] = React.useState(false);
   const sidebarRef = React.useRef<HTMLElement>(null);
@@ -74,37 +77,15 @@ export default function SideBar({
         </div>
 
         <nav className="space-y-1">
-          {workspaces.map((workspace) => {
-            const Icon = LucideReact[
-              workspace.icon as keyof typeof LucideReact
-            ] as React.ComponentType<LucideReact.LucideProps>;
-
-            return (
-              <button
-                key={workspace.id}
-                className={`flex items-center w-full rounded-md py-2 px-2 text-sm font-medium transition-colors ${
-                  activeWorkspace.id === workspace.id
-                    ? "bg-accent text-accent-foreground"
-                    : "hover:bg-accent/50 hover:text-accent-foreground"
-                }`}
-                onClick={() => setActiveWorkspace(workspace)}
-                title={!sidebarOpen ? workspace.name : undefined}
-              >
-                <div
-                  className={`h-7 w-7 rounded-md flex items-center justify-center ${workspace.color} flex-shrink-0`}
-                >
-                  <Icon className="h-4 w-4 text-white" />
-                </div>
-                <span
-                  className={`whitespace-nowrap transition-all duration-300 ease-in-out overflow-hidden ${
-                    sidebarOpen ? "max-w-[200px] ml-3" : "max-w-0 ml-0"
-                  }`}
-                >
-                  {workspace.name}
-                </span>
-              </button>
-            );
-          })}
+          {workspaces.map((workspace) => (
+            <SideBarItem
+              workspace={workspace}
+              isActive={activeWorkspace.id === workspace.id}
+              isSidebarOpen={sidebarOpen}
+              key={workspace.id}
+              onClick={setActiveWorkspace}
+            />
+          ))}
         </nav>
       </div>
 

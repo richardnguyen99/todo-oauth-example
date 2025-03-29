@@ -17,15 +17,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import SideBar from "./_components/side-bar";
+import { Workspace } from "./_types/workspace";
 
 // Sample data
 const workspaces = [
-  { id: 1, name: "Personal", icon: "Home", color: "bg-blue-500" },
-  { id: 2, name: "Work", icon: "Users", color: "bg-green-500" },
-  { id: 3, name: "Side Projects", icon: "Star", color: "bg-purple-500" },
-  { id: 4, name: "Home Renovation", icon: "Home", color: "bg-orange-500" },
-  { id: 5, name: "Travel Plans", icon: "Calendar", color: "bg-pink-500" },
-];
+  { id: 1, name: "Personal", icon: "Home", color: "blue" },
+  { id: 2, name: "Work", icon: "Users", color: "green" },
+  { id: 3, name: "Side Projects", icon: "Star", color: "purple" },
+  { id: 4, name: "Home Renovation", icon: "Home", color: "orange" },
+  { id: 5, name: "Travel Plans", icon: "Calendar", color: "pink" },
+] satisfies Workspace[];
 
 const tasks = [
   {
@@ -103,7 +104,9 @@ const tasks = [
 ];
 
 export default function TodoPage(): JSX.Element {
-  const [activeWorkspace, setActiveWorkspace] = React.useState(workspaces[0]);
+  const [activeWorkspace, setActiveWorkspace] = React.useState<Workspace>(
+    workspaces[0]
+  );
 
   const Icon = LucideReact[
     activeWorkspace.icon as keyof typeof LucideReact
