@@ -22,6 +22,8 @@ export type Color =
   | "neutral"
   | "stone";
 
+export type ColorMap = Record<Color, string>;
+
 export type Workspace = {
   id: number;
   name: string;
