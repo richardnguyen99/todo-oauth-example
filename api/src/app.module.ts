@@ -11,6 +11,7 @@ import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 import { EncryptionModule } from "./encryption/encryption.module";
+import { WorkspacesModule } from "./workspaces/workspaces.module";
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { EncryptionModule } from "./encryption/encryption.module";
       inject: [ConfigService],
     }),
     EncryptionModule,
+    WorkspacesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

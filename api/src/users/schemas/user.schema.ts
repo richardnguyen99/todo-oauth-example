@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { Document, HydratedDocument } from "mongoose";
 
+import { Workspace } from "src/workspaces/schemas/workspaces.schema";
+
 @Schema({
   collection: "accounts",
   timestamps: true,
@@ -44,6 +46,9 @@ export class User {
 
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: "Account" })
   accounts: Array<mongoose.Types.ObjectId | Account>;
+
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: "Workspace" })
+  workspaces: Array<mongoose.Types.ObjectId | Workspace>;
 }
 
 export type UserDocument = HydratedDocument<User>;
