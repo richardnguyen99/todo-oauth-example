@@ -1,7 +1,7 @@
 import { Axios, AxiosError } from "axios";
 import { createStore } from "zustand/vanilla";
 
-import { Workspace } from "../_types/workspace";
+import { Workspace } from "../workspace/_types/workspace";
 
 export type Account = {
   oauthId: string;

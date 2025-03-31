@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { colors } from "../_constants/colors";
+import { colorMap } from "../_constants/colors";
 import { Workspace } from "../_types/workspace";
 
 type Props = Readonly<{
@@ -28,7 +28,7 @@ export default function TaskMenuBar({ activeWorkspace }: Props): JSX.Element {
         <div
           className={cn(
             `h-8 w-8 rounded-md flex items-center justify-center`,
-            colors[activeWorkspace.color]
+            colorMap[activeWorkspace.color]
           )}
         >
           <Icon className="h-5 w-5 text-white" />

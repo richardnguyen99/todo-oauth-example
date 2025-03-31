@@ -2,14 +2,10 @@
 
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Workspace, WorkspaceResponse } from "../_types/workspace";
-import SideBarItem from "./sidebar-item";
-import api from "@/lib/axios";
-import { AxiosResponse } from "axios";
 import SidebarList from "./sidebar-list";
+import SidebarAddWorkspaceButton from "./sidebar-add-workspace-button";
 
 export default function SideBar(): JSX.Element {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
@@ -62,13 +58,7 @@ export default function SideBar(): JSX.Element {
             </span>
           </h2>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-11 w-11 flex-shrink-0"
-          >
-            <LucideReact.Plus className="h-8 w-8" />
-          </Button>
+          <SidebarAddWorkspaceButton />
         </div>
 
         <SidebarList sidebarOpen={sidebarOpen} />

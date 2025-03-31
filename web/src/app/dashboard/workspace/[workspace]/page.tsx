@@ -3,11 +3,11 @@
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
 
-import SideBar from "../../_components/sidebar";
-import { Workspace } from "../../_types/workspace";
-import TaskMenuBar from "../../_components/task-menubar";
-import TaskForm from "../../_components/task-form";
-import TaskItem from "../../_components/task-item";
+import SideBar from "../_components/sidebar";
+import { Workspace } from "../_types/workspace";
+import TaskMenuBar from "../_components/task-menubar";
+import TaskForm from "../_components/task-form";
+import TaskItem from "../_components/task-item";
 import { useParams, useSearchParams } from "next/navigation";
 import { useWorkspaceStore } from "../../_providers/workspace";
 

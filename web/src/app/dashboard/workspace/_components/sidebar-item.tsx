@@ -6,7 +6,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { Workspace } from "../_types/workspace";
-import { colors } from "../_constants/colors";
+import { colorMap } from "../_constants/colors";
 
 type Props = {
   workspace: Workspace;
@@ -41,7 +41,7 @@ export default function SideBarItem({
       <div
         className={cn(
           `h-7 w-7 rounded-md flex items-center justify-center flex-shrink-0`,
-          colors[workspace.color]
+          colorMap[workspace.color]
         )}
       >
         <Icon className="h-4 w-4 text-white" />

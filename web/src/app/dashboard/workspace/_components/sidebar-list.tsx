@@ -2,7 +2,7 @@ import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
 
 import SideBarItem from "./sidebar-item";
-import { useWorkspaceStore } from "../_providers/workspace";
+import { useWorkspaceStore } from "../../_providers/workspace";
 
 type Props = Readonly<{
   sidebarOpen?: boolean;

@@ -1,8 +1,8 @@
 import React, { type JSX } from "react";
 
-import SideBar from "../_components/sidebar";
+import SideBar from "./_components/sidebar";
 import { WorkspaceStoreProvider } from "../_providers/workspace";
-import WorkspaceInitializer from "../_components/workspace-initializer";
+import WorkspaceInitializer from "./_components/workspace-initializer";
 
 type Props = {
   children: React.ReactNode;

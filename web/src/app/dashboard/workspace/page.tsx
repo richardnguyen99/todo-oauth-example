@@ -10,7 +10,7 @@ import api from "@/lib/axios";
 import { useUserStore } from "@/providers/user-store-provider";
 import Redirect from "@/components/redirect";
 import { useWorkspaceStore } from "../_providers/workspace";
-import { Workspace } from "../_types/workspace";
+import { Workspace } from "./_types/workspace";
 
 type ResponseData = {
   statusCode: number;
