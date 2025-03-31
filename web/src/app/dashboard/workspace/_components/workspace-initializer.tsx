@@ -15,8 +15,7 @@ type ResponseData = {
 };
 
 export default function WorkspaceInitializer() {
-  const { setWorkspaces, setActiveWorkspace, setStatus, setError } =
-    useWorkspaceStore((s) => s);
+  const { setWorkspaces, setStatus, setError } = useWorkspaceStore((s) => s);
   const { isLoading, isPending, isError, data, error } = useQuery<
     ResponseData,
     AxiosError
@@ -49,10 +48,7 @@ export default function WorkspaceInitializer() {
         (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
       );
 
-      const activeWorkspace = sortedWorkspaces[0];
-
       setWorkspaces(data.data);
-      setActiveWorkspace(activeWorkspace);
       return;
     }
 

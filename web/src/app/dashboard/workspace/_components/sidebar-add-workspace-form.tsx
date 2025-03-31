@@ -2,42 +2,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import {
-  Briefcase,
-  Calendar,
-  Code,
-  Cog,
-  FileText,
-  Folder,
-  Gem,
-  Globe,
-  GraduationCap,
-  Heart,
-  Home,
-  Image,
-  Inbox,
-  Laptop,
-  Leaf,
-  Library,
-  LifeBuoy,
-  Lightbulb,
-  Map,
-  MessageSquare,
-  Music,
-  Package,
-  Palette,
-  PenTool,
-  ShoppingCart,
-  Star,
-  LuggageIcon as Suitcase,
-  Tag,
-  Target,
-  Ticket,
-  Utensils,
-  Users,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
+import { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -61,10 +27,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { colorList, colorMap } from "../_constants/colors";
 import { icons } from "../_constants/icons";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useWorkspaceStore } from "../../_providers/workspace";
+import api from "@/lib/axios";
+import { Color, Workspace } from "../_types/workspace";
 
 // Create a Zod schema for form validation
 const formSchema = z.object({
-  name: z.string().min(1, "Workspace name is required"),
+  title: z.string().min(1, "Workspace name is required"),
   icon: z
     .string({
       required_error: "Please select an icon",
@@ -85,21 +55,64 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface AddWorkspaceFormProps {
-  onSubmit: (values: FormValues) => void;
   onCancel: () => void;
 }
 
-export function AddWorkspaceForm({
-  onSubmit,
-  onCancel,
-}: AddWorkspaceFormProps) {
+export function AddWorkspaceForm({ onCancel }: AddWorkspaceFormProps) {
+  const queryClient = useQueryClient();
+  const { push } = useRouter();
+
   // Initialize the form with default values
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      title: "",
       icon: "Folder",
       color: "green",
+    },
+  });
+
+  const { setWorkspaces, workspaces } = useWorkspaceStore((s) => s);
+  const { mutate } = useMutation({
+    mutationKey: ["add-workspace"],
+    mutationFn: async (newWorkspace: {
+      title: string;
+      color: string;
+      icon: string;
+    }) => {
+      const response = await api.post("/workspaces/new", newWorkspace);
+
+      const newWorkspaces = [
+        ...workspaces,
+        {
+          _id: response.data.data._id,
+          title: response.data.data.title,
+          color: response.data.data.color as Color,
+          icon: response.data.data.icon,
+          createdAt: new Date(response.data.data.createdAt),
+          updatedAt: new Date(response.data.data.updatedAt),
+          members: response.data.data.members,
+        } satisfies Workspace,
+      ].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+
+      setWorkspaces(newWorkspaces);
+
+      return response.data;
+    },
+
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["fetch-workspace"] });
+      onCancel();
+
+      push(`/dashboard/workspace/${data.data._id}`);
+    },
+
+    onError: (error: AxiosError) => {
+      form.setError("root.badRequest", {
+        type: "400",
+        message: (error.response?.data as any).message,
+      });
+      console.error("Error creating workspace:", error);
     },
   });
 
@@ -113,15 +126,20 @@ export function AddWorkspaceForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={form.handleSubmit((values) =>
+          mutate(values, { onSuccess: () => form.reset() })
+        )}
+        className="space-y-6"
+      >
         <FormField
           control={form.control}
-          name="name"
+          name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Workspace Name</FormLabel>
+              <FormLabel>Workspace Title</FormLabel>
               <FormControl>
-                <Input placeholder="Enter workspace name" {...field} />
+                <Input placeholder="Enter workspace title" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -217,7 +235,7 @@ export function AddWorkspaceForm({
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-medium">
-                {watchedValues.name || "Workspace Name"}
+                {watchedValues.title || "Workspace Name"}
               </span>
               <span className="text-xs text-muted-foreground">
                 {selectedColorName} • {watchedValues.icon}
@@ -226,11 +244,19 @@ export function AddWorkspaceForm({
           </div>
         </div>
 
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit">Create Workspace</Button>
+        <div>
+          {form.formState.errors.root?.badRequest && (
+            <div className="text-red-500 text-sm">
+              {form.formState.errors.root?.badRequest.message}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 mt-4">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="submit">Create Workspace</Button>
+          </div>
         </div>
       </form>
     </Form>

@@ -1,25 +1,13 @@
 "use client";
 
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { LoaderCircleIcon } from "lucide-react";
-import { AxiosError } from "axios";
 
-import api from "@/lib/axios";
-import { useUserStore } from "@/providers/user-store-provider";
 import Redirect from "@/components/redirect";
 import { useWorkspaceStore } from "../_providers/workspace";
-import { Workspace } from "./_types/workspace";
-
-type ResponseData = {
-  statusCode: number;
-  message: string;
-  data: Workspace[];
-};
 
 export default function Page() {
-  const { activeWorkspace, status } = useWorkspaceStore((s) => s);
+  const { workspaces, status } = useWorkspaceStore((s) => s);
 
   if (status === "loading") {
     // If the workspace store is still loading, show a loading spinner
@@ -40,5 +28,5 @@ export default function Page() {
     );
   }
 
-  return <Redirect url={`/dashboard/workspace/${activeWorkspace?._id}`} />;
+  return <Redirect url={`/dashboard/workspace/${workspaces[0]._id}`} />;
 }

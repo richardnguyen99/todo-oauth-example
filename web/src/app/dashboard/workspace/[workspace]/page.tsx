@@ -8,7 +8,7 @@ import { Workspace } from "../_types/workspace";
 import TaskMenuBar from "../_components/task-menubar";
 import TaskForm from "../_components/task-form";
 import TaskItem from "../_components/task-item";
-import { useParams, useSearchParams } from "next/navigation";
+import { notFound, useParams, useSearchParams } from "next/navigation";
 import { useWorkspaceStore } from "../../_providers/workspace";
 
 const tasks = [
@@ -92,33 +92,53 @@ type Props = {
 
 export default function WorkspacePage(): JSX.Element | never {
   const { workspace } = useParams<{ workspace: string }>();
-  const { activeWorkspace, workspaces, status } = useWorkspaceStore((s) => s);
+  const { activeWorkspace, workspaces, status, setActiveWorkspace } =
+    useWorkspaceStore((s) => s);
 
-  if (status === "loading") {
-    // Handle loading state
-    return (
-      <div className="flex items-center justify-center h-full">
-        <LucideReact.LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
+  React.useEffect(() => {
+    if (status === "loading") {
+      return;
+    }
+
+    const activeWorkspaceFromStore = workspaces.find(
+      (ws: Workspace) => ws._id === workspace
     );
-  }
 
-  return (
+    if (activeWorkspaceFromStore) {
+      setActiveWorkspace(activeWorkspaceFromStore);
+    } else {
+      notFound();
+    }
+  }, [status]);
+
+  return status === "loading" ? (
+    // Handle loading state
+    <div className="flex items-center justify-center h-full">
+      <LucideReact.LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+    </div>
+  ) : (
     <div className="max-w-4xl mx-auto">
-      <TaskMenuBar activeWorkspace={activeWorkspace!} />
+      {activeWorkspace && <TaskMenuBar activeWorkspace={activeWorkspace!} />}
 
       <TaskForm />
 
       {/* Tasks List */}
       <div className="space-y-1">
         {tasks
-          .filter((task) => task.workspace === activeWorkspace!.title)
+          .filter(
+            (task) =>
+              activeWorkspace !== null &&
+              task.workspace === activeWorkspace!.title
+          )
           .map((task) => (
             <TaskItem key={task.id} task={task} />
           ))}
 
-        {tasks.filter((task) => task.workspace === activeWorkspace!.title)
-          .length === 0 && (
+        {tasks.filter(
+          (task) =>
+            activeWorkspace !== null &&
+            task.workspace === activeWorkspace!.title
+        ).length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="rounded-full bg-muted p-3 mb-4">
               <LucideReact.CheckCircle className="h-6 w-6 text-muted-foreground" />

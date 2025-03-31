@@ -1,11 +1,11 @@
 "use client";
 
 import React, { type JSX } from "react";
-
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Plus, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import api from "@/lib/axios";
 import {
   Dialog,
   DialogContent,
@@ -15,18 +15,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { AddWorkspaceForm } from "./sidebar-add-workspace-form";
+import { Color, Workspace } from "../_types/workspace";
+import { useWorkspaceStore } from "../../_providers/workspace";
 
 export default function SidebarAddWorkspaceButton(): JSX.Element {
-  const [open, setOpen] = useState(false);
-
-  const handleFormSubmit = (values: {
-    name: string;
-    icon: string;
-    color: string;
-  }) => {
-    // Close dialog
-    setOpen(false);
-  };
+  const [open, setOpen] = React.useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -43,10 +36,7 @@ export default function SidebarAddWorkspaceButton(): JSX.Element {
           </DialogDescription>
         </DialogHeader>
 
-        <AddWorkspaceForm
-          onSubmit={handleFormSubmit}
-          onCancel={() => setOpen(false)}
-        />
+        <AddWorkspaceForm onCancel={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );
