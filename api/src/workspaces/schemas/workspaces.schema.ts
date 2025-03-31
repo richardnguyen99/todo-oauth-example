@@ -6,6 +6,12 @@ import { User } from "src/users/schemas/user.schema";
 @Schema({
   collection: "members",
   timestamps: true,
+  toJSON: {
+    virtuals: true,
+  },
+  toObject: {
+    virtuals: true,
+  },
 })
 export class Member {
   @Prop({ type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" })

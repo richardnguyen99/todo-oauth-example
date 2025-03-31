@@ -3,11 +3,6 @@ import { createStore } from "zustand/vanilla";
 
 import { Workspace } from "../workspace/_types/workspace";
 
-export type Account = {
-  oauthId: string;
-  oauthProvider: string;
-};
-
 type Status = "success" | "error" | "loading" | "idle";
 
 export type WorkspaceState = {

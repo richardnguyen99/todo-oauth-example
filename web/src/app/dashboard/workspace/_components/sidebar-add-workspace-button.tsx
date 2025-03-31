@@ -1,11 +1,9 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { Plus, type LucideIcon } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import api from "@/lib/axios";
 import {
   Dialog,
   DialogContent,
@@ -15,8 +13,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { AddWorkspaceForm } from "./sidebar-add-workspace-form";
-import { Color, Workspace } from "../_types/workspace";
-import { useWorkspaceStore } from "../../_providers/workspace";
 
 export default function SidebarAddWorkspaceButton(): JSX.Element {
   const [open, setOpen] = React.useState(false);

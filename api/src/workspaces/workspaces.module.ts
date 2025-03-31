@@ -18,18 +18,37 @@ import { JwtStrategy } from "src/auth/strategies/jwt.strategy";
   providers: [ConfigService, WorkspacesService, JwtStrategy],
   controllers: [WorkspacesController],
   imports: [
-    MongooseModule.forFeature([
+    MongooseModule.forFeatureAsync([
       {
         name: Workspace.name,
-        schema: WorkspaceSchema,
-      },
-      {
-        name: User.name,
-        schema: UserSchema,
+        useFactory: () => {
+          const schema = WorkspaceSchema;
+          // You can add any additional schema options here
+          return schema;
+        },
       },
       {
         name: Member.name,
-        schema: MemberSchema,
+        useFactory: () => {
+          const schema = MemberSchema;
+
+          schema.virtual("user", {
+            foreignField: "_id",
+            localField: "userId",
+            ref: User.name,
+            justOne: true,
+          });
+
+          return schema;
+        },
+      },
+      {
+        name: User.name,
+        useFactory: () => {
+          const schema = UserSchema;
+          // You can add any additional schema options here
+          return schema;
+        },
       },
     ]),
     JwtModule.registerAsync({

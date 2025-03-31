@@ -126,10 +126,38 @@ export class WorkspacesController {
       return;
     }
 
+    res.status(HttpStatus.CREATED).json({
+      statusCode: HttpStatus.CREATED,
+      message: "OK",
+      data: newWorkspace,
+    } satisfies ResponsePayloadDto);
+  }
+
+  @UseGuards(AuthGuard("jwt"))
+  @Get("/:id/members")
+  async getMembersInWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("id") workspaceId: string,
+  ) {
+    let members: MemberDocument[];
+
+    try {
+      members = await this.workspaceService.getWorkspaceMembers(workspaceId);
+    } catch (e) {
+      const error = e as HttpException;
+      res.status(error.getStatus()).json({
+        statusCode: error.getStatus(),
+        message: `Failed to retrieve members: ${error.message}`,
+        data: null,
+      } satisfies ResponsePayloadDto);
+
+      return;
+    }
+
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       message: "OK",
-      data: newWorkspace,
+      data: members,
     } satisfies ResponsePayloadDto);
   }
 
@@ -236,6 +264,8 @@ export class WorkspacesController {
       );
     } catch (e) {
       const error = e as HttpException;
+
+      console.log("Error adding new member:", error);
 
       res.status(error.getStatus()).json({
         statusCode: error.getStatus(),

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { colorMap } from "../_constants/colors";
 import { Workspace } from "../_types/workspace";
+import ShareWorkspaceDialog from "./share-workspace-dialog";
 
 type Props = Readonly<{
   activeWorkspace: Workspace;
@@ -37,10 +38,11 @@ export default function TaskMenuBar({ activeWorkspace }: Props): JSX.Element {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" className="hidden md:flex">
-          <LucideReact.Users className="mr-2 h-4 w-4" />
-          Share
-        </Button>
+        <ShareWorkspaceDialog
+          workspaceId={activeWorkspace._id}
+          workspaceTitle={activeWorkspace.title}
+          workspaceColor={activeWorkspace.color}
+        />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

@@ -83,7 +83,7 @@ export class WorkspacesService {
     const newMember = new this.memberModel({
       userId: ownerId,
       workspaceId: newWorkspace._id,
-      role: "admin",
+      role: "owner",
       isActive: true,
     });
 
@@ -93,6 +93,28 @@ export class WorkspacesService {
     await newMember.save();
 
     return newWorkspace;
+  }
+
+  async getWorkspaceMembers(workspaceId: string): Promise<MemberDocument[]> {
+    const workspace = await this.findWorkspaceById(workspaceId);
+
+    // Check if the workspace exists
+    if (!workspace) {
+      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
+    }
+
+    // Populate the members of the workspace
+    const workspaceWithMembers = await workspace.populate([
+      {
+        path: "members",
+        populate: {
+          path: "user",
+          model: "User",
+        },
+      },
+    ]);
+
+    return workspaceWithMembers.members as MemberDocument[];
   }
 
   async addMemberToWorkspace(
