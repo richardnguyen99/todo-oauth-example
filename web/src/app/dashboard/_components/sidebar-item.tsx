@@ -27,7 +27,7 @@ export default function SideBarItem({
 
   return (
     <Link
-      key={workspace.id}
+      key={workspace._id}
       href={href}
       className={cn(
         `flex items-center w-full rounded-md py-2 px-2 text-sm font-medium transition-colors`,
@@ -36,7 +36,7 @@ export default function SideBarItem({
           "hover:bg-accent/50 hover:text-accent-foreground": !isActive,
         }
       )}
-      title={workspace.name}
+      title={workspace.title}
     >
       <div
         className={cn(
@@ -55,7 +55,7 @@ export default function SideBarItem({
           }
         )}
       >
-        {workspace.name}
+        {workspace.title}
       </span>
     </Link>
   );

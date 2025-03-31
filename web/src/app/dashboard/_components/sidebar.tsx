@@ -2,20 +2,16 @@
 
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Workspace } from "../_types/workspace";
-import SideBarItem from "./side-bar-item";
+import { Workspace, WorkspaceResponse } from "../_types/workspace";
+import SideBarItem from "./sidebar-item";
+import api from "@/lib/axios";
+import { AxiosResponse } from "axios";
+import SidebarList from "./sidebar-list";
 
-type Props = {
-  workspaces: Workspace[];
-  activeWorkspace?: Workspace;
-};
-
-export default function SideBar({
-  workspaces,
-  activeWorkspace,
-}: Props): JSX.Element {
+export default function SideBar(): JSX.Element {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [isMobile, setIsMobile] = React.useState(false);
   const sidebarRef = React.useRef<HTMLElement>(null);
@@ -59,12 +55,13 @@ export default function SideBar({
           <h2 className="text-lg font-semibold whitespace-nowrap">
             <span
               className={`inline-block transition-all duration-300 ease-in-out overflow-hidden  align-middle ${
-                sidebarOpen ? "max-w-[200px] ml-3" : "max-w-0 ml-0"
+                sidebarOpen ? "max-w-[200px] mr-3" : "max-w-0 mr-0"
               }`}
             >
               Workspaces
             </span>
           </h2>
+
           <Button
             variant="ghost"
             size="icon"
@@ -74,20 +71,7 @@ export default function SideBar({
           </Button>
         </div>
 
-        <nav className="space-y-1">
-          {workspaces.map((workspace) => (
-            <SideBarItem
-              href={`/dashboard/workspace/${workspace.id}`}
-              workspace={workspace}
-              isActive={
-                typeof activeWorkspace !== "undefined" &&
-                activeWorkspace.id === workspace.id
-              }
-              isSidebarOpen={sidebarOpen}
-              key={workspace.id}
-            />
-          ))}
-        </nav>
+        <SidebarList sidebarOpen={sidebarOpen} />
       </div>
 
       {/* Sidebar Toggle Button */}

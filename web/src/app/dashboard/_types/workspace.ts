@@ -25,8 +25,17 @@ export type Color =
 export type ColorMap = Record<Color, string>;
 
 export type Workspace = {
-  id: number;
-  name: string;
+  _id: string;
+  title: string;
   icon: string;
   color: Color;
+  createdAt: Date;
+  updatedAt: Date;
+  members: string[];
+};
+
+export type WorkspaceResponse = {
+  statusCode: number;
+  message: string;
+  data: Workspace[];
 };

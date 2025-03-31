@@ -33,7 +33,7 @@ export default function TaskMenuBar({ activeWorkspace }: Props): JSX.Element {
         >
           <Icon className="h-5 w-5 text-white" />
         </div>
-        <h1 className="text-2xl font-bold">{activeWorkspace.name}</h1>
+        <h1 className="text-2xl font-bold">{activeWorkspace.title}</h1>
       </div>
 
       <div className="flex items-center gap-2">

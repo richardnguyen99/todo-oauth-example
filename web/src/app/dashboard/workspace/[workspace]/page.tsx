@@ -1,21 +1,15 @@
+"use client";
+
 import React, { type JSX } from "react";
-import { notFound } from "next/navigation";
 import * as LucideReact from "lucide-react";
 
-import SideBar from "../../_components/side-bar";
+import SideBar from "../../_components/sidebar";
 import { Workspace } from "../../_types/workspace";
 import TaskMenuBar from "../../_components/task-menubar";
 import TaskForm from "../../_components/task-form";
 import TaskItem from "../../_components/task-item";
-
-// Sample data
-const workspaces = [
-  { id: 1, name: "Personal", icon: "Home", color: "blue" },
-  { id: 2, name: "Work", icon: "Users", color: "green" },
-  { id: 3, name: "Side Projects", icon: "Star", color: "purple" },
-  { id: 4, name: "Home Renovation", icon: "Home", color: "orange" },
-  { id: 5, name: "Travel Plans", icon: "Calendar", color: "pink" },
-] satisfies Workspace[];
+import { useParams, useSearchParams } from "next/navigation";
+import { useWorkspaceStore } from "../../_providers/workspace";
 
 const tasks = [
   {
@@ -96,34 +90,34 @@ type Props = {
   params: Promise<{ workspace: string }>;
 };
 
-export default async function WorkspacePage({
-  params,
-}: Props): Promise<JSX.Element | never> {
-  const { workspace } = await params;
+export default function WorkspacePage(): JSX.Element | never {
+  const { workspace } = useParams<{ workspace: string }>();
+  const { activeWorkspace, workspaces, status } = useWorkspaceStore((s) => s);
 
-  const activeWorkspace = workspaces.find(
-    (ws) => ws.id === Number.parseInt(workspace)
-  );
-
-  if (!activeWorkspace) {
-    notFound();
+  if (status === "loading") {
+    // Handle loading state
+    return (
+      <div className="flex items-center justify-center h-full">
+        <LucideReact.LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
   }
 
   return (
     <div className="max-w-4xl mx-auto">
-      <TaskMenuBar activeWorkspace={activeWorkspace} />
+      <TaskMenuBar activeWorkspace={activeWorkspace!} />
 
       <TaskForm />
 
       {/* Tasks List */}
       <div className="space-y-1">
         {tasks
-          .filter((task) => task.workspace === activeWorkspace.name)
+          .filter((task) => task.workspace === activeWorkspace!.title)
           .map((task) => (
             <TaskItem key={task.id} task={task} />
           ))}
 
-        {tasks.filter((task) => task.workspace === activeWorkspace.name)
+        {tasks.filter((task) => task.workspace === activeWorkspace!.title)
           .length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="rounded-full bg-muted p-3 mb-4">

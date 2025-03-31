@@ -2,20 +2,11 @@ import React, { type JSX } from "react";
 import { notFound } from "next/navigation";
 import * as LucideReact from "lucide-react";
 
-import SideBar from "../../_components/side-bar";
+import SideBar from "../../_components/sidebar";
 import { Workspace } from "../../_types/workspace";
 import TaskMenuBar from "../../_components/task-menubar";
 import TaskForm from "../../_components/task-form";
 import TaskItem from "../../_components/task-item";
-
-// Sample data
-const workspaces = [
-  { id: 1, name: "Personal", icon: "Home", color: "blue" },
-  { id: 2, name: "Work", icon: "Users", color: "green" },
-  { id: 3, name: "Side Projects", icon: "Star", color: "purple" },
-  { id: 4, name: "Home Renovation", icon: "Home", color: "orange" },
-  { id: 5, name: "Travel Plans", icon: "Calendar", color: "pink" },
-] satisfies Workspace[];
 
 const tasks = [
   {
@@ -101,22 +92,5 @@ export default async function WorkspacePage({
   children,
   params,
 }: Props): Promise<JSX.Element | never> {
-  const { workspace } = await params;
-
-  const activeWorkspace = workspaces.find(
-    (ws) => ws.id === Number.parseInt(workspace)
-  );
-
-  return (
-    <div className="flex min-h-screen flex-col">
-      <div className="flex flex-1 relative">
-        <SideBar activeWorkspace={activeWorkspace} workspaces={workspaces} />
-
-        {/* Main Content */}
-        <main className="flex-1 p-4 md:p-6 transition-all duration-300 ease-in-out">
-          {children}
-        </main>
-      </div>
-    </div>
-  );
+  return <>{children}</>;
 }
