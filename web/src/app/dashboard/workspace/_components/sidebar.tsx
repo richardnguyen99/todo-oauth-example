@@ -3,7 +3,6 @@
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import SidebarList from "./sidebar-list";
 import SidebarAddWorkspaceButton from "./sidebar-add-workspace-button";
 

@@ -39,7 +39,6 @@ export default function WorkspaceInitializer() {
     }
 
     if (data) {
-      console.log("Fetched workspaces:", data.data);
       data.data.forEach((workspace) => {
         // Ensure the dates are parsed correctly
         workspace.createdAt = new Date(workspace.createdAt);
