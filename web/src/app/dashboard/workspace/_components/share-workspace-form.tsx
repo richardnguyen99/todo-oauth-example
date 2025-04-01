@@ -131,7 +131,9 @@ export default function ShareWorkspaceForm({
               <FormControl>
                 <Input
                   className="mt-2"
-                  placeholder="username or email"
+                  placeholder="user id"
+                  autoFocus={false}
+                  autoComplete="off"
                   {...field}
                 />
               </FormControl>

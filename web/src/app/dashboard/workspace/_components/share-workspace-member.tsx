@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import React, { type JSX } from "react";
 import { format } from "date-fns";
-import { UserCog, Trash2, PenLine, PenOff, Pen } from "lucide-react";
+import { UserCog, Trash2, PenOff, Pen } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,39 +14,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Member, MemberRole } from "../_types/member";
+import { Member } from "../_types/member";
 import { useUserStore } from "@/providers/user-store-provider";
 import { useWorkspaceStore } from "../../_providers/workspace";
+import ShareWorkspaceUpdateDialog from "./share-workspace-update-dialog";
+import ShareWorkspaceDeleteDialog from "./share-workspace-delete-dialog";
 
 export interface WorkspaceMemberProps {
   member: Member;
-  onUpdateRole?: (
-    id: string | number,
-    newRole: Omit<MemberRole, "owner">
-  ) => void;
-  onRemoveMember?: (id: string | number) => void;
 }
 
 export default function ShareWorkspaceMemberItem({
   member,
-  onUpdateRole,
-  onRemoveMember,
-}: WorkspaceMemberProps) {
+}: WorkspaceMemberProps): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
   const { user } = useUserStore((s) => s);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-  const [showUpdateAlert, setShowUpdateAlert] = useState(false);
+
+  const [showDropdown, setShowDropdown] = React.useState(false);
+  const [showDeleteAlert, setShowDeleteAlert] = React.useState(false);
+  const [showUpdateAlert, setShowUpdateAlert] = React.useState(false);
 
   // Format the joined date
   const formattedDate =
@@ -57,22 +43,6 @@ export default function ShareWorkspaceMemberItem({
   // Disable dropdown if the user is not the owner
   const dropdownDisable =
     activeWorkspace?.owner !== user?.id || member.role === "owner";
-
-  // Handle member.role update
-  const handleRoleUpdate = () => {
-    if (onUpdateRole) {
-      const newRole = member.role;
-      onUpdateRole(member._id, newRole);
-    }
-  };
-
-  // Handle member removal
-  const handleRemoveMember = () => {
-    if (onRemoveMember) {
-      onRemoveMember(member._id);
-    }
-    setShowDeleteAlert(false);
-  };
 
   return (
     <>
@@ -149,101 +119,17 @@ export default function ShareWorkspaceMemberItem({
         </DropdownMenu>
       </li>
 
-      {/* Update confirmation dialog */}
-      <AlertDialog open={showUpdateAlert} onOpenChange={setShowUpdateAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Update member</AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div>
-                <p>
-                  Are you sure that you want to update the user role to the
-                  following information?
-                </p>
-                <br />
-                <p>
-                  <strong className="text-primary">Username</strong>:{" "}
-                  {member.user.username}
-                </p>
-                <p>
-                  <strong className="text-primary">Current role</strong>:{" "}
-                  {member.role}
-                </p>
-                <p>
-                  <strong className="text-primary">New role</strong>:{" "}
-                  {member.role === "admin" ? "member" : "admin"}
-                </p>
-                <br />
-                <p>
-                  Reminder: roles can do some specified actions on this
-                  workspace
-                </p>
+      <ShareWorkspaceUpdateDialog
+        member={member}
+        show={showUpdateAlert}
+        setShow={setShowUpdateAlert}
+      />
 
-                <ul className="list-disc list-inside mt-2 pl-2">
-                  <li>
-                    <strong>Member</strong>
-                    <ul className="list-[square] list-inside pl-2">
-                      <li>Can view tasks</li>
-                      <li>Can edit tasks</li>
-                      <li>Can delete tasks</li>
-                      <li>Can create tasks</li>
-                    </ul>
-                  </li>
-                  <li className="mt-2">
-                    <strong>Admin</strong>
-                    <ul className="list-[square] list-inside pl-2">
-                      <li>All member tasks</li>
-                      <li>Can invite new members</li>
-                      <li>Can remove members</li>
-                      <li>Can edit workspace settings</li>
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleRemoveMember}
-              className="bg-amber-500 hover:bg-amber-600 focus:ring-amber-500"
-            >
-              Update
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Delete confirmation dialog */}
-      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remove member</AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div>
-                <p>
-                  Are you sure you want to remove the user with the following
-                  handle from the this workspace?
-                </p>
-                <p>
-                  <strong className="text-primary">
-                    {member.user.username}
-                  </strong>
-                </p>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleRemoveMember}
-              className="bg-red-500 hover:bg-red-600 focus:ring-red-500"
-            >
-              Remove
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ShareWorkspaceDeleteDialog
+        member={member}
+        show={showDeleteAlert}
+        setShow={setShowDeleteAlert}
+      />
     </>
   );
 }
