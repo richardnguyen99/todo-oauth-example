@@ -52,11 +52,9 @@ export default function ShareWorkspaceDialog({
         <MemberStoreProvider>
           <div className="mb-6">
             <h3 className="text-sm font-medium mb-3">Current Members</h3>
+
             <ScrollArea className="max-h-[180px]">
-              <ShareWorkspaceList
-                workspaceColor={workspaceColor}
-                workspaceId={workspaceId}
-              />
+              <ShareWorkspaceList workspaceId={workspaceId} />
             </ScrollArea>
           </div>
 

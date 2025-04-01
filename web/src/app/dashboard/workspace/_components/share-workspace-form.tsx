@@ -86,6 +86,9 @@ export default function ShareWorkspaceForm({
         queryKey: ["workspaceMembers", workspaceId],
       });
 
+      data.data.createdAt = new Date(data.data.createdAt);
+      data.data.updatedAt = new Date(data.data.updatedAt);
+
       setMembers([...members, data.data]);
     },
 

@@ -13,17 +13,16 @@ import { Button } from "@/components/ui/button";
 import { colorMap } from "../_constants/colors";
 import { Color } from "../_types/workspace";
 import { useMemberStore } from "../../_providers/member";
+import ShareWorkspaceMemberItem from "./share-workspace-member";
 
 type Props = Readonly<{
   workspaceId: string;
-  workspaceColor: Color;
 }>;
 
 export default function ShareWorkspaceList({
   workspaceId,
-  workspaceColor,
 }: Props): JSX.Element {
-  const { setMembers } = useMemberStore((s) => s);
+  const { members, setMembers } = useMemberStore((s) => s);
 
   const { data, isLoading, isError, error, isPending } = useQuery<
     MemberResponse,
@@ -41,21 +40,25 @@ export default function ShareWorkspaceList({
 
   React.useEffect(() => {
     if (data) {
-      setMembers(data.data);
+      const workspaces = data.data.map((member) => ({
+        ...member,
+        createdAt: new Date(member.createdAt),
+        updatedAt: new Date(member.updatedAt),
+      }));
+
+      setMembers(workspaces);
     }
-  }, []);
+  }, [isPending]);
 
   if (isLoading || isPending) {
     return (
-      <Button variant="outline" size="sm" className="gap-1">
-        <Users className="h-4 w-4" />
+      <div className="space-y-2 h-40 w-full flex items-center justify-center">
         <Loader2Icon className="h-4 w-4 animate-spin text-gray-500" />
-      </Button>
+      </div>
     );
   }
 
   if (isError) {
-    console.error("Error fetching workspace members:", error);
     return (
       <div className="flex items-center justify-center p-4">
         <p className="text-red-500">
@@ -67,32 +70,8 @@ export default function ShareWorkspaceList({
 
   return (
     <ul className="space-y-2">
-      {data.data.map((member) => (
-        <li
-          key={member._id}
-          className="flex items-center justify-between p-2 rounded-md hover:bg-muted"
-        >
-          <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8">
-              <AvatarImage
-                src={member.user.avatar}
-                alt={member.user.username}
-              />
-              <AvatarFallback
-                className={`${colorMap[workspaceColor]} text-white`}
-              >
-                {member.user.username.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="text-sm font-medium">{member.user.username}</p>
-              <p className="text-xs text-muted-foreground">{member.user._id}</p>
-            </div>
-          </div>
-          <span className="text-xs bg-secondary px-2 py-1 rounded-full capitalize">
-            {member.role}
-          </span>
-        </li>
+      {members.map((member) => (
+        <ShareWorkspaceMemberItem key={member._id} member={member} />
       ))}
     </ul>
   );

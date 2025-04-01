@@ -31,6 +31,7 @@ export type Workspace = {
   color: Color;
   createdAt: Date;
   updatedAt: Date;
+  owner: string;
   members: string[];
 };
 
