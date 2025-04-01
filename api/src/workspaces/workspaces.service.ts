@@ -151,10 +151,15 @@ export class WorkspacesService {
     });
     workspace.members.push(newMember._id);
 
-    await newMember.save();
+    const savedMember = await newMember.save();
     await workspace.save();
 
-    return newMember;
+    const returnedMember = await savedMember.populate({
+      path: "user",
+      model: "User",
+    });
+
+    return returnedMember;
   }
 
   async updateMemberInWorkspace(

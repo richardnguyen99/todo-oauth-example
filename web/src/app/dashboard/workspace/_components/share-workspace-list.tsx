@@ -69,7 +69,7 @@ export default function ShareWorkspaceList({
   }
 
   return (
-    <ul className="space-y-2">
+    <ul className="space-y-2 pr-3">
       {members.map((member) => (
         <ShareWorkspaceMemberItem key={member._id} member={member} />
       ))}

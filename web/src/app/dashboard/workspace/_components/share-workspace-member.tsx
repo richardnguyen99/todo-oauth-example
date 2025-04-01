@@ -76,7 +76,7 @@ export default function ShareWorkspaceMemberItem({
 
   return (
     <>
-      <li className="flex items-center justify-between p-2 rounded-md hover:bg-muted group transition-colors duration-200 ease-in-out">
+      <li className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50 group transition-colors duration-200 ease-in-out">
         <div className="flex items-center gap-3 min-w-0">
           <Avatar className="h-9 w-9 flex-shrink-0">
             <AvatarImage src={member.user.avatar} alt={member.user.username} />
@@ -109,7 +109,7 @@ export default function ShareWorkspaceMemberItem({
               variant="ghost"
               size="icon"
               className={cn(
-                "h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out disabled:opacity-0 group-hover:disabled:opacity-50",
+                "h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out disabled:opacity-0 group-hover:disabled:opacity-50 hover:cursor-pointer",
                 {
                   "opacity-100": showDropdown,
                   "cursor-not-allowed": dropdownDisable,
