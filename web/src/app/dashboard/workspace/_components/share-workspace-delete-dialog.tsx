@@ -1,6 +1,7 @@
 "use client";
 
 import React, { type JSX } from "react";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,6 +36,7 @@ export default function ShareWorkspaceDeleteDialog({
                 Are you sure you want to remove the user with the following
                 handle from the this workspace?
               </p>
+              <br />
               <p>
                 <strong className="text-primary">{member.user.username}</strong>
               </p>

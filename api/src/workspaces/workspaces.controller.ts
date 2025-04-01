@@ -284,12 +284,13 @@ export class WorkspacesController {
   }
 
   @UseGuards(AuthGuard("jwt"))
-  @Put("/:id/update_member")
+  @Put("/:workspace_id/update_member/:member_id")
   @Header("Content-Type", "application/json")
   async updateMemberInWorkspace(
     @Req() req: ExpressRequest,
     @Res() res: ExpressResponse,
-    @Param("id") workspaceId: string,
+    @Param("workspace_id") workspaceId: string,
+    @Param("member_id") memberId: string,
   ) {
     const { userId } = req.user as any;
     const body = req.body;
@@ -297,7 +298,7 @@ export class WorkspacesController {
     let member: MemberDocument;
 
     const updateMemberDto = {
-      newMemberId: body.newMemberId,
+      memberId: memberId,
       role: body.role,
     };
 

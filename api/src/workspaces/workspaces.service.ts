@@ -173,23 +173,28 @@ export class WorkspacesService {
       workspaceId,
     );
 
-    const { newMemberId, role } = updateMemberDto; // Destructure to get newMemberId and role
+    const { memberId, role } = updateMemberDto; // Destructure to get newMemberId and role
 
     // Check if the user is already a member of the workspace
     const existingMember = await this.memberModel.findOne({
-      userId: newMemberId,
+      userId: memberId,
       workspaceId: workspace._id,
     });
 
     if (!existingMember) {
       throw new NotFoundException(
-        `User with ID ${newMemberId} is not a member of this workspace.`,
+        `User with ID ${memberId} is not a member of this workspace.`,
       );
     }
 
     if (role) {
       existingMember.role = role;
     }
+
+    await existingMember.populate({
+      path: "user",
+      model: "User",
+    });
 
     return existingMember;
   }

@@ -7,7 +7,7 @@ export class UpdateMemberDto {
   @IsString({
     message: "New member ID must be a string",
   })
-  newMemberId: string;
+  memberId: string;
 
   @IsOptional()
   @IsString({

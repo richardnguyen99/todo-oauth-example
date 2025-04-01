@@ -4,7 +4,9 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import api from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -27,9 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { colorList, colorMap } from "../_constants/colors";
 import { icons } from "../_constants/icons";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWorkspaceStore } from "../../_providers/workspace";
-import api from "@/lib/axios";
 import { Color, Workspace } from "../_types/workspace";
 
 // Create a Zod schema for form validation
@@ -92,6 +92,7 @@ export function AddWorkspaceForm({ onCancel }: AddWorkspaceFormProps) {
           createdAt: new Date(response.data.data.createdAt),
           updatedAt: new Date(response.data.data.updatedAt),
           members: response.data.data.members,
+          owner: response.data.data.owner,
         } satisfies Workspace,
       ].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
