@@ -13,6 +13,10 @@ export type Member = {
   user: User;
 };
 
+export type UpdateMemberParams = {
+  role: Omit<MemberRole, "owner">;
+};
+
 export type MemberResponse = {
   statusCode: number;
   message: string;
@@ -24,3 +28,5 @@ export type AddMemberResponse = {
   message: string;
   data: Member;
 };
+
+export type UpdateMemberResponse = AddMemberResponse;

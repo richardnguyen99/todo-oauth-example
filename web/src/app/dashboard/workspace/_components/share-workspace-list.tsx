@@ -5,13 +5,8 @@ import { Loader2Icon, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError, AxiosResponse } from "axios";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import api from "@/lib/axios";
 import { MemberResponse } from "../_types/member";
-import { Button } from "@/components/ui/button";
-import { colorMap } from "../_constants/colors";
-import { Color } from "../_types/workspace";
 import { useMemberStore } from "../../_providers/member";
 import ShareWorkspaceMemberItem from "./share-workspace-member";
 

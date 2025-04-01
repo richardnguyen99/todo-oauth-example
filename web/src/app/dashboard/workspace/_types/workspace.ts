@@ -24,6 +24,10 @@ export type Color =
 
 export type ColorMap = Record<Color, string>;
 
+export type WorkspaceParams = {
+  workspace: string;
+};
+
 export type Workspace = {
   _id: string;
   title: string;

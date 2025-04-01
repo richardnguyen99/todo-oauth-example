@@ -191,12 +191,14 @@ export class WorkspacesService {
       existingMember.role = role;
     }
 
-    await existingMember.populate({
+    let savedMember = await existingMember.save();
+
+    await savedMember.populate({
       path: "user",
       model: "User",
     });
 
-    return existingMember;
+    return savedMember;
   }
 
   async removeMemberFromWorkspace(
