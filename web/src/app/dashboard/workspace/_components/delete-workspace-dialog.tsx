@@ -3,7 +3,7 @@
 import React, { type JSX } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { Loader2 } from "lucide-react";
 
 import api from "@/lib/axios";
@@ -18,14 +18,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Member, RemoveMemberResponse } from "../_types/member";
 import { WorkspaceParams } from "../_types/workspace";
-import { useMemberStore } from "../../_providers/member";
 import { useWorkspaceStore } from "../../_providers/workspace";
 
-type Props = {
+type Props = Readonly<{
   children: React.ReactNode;
-};
+}>;
 
 export default function DeleteWorkspaceDialog({
   children,

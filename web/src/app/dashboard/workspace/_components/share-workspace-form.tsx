@@ -1,12 +1,15 @@
 "use client";
 
+import React, { type JSX } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { FileWarning, TriangleAlert, UserPlus } from "lucide-react";
+import { TriangleAlert, UserPlus } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError, AxiosResponse } from "axios";
 
+import api from "@/lib/axios";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -25,10 +28,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import api from "@/lib/axios";
 import { useMemberStore } from "../../_providers/member";
-import { AddMemberResponse, Member } from "../_types/member";
-import { cn } from "@/lib/utils";
+import { AddMemberResponse } from "../_types/member";
 
 // Define the available roles
 const roles = [
@@ -51,17 +52,17 @@ const formSchema = z.object({
 // Define the form values type
 type FormValues = z.infer<typeof formSchema>;
 
-interface ShareWorkspaceFormProps {
+type Props = Readonly<{
   onCancel: () => void;
   workspaceTitle?: string;
   workspaceId: string;
-}
+}>;
 
 export default function ShareWorkspaceForm({
   onCancel,
   workspaceTitle = "this workspace",
   workspaceId,
-}: ShareWorkspaceFormProps) {
+}: Props): JSX.Element {
   const queryClient = useQueryClient();
   const { members, setMembers } = useMemberStore((s) => s);
 

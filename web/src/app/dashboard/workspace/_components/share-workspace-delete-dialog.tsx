@@ -21,11 +21,11 @@ import { Member, RemoveMemberResponse } from "../_types/member";
 import { WorkspaceParams } from "../_types/workspace";
 import { useMemberStore } from "../../_providers/member";
 
-type Props = {
+type Props = Readonly<{
   member: Member;
   show: boolean;
   setShow: (show: boolean) => void;
-};
+}>;
 
 export default function ShareWorkspaceDeleteDialog({
   member,

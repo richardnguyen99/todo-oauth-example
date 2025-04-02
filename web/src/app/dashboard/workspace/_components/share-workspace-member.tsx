@@ -20,13 +20,13 @@ import { useWorkspaceStore } from "../../_providers/workspace";
 import ShareWorkspaceUpdateDialog from "./share-workspace-update-dialog";
 import ShareWorkspaceDeleteDialog from "./share-workspace-delete-dialog";
 
-export interface WorkspaceMemberProps {
+type Props = Readonly<{
   member: Member;
-}
+}>;
 
 export default function ShareWorkspaceMemberItem({
   member,
-}: WorkspaceMemberProps): JSX.Element {
+}: Props): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
   const { user } = useUserStore((s) => s);
 
@@ -42,7 +42,7 @@ export default function ShareWorkspaceMemberItem({
 
   // Disable dropdown if the user is not the owner
   const dropdownDisable =
-    activeWorkspace?.owner !== user?.id || member.role === "owner";
+    activeWorkspace?.owner._id !== user?.id || member.role === "owner";
 
   return (
     <>

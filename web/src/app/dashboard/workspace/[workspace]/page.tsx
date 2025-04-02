@@ -2,13 +2,12 @@
 
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
+import { notFound, useParams } from "next/navigation";
 
-import SideBar from "../_components/sidebar";
 import { Workspace, WorkspaceParams } from "../_types/workspace";
 import TaskMenuBar from "../_components/task-menubar";
 import TaskForm from "../_components/task-form";
 import TaskItem from "../_components/task-item";
-import { notFound, useParams, useSearchParams } from "next/navigation";
 import { useWorkspaceStore } from "../../_providers/workspace";
 
 const tasks = [

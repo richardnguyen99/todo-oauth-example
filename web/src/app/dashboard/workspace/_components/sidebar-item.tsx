@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils";
 import { Workspace } from "../_types/workspace";
 import { colorMap } from "../_constants/colors";
 
-type Props = {
+type Props = Readonly<{
   workspace: Workspace;
   isActive: boolean;
   isSidebarOpen: boolean;
   href: string;
-};
+}>;
 
 export default function SideBarItem({
   workspace,

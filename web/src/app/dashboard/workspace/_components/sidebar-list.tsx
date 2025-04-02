@@ -1,3 +1,5 @@
+"use client";
+
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
 

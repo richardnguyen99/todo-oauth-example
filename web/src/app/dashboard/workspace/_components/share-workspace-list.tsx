@@ -1,7 +1,7 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { Loader2Icon, Users } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError, AxiosResponse } from "axios";
 
@@ -35,13 +35,13 @@ export default function ShareWorkspaceList({
 
   React.useEffect(() => {
     if (data) {
-      const workspaces = data.data.map((member) => ({
+      const members = data.data.map((member) => ({
         ...member,
         createdAt: new Date(member.createdAt),
         updatedAt: new Date(member.updatedAt),
       }));
 
-      setMembers(workspaces);
+      setMembers(members);
     }
   }, [isPending, data]);
 

@@ -1,12 +1,12 @@
 "use client";
 
-import React from "react";
-import { LoaderCircleIcon, Squircle, Squirrel } from "lucide-react";
+import React, { type JSX } from "react";
+import { LoaderCircleIcon, Squirrel } from "lucide-react";
 
 import Redirect from "@/components/redirect";
 import { useWorkspaceStore } from "../_providers/workspace";
 
-export default function Page() {
+export default function Page(): JSX.Element {
   const { workspaces, status } = useWorkspaceStore((s) => s);
 
   if (status === "loading") {

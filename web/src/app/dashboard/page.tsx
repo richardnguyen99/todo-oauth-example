@@ -1,11 +1,12 @@
 "use client";
 
+import React, { type JSX } from "react";
 import { LoaderCircleIcon } from "lucide-react";
 
 import { useUserStore } from "@/providers/user-store-provider";
 import Redirect from "@/components/redirect";
 
-export default function TodoPage() {
+export default function TodoPage(): JSX.Element {
   const { user, status } = useUserStore((s) => s);
 
   if (status === "loading") {

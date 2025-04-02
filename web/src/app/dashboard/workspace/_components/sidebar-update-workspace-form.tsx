@@ -7,6 +7,7 @@ import * as z from "zod";
 import { AxiosError, AxiosResponse } from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 import api from "@/lib/axios";
 import { Button } from "@/components/ui/button";
@@ -38,8 +39,6 @@ import {
   Workspace,
   WorkspaceParams,
 } from "../_types/workspace";
-import { UpdateMemberResponse } from "../_types/member";
-import { Loader2 } from "lucide-react";
 
 // Create a Zod schema for form validation
 const formSchema = z.object({
@@ -63,15 +62,12 @@ const formSchema = z.object({
 // Define the form values type
 type FormValues = z.infer<typeof formSchema>;
 
-interface UpdateWorkspaceFormProps {
+type Props = Readonly<{
   onCancel: () => void;
-}
+}>;
 
-export function UpdateWorkspaceForm({
-  onCancel,
-}: UpdateWorkspaceFormProps): JSX.Element {
+export function UpdateWorkspaceForm({ onCancel }: Props): JSX.Element {
   const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
   const queryClient = useQueryClient();
   const { workspace } = useParams<WorkspaceParams>();
   const { push } = useRouter();

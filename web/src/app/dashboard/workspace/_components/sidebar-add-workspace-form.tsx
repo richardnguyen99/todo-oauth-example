@@ -1,4 +1,6 @@
 "use client";
+
+import React, { type JSX } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -54,11 +56,11 @@ const formSchema = z.object({
 // Define the form values type
 type FormValues = z.infer<typeof formSchema>;
 
-interface AddWorkspaceFormProps {
+type Props = Readonly<{
   onCancel: () => void;
-}
+}>;
 
-export function AddWorkspaceForm({ onCancel }: AddWorkspaceFormProps) {
+export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
   const queryClient = useQueryClient();
   const { push } = useRouter();
 

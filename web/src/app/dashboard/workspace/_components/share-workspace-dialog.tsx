@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import React, { type JSX } from "react";
+import { Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,26 +13,25 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import ShareWorkspaceForm from "./share-workspace-form";
-import { Users } from "lucide-react";
 import ShareWorkspaceList from "./share-workspace-list";
 import { Color } from "../_types/workspace";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MemberStoreProvider } from "../../_providers/member";
 
-interface ShareWorkspaceDialogProps {
+type Props = Readonly<{
   workspaceId: string;
   workspaceTitle: string;
   workspaceColor: Color;
 
   onInviteUser?: (user: { userId: string; role: "admin" | "member" }) => void;
-}
+}>;
 
 export default function ShareWorkspaceDialog({
   workspaceId,
   workspaceTitle,
   workspaceColor,
-}: ShareWorkspaceDialogProps) {
-  const [open, setOpen] = useState(false);
+}: Props): JSX.Element {
+  const [open, setOpen] = React.useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

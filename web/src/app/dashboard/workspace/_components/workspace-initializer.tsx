@@ -22,9 +22,6 @@ export default function WorkspaceInitializer() {
   >({
     queryKey: ["fetch-workspace"],
     queryFn: async () => {
-      // Replace with your actual API call to fetch workspace data
-      // For example: return await api.get("/workspaces");
-
       const response = await api.get("/workspaces");
 
       return response.data;
@@ -39,7 +36,6 @@ export default function WorkspaceInitializer() {
 
     if (data) {
       data.data.forEach((workspace) => {
-        // Ensure the dates are parsed correctly
         workspace.createdAt = new Date(workspace.createdAt);
         workspace.updatedAt = new Date(workspace.updatedAt);
       });
