@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { LoaderCircleIcon } from "lucide-react";
+import { LoaderCircleIcon, Squircle, Squirrel } from "lucide-react";
 
 import Redirect from "@/components/redirect";
 import { useWorkspaceStore } from "../_providers/workspace";
@@ -28,5 +28,17 @@ export default function Page() {
     );
   }
 
-  return <Redirect url={`/dashboard/workspace/${workspaces[0]._id}`} />;
+  return workspaces.length > 0 ? (
+    <Redirect url={`/dashboard/workspace/${workspaces[0]._id}`} />
+  ) : (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="rounded-full bg-muted p-3 mb-4">
+        <Squirrel className="h-20 w-20 text-muted-foreground" />
+      </div>
+      <h3 className="text-lg font-medium mb-1">No workspace</h3>
+      <p className="text-sm text-muted-foreground mb-4">
+        Add your first workspace to get started.
+      </p>
+    </div>
+  );
 }
