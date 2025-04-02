@@ -30,3 +30,4 @@ export type AddMemberResponse = {
 };
 
 export type UpdateMemberResponse = AddMemberResponse;
+export type RemoveMemberResponse = AddMemberResponse;

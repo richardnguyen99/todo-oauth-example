@@ -24,7 +24,7 @@ export interface WorkspaceMemberProps {
   member: Member;
 }
 
-function ShareWorkspaceMemberItem({
+export default function ShareWorkspaceMemberItem({
   member,
 }: WorkspaceMemberProps): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
@@ -133,10 +133,3 @@ function ShareWorkspaceMemberItem({
     </>
   );
 }
-
-export default React.memo(ShareWorkspaceMemberItem, (prevProps, nextProps) => {
-  return (
-    prevProps.member._id === nextProps.member._id &&
-    prevProps.member.role === nextProps.member.role
-  );
-});

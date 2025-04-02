@@ -19,7 +19,7 @@ export default function ShareWorkspaceList({
 }: Props): JSX.Element {
   const { members, setMembers } = useMemberStore((s) => s);
 
-  const { data, isLoading, isError, error, isPending } = useQuery<
+  const { data, isLoading, isError, isPending } = useQuery<
     MemberResponse,
     AxiosError
   >({
@@ -43,7 +43,7 @@ export default function ShareWorkspaceList({
 
       setMembers(workspaces);
     }
-  }, [isPending]);
+  }, [isPending, data]);
 
   if (isLoading || isPending) {
     return (
