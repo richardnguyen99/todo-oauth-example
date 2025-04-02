@@ -11,7 +11,6 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { useUserStore } from "@/providers/user-store-provider";
 import { UserState, User } from "@/stores/user-store";
 
 type Props = {
