@@ -26,7 +26,7 @@ export class Member {
 
   @Prop({
     type: mongoose.Schema.Types.String,
-    enum: ["admin", "member"],
+    enum: ["admin", "member", "owner"],
     default: "member",
   })
   role: string;

@@ -21,6 +21,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { WorkspacesService } from "./workspaces.service";
 import { ResponsePayloadDto } from "src/dto/response.dto";
 import { MemberDocument, WorkspaceDocument } from "./schemas/workspaces.schema";
+import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
 
 @Controller("workspaces")
 export class WorkspacesController {
@@ -215,8 +216,10 @@ export class WorkspacesController {
   ) {
     const { userId } = req.user as any;
 
+    let deleteResult: DeleteWorkspaceResult;
+
     try {
-      await this.workspaceService.deleteWorkspace(
+      deleteResult = await this.workspaceService.deleteWorkspace(
         userId as string, // Pass the ownerId
         workspaceId as string,
       );
@@ -234,7 +237,7 @@ export class WorkspacesController {
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       message: "Workspace deleted successfully",
-      data: null,
+      data: deleteResult,
     } satisfies ResponsePayloadDto);
   }
 

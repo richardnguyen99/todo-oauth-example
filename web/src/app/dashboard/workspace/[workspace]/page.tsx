@@ -88,7 +88,7 @@ const tasks = [
 
 export default function WorkspacePage(): JSX.Element | never {
   const { workspace } = useParams<WorkspaceParams>();
-  const { activeWorkspace, workspaces, status, setActiveWorkspace } =
+  const { activeWorkspace, workspaces, status, setActiveWorkspace, setStatus } =
     useWorkspaceStore((s) => s);
 
   React.useEffect(() => {
@@ -102,8 +102,15 @@ export default function WorkspacePage(): JSX.Element | never {
 
     if (activeWorkspaceFromStore) {
       setActiveWorkspace(activeWorkspaceFromStore);
+
+      if (status === "redirecting") {
+        setStatus("success");
+      }
     } else {
-      notFound();
+      if (status !== "redirecting") {
+        setStatus("idle");
+        notFound();
+      }
     }
   }, [status, activeWorkspace, workspaces]);
 

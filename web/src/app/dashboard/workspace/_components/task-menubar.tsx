@@ -13,8 +13,8 @@ import {
 import { colorMap } from "../_constants/colors";
 import { Workspace } from "../_types/workspace";
 import ShareWorkspaceDialog from "./share-workspace-dialog";
-import ShareWorkspaceUpdateDialog from "./share-workspace-update-dialog";
 import SidebarUpdateWorkspaceDialog from "./sidebar-update-workspace-dialog";
+import DeleteWorkspaceDialog from "./delete-workspace-dialog";
 
 type Props = Readonly<{
   activeWorkspace: Workspace;
@@ -68,9 +68,16 @@ export default function TaskMenuBar({ activeWorkspace }: Props): JSX.Element {
               <span>Sort tasks</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-500">
-              <span>Delete workspace</span>
-            </DropdownMenuItem>
+
+            <DeleteWorkspaceDialog>
+              <DropdownMenuItem
+                variant="destructive"
+                className="data-[variant=destructive]:text-red-500"
+                onSelect={(e) => e.preventDefault()}
+              >
+                <span>Delete workspace</span>
+              </DropdownMenuItem>
+            </DeleteWorkspaceDialog>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

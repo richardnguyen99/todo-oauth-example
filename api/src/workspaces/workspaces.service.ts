@@ -17,6 +17,7 @@ import {
 import { CreateWorkspaceDto } from "./dto/create-workspace.dto";
 import { AddNewMemberDto } from "./dto/add-new-member.dto";
 import { UpdateMemberDto } from "./dto/update-new-member.dto";
+import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
 
 @Injectable()
 export class WorkspacesService {
@@ -42,9 +43,12 @@ export class WorkspacesService {
   }
 
   async findWorkspacesByUserId(userId: string): Promise<WorkspaceDocument[]> {
-    const workspaces = await this.workspaceModel.find({
-      owner: userId,
-    });
+    const workspaces = await this.workspaceModel
+      .find({
+        owner: userId,
+      })
+      .populate("owner")
+      .exec();
 
     return workspaces;
   }
@@ -274,7 +278,10 @@ export class WorkspacesService {
     return workspace;
   }
 
-  async deleteWorkspace(ownerId: string, workspaceId: string): Promise<void> {
+  async deleteWorkspace(
+    ownerId: string,
+    workspaceId: string,
+  ): Promise<DeleteWorkspaceResult> {
     // Check if the workspace exists
     const workspace = await this._getWorkspaceWithAdminAccess(
       ownerId,
@@ -282,10 +289,19 @@ export class WorkspacesService {
     );
 
     // Delete all members associated with the workspace
-    await this.memberModel.deleteMany({ workspaceId: workspace._id });
+    const memberResult = await this.memberModel.deleteMany({
+      workspaceId: workspace._id,
+    });
 
     // Delete the workspace
-    await this.workspaceModel.deleteOne({ _id: workspace._id });
+    const workspaceResult = await this.workspaceModel.deleteOne({
+      _id: workspace._id,
+    });
+
+    return {
+      memberDeleteCount: memberResult.deletedCount,
+      workspaceDeleteCount: workspaceResult.deletedCount,
+    };
   }
 
   async checkIfUserIsMember(

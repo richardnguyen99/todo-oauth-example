@@ -1,3 +1,5 @@
+import { User } from "@/_types/user";
+
 export type Color =
   | "red"
   | "orange"
@@ -35,7 +37,7 @@ export type Workspace = {
   color: Color;
   createdAt: Date;
   updatedAt: Date;
-  owner: string;
+  owner: User;
   members: string[];
 };
 

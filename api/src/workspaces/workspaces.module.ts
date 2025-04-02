@@ -23,7 +23,7 @@ import { JwtStrategy } from "src/auth/strategies/jwt.strategy";
         name: Workspace.name,
         useFactory: () => {
           const schema = WorkspaceSchema;
-          // You can add any additional schema options here
+
           return schema;
         },
       },
@@ -46,7 +46,6 @@ import { JwtStrategy } from "src/auth/strategies/jwt.strategy";
         name: User.name,
         useFactory: () => {
           const schema = UserSchema;
-          // You can add any additional schema options here
           return schema;
         },
       },
