@@ -13,6 +13,8 @@ import {
 import { colorMap } from "../_constants/colors";
 import { Workspace } from "../_types/workspace";
 import ShareWorkspaceDialog from "./share-workspace-dialog";
+import ShareWorkspaceUpdateDialog from "./share-workspace-update-dialog";
+import SidebarUpdateWorkspaceDialog from "./sidebar-update-workspace-dialog";
 
 type Props = Readonly<{
   activeWorkspace: Workspace;
@@ -51,9 +53,17 @@ export default function TaskMenuBar({ activeWorkspace }: Props): JSX.Element {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <span>Edit workspace</span>
-            </DropdownMenuItem>
+            <SidebarUpdateWorkspaceDialog>
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  // Allow the dialog to open when this menu item is selected
+                  e.preventDefault();
+                }}
+              >
+                <span>Edit workspace</span>
+              </DropdownMenuItem>
+            </SidebarUpdateWorkspaceDialog>
+
             <DropdownMenuItem>
               <span>Sort tasks</span>
             </DropdownMenuItem>

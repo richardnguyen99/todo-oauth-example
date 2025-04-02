@@ -44,3 +44,9 @@ export type WorkspaceResponse = {
   message: string;
   data: Workspace[];
 };
+
+export type UpdateWorkspaceResponse = {
+  statusCode: number;
+  message: string;
+  data: Workspace;
+};

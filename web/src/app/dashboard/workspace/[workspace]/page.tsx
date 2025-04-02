@@ -4,7 +4,7 @@ import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
 
 import SideBar from "../_components/sidebar";
-import { Workspace } from "../_types/workspace";
+import { Workspace, WorkspaceParams } from "../_types/workspace";
 import TaskMenuBar from "../_components/task-menubar";
 import TaskForm from "../_components/task-form";
 import TaskItem from "../_components/task-item";
@@ -86,12 +86,8 @@ const tasks = [
   },
 ];
 
-type Props = {
-  params: Promise<{ workspace: string }>;
-};
-
 export default function WorkspacePage(): JSX.Element | never {
-  const { workspace } = useParams<{ workspace: string }>();
+  const { workspace } = useParams<WorkspaceParams>();
   const { activeWorkspace, workspaces, status, setActiveWorkspace } =
     useWorkspaceStore((s) => s);
 
@@ -109,7 +105,7 @@ export default function WorkspacePage(): JSX.Element | never {
     } else {
       notFound();
     }
-  }, [status]);
+  }, [status, activeWorkspace, workspaces]);
 
   return status === "loading" ? (
     // Handle loading state
