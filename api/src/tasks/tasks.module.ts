@@ -56,14 +56,14 @@ import { User, UserSchema } from "src/users/schemas/user.schema";
           schema.virtual("createdByUser", {
             localField: "createdBy",
             foreignField: "_id",
-            ref: Member.name,
+            ref: User.name,
             justOne: true,
           });
 
           schema.virtual("completedByUser", {
             localField: "completedBy",
             foreignField: "_id",
-            ref: Member.name,
+            ref: User.name,
             justOne: true,
           });
 
