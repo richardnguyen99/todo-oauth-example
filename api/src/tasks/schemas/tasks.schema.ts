@@ -27,10 +27,13 @@ export class Task {
 
   @Prop({
     type: mongoose.Schema.Types.Array,
-    of: mongoose.Schema.Types.String,
+    of: mongoose.Schema.Types.Mixed,
     default: [],
   })
-  items: string[];
+  items: {
+    text: string;
+    completed: boolean;
+  };
 
   @Prop({
     type: mongoose.Schema.Types.String,

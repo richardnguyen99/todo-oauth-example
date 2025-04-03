@@ -93,6 +93,13 @@ export class TasksService {
     workspaceId: string,
     createTaskDto: CreateTaskDto,
   ) {
+    // Validate the input ObjectIDs
+    if (!isObjectId(userId) || !isObjectId(workspaceId)) {
+      throw new BadRequestException(
+        `Invalid \`workspaceId=${workspaceId}\` provided. Both should be valid ObjectIDs.`,
+      );
+    }
+
     const workspace = await this._getWorkspaceWithAdminAccess(
       userId, // ownerId
       workspaceId, // workspaceId
@@ -102,19 +109,38 @@ export class TasksService {
       ? new Date(createTaskDto.dueDate)
       : null;
 
+    // If completedBy is provided in the DTO, ensure it's an existing member of
+    // the workspace
+    if (createTaskDto.completedBy) {
+      const { members } = await workspace.populate<{
+        members: MemberDocument[];
+      }>("members");
+
+      // Ensure the user exists in the workspace members
+      const member = members.find(
+        (member) =>
+          (member as MemberDocument).userId.toString() ===
+          createTaskDto.completedBy,
+      );
+
+      if (!member) {
+        throw new ForbiddenException(
+          `User with ID ${createTaskDto.completedBy} either does not exist or does not have access to this workspace.`,
+        );
+      }
+    }
+
     const newTask = new this.taskModel({
       title: createTaskDto.title,
       description: createTaskDto.description,
       completed: createTaskDto.completed || false,
       items: createTaskDto.items ? createTaskDto.items : [],
-      completedBy: null,
       dueDate,
       priority: createTaskDto.priority || "low",
-      tags: createTaskDto.tags
-        ? createTaskDto.tags.split(",").map((tag) => tag.trim())
-        : [],
+      tags: createTaskDto.tags,
       workspaceId: workspace._id,
       createdBy: userId,
+      completedBy: createTaskDto.completedBy || null,
     });
 
     const workspaceDoc = await newTask.save();

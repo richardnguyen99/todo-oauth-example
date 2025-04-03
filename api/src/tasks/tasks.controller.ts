@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Header,
-  HttpException,
   HttpStatus,
   Param,
   Post,
@@ -123,7 +122,6 @@ export class TasksController {
     @Body() createTaskDto: CreateTaskDto,
   ) {
     if (!workspaceId) {
-      // If no workspace_id is provided, return an error
       return res.status(HttpStatus.BAD_REQUEST).json({
         statusCode: HttpStatus.BAD_REQUEST,
         message: "workspace_id query parameter is required",
@@ -140,30 +138,13 @@ export class TasksController {
         createTaskDto,
       );
     } catch (e) {
-      if (e instanceof HttpException) {
-        const error = e as HttpException;
-        res.status(e.getStatus()).json({
-          statusCode: error.getStatus(),
-          message: error.message,
-          data: null,
-        } satisfies ResponsePayloadDto);
-      } else {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: `Failed to create task: ${
-            e instanceof Error ? e.message : "Unknown error"
-          }`, // Handle other errors
-          data: null,
-        } satisfies ResponsePayloadDto);
-      }
-
-      return;
+      return respondWithError(e, res);
     }
 
     res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
       message: "Task created successfully",
-      data: createdTask, // You would typically return the created task here
+      data: createdTask,
     } satisfies ResponsePayloadDto);
   }
 }
