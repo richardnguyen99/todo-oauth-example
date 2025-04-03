@@ -1,4 +1,4 @@
-import { ExtractJwt, Strategy } from "passport-jwt";
+import { ExtractJwt, Strategy, StrategyOptionsWithRequest } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
 import { ForbiddenException, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
       ignoreExpiration: false,
       secretOrKey: configService.get("JWT_ACCESS_SECRET"),
       passReqToCallback: true,
-    });
+    } as StrategyOptionsWithRequest);
   }
 
   async validate(req: RequestType, payload: AccessTokenPayloadDto) {

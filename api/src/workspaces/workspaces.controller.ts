@@ -62,7 +62,7 @@ export class WorkspacesController {
       // If the workspace is not found, return a 404 error
       res.status(HttpStatus.NOT_FOUND).json({
         statusCode: HttpStatus.NOT_FOUND,
-        message: `Workspace with ID ${workspaceId} not found (${error.message})`,
+        message: `Workspace with ID ${workspaceId} not found (${(error as Error).message})`,
         data: null,
       } satisfies ResponsePayloadDto);
 
@@ -120,7 +120,7 @@ export class WorkspacesController {
     } catch (error) {
       res.status(HttpStatus.BAD_REQUEST).json({
         statusCode: HttpStatus.BAD_REQUEST,
-        message: `Failed to create workspace: ${error.message}`,
+        message: `Failed to create workspace: ${(error as Error).message}`,
         data: null,
       } satisfies ResponsePayloadDto);
 

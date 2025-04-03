@@ -15,7 +15,8 @@ export class EncryptionService {
 
   constructor(private configService: ConfigService) {
     // Ideally, you'd load this from env or config service
-    const password = this.configService.get<string>("CRYPTO_PASSWORD");
+    const password =
+      this.configService.get<string>("CRYPTO_PASSWORD") || "default-password";
     const salt = this.configService.get<string>("CRYPTO_SALT", "default-salt"); // fallback salt
 
     this.key = scryptSync(password, salt, 32); // Derive 32-byte key for AES-256
