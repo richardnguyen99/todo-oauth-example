@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Req,
   Res,
@@ -24,6 +25,7 @@ import { TaskDocument } from "./schemas/tasks.schema";
 import { ZodValidationPipe } from "./zod-validation/zod-validation.pipe";
 import { CreateTaskDto, createTaskDtoSchema } from "./dto/create-task.dto";
 import { respondWithError } from "src/utils/handle-error";
+import { UpdateTaskDto, updateTaskDtoSchema } from "./dto/update-task.dto";
 
 @Controller("tasks")
 export class TasksController {
@@ -145,6 +147,53 @@ export class TasksController {
       statusCode: HttpStatus.CREATED,
       message: "Task created successfully",
       data: createdTask,
+    } satisfies ResponsePayloadDto);
+  }
+
+  @UseGuards(AuthGuard("jwt"))
+  @Put(":id/update")
+  @Header("Content-Type", "application/json")
+  @UsePipes(new ZodValidationPipe(updateTaskDtoSchema))
+  async updateTask(
+    @Req() req: RequestType,
+    @Res() res: ResponseType,
+    @Param("id") id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+    @Query("workspace_id") workspaceId?: string,
+  ) {
+    if (!workspaceId) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "workspace_id query parameter is required",
+        data: null,
+      } satisfies ResponsePayloadDto);
+    }
+
+    if (!id) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "id query parameter is required",
+        data: null,
+      } satisfies ResponsePayloadDto);
+    }
+
+    let updatedTask: TaskDocument;
+
+    try {
+      updatedTask = await this.tasksService.updateTask(
+        req.user!["userId"],
+        workspaceId,
+        id,
+        updateTaskDto,
+      );
+    } catch (e) {
+      return respondWithError(e, res);
+    }
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "Task updated successfully",
+      data: updatedTask,
     } satisfies ResponsePayloadDto);
   }
 }

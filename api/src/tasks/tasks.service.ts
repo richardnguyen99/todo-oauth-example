@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
 
 import { Task, TaskDocument } from "./schemas/tasks.schema";
 import { InjectModel } from "@nestjs/mongoose";
@@ -17,6 +17,7 @@ import {
 } from "src/workspaces/schemas/workspaces.schema";
 import { CreateTaskDto } from "./dto/create-task.dto";
 import { isObjectId } from "src/utils/object-id";
+import { UpdateTaskDto } from "./dto/update-task.dto";
 
 @Injectable()
 export class TasksService {
@@ -38,7 +39,7 @@ export class TasksService {
     userId: string,
     workspaceId: string,
   ): Promise<TaskDocument[]> {
-    const workspace = await this._getWorkspaceWithMemberAccess(
+    const [workspace] = await this._getWorkspaceWithMemberAccess(
       userId,
       workspaceId,
     );
@@ -130,11 +131,18 @@ export class TasksService {
       }
     }
 
+    const items = (createTaskDto.items ? createTaskDto.items : []).map(
+      (item) => ({
+        ...item,
+        id: new mongoose.Types.ObjectId(),
+      }),
+    );
+
     const newTask = new this.taskModel({
       title: createTaskDto.title,
       description: createTaskDto.description,
       completed: createTaskDto.completed || false,
-      items: createTaskDto.items ? createTaskDto.items : [],
+      items: items,
       dueDate,
       priority: createTaskDto.priority || "low",
       tags: createTaskDto.tags,
@@ -146,6 +154,153 @@ export class TasksService {
     const workspaceDoc = await newTask.save();
 
     return workspaceDoc;
+  }
+
+  async updateTask(
+    userId: string,
+    workspaceId: string,
+    taskId: string,
+    updateTaskDto: UpdateTaskDto,
+  ): Promise<TaskDocument> {
+    // Validate the input ObjectIDs
+    if (!isObjectId(taskId)) {
+      throw new BadRequestException(
+        `Invalid \`taskId=${taskId}\` provided. All of them should be valid ObjectIDs.`,
+      );
+    }
+
+    const [, member] = await this._getWorkspaceWithMemberAccess(
+      userId, // ownerId
+      workspaceId, // workspaceId
+    );
+
+    if (member.role === "member") {
+      // Forbid member from updating task fields except `completed` and `completedBy`
+      const allowedFields = ["completed"];
+      const updateKeys = Object.keys(updateTaskDto);
+
+      for (const key of updateKeys) {
+        if (!allowedFields.includes(key)) {
+          throw new ForbiddenException(
+            `Members can only update the following fields: ${allowedFields.join(
+              ", ",
+            )}. Attempted to update: ${key}`,
+          );
+        }
+      }
+    }
+
+    // Handle the dueDate conversion
+    let dueDate: Date | null = null;
+    if (updateTaskDto.dueDate) {
+      dueDate = new Date(updateTaskDto.dueDate);
+      if (isNaN(dueDate.getTime())) {
+        throw new BadRequestException(
+          `Invalid \`dueDate=${updateTaskDto.dueDate}\` provided. It should be a valid date.`,
+        );
+      }
+    }
+
+    const updateQuery: mongoose.UpdateQuery<TaskDocument> = {
+      $set: {
+        ...updateTaskDto,
+        completedBy: updateTaskDto.completed
+          ? new mongoose.Types.ObjectId(userId)
+          : null,
+        dueDate,
+      },
+    };
+
+    if (updateTaskDto.addItems && updateTaskDto.addItems.length > 0) {
+      updateQuery.$push = {
+        items: {
+          $each: updateTaskDto.addItems.map((item) => ({
+            ...item,
+            id: new mongoose.Types.ObjectId(), // Ensure each item has a unique ID
+          })),
+        },
+      };
+    }
+
+    if (updateTaskDto.updateItems && updateTaskDto.updateItems.length > 0) {
+      const bulkOps = updateTaskDto.updateItems.map((item) => ({
+        updateOne: {
+          filter: {
+            _id: taskId,
+            "items.id": new mongoose.Types.ObjectId(item.id),
+          },
+          update: {
+            $set: {
+              ...(item.text !== undefined && { "items.$.text": item.text }),
+              ...(item.completed !== undefined && {
+                "items.$.completed": item.completed,
+              }),
+            },
+          },
+        },
+        upsert: true,
+      }));
+
+      // We might need to update multiple items in a single task, so use
+      // bulkWrite to handle multiple updates efficiently
+      await this.taskModel.bulkWrite(bulkOps);
+    }
+
+    if (updateTaskDto.deleteItems && updateTaskDto.deleteItems.length > 0) {
+      // Remove items by their IDs
+      const bulkOps = updateTaskDto.deleteItems.map((itemId) => ({
+        updateOne: {
+          filter: {
+            _id: taskId,
+            "items.id": new mongoose.Types.ObjectId(itemId),
+          },
+          update: {
+            $pull: {
+              items: { id: new mongoose.Types.ObjectId(itemId) },
+            },
+          },
+        },
+      }));
+
+      // We might need to delete multiple items in a single task, so use
+      // bulkWrite to handle multiple updates efficiently
+      await this.taskModel.bulkWrite(bulkOps);
+    }
+
+    let task: TaskDocument | null;
+
+    if (Object.keys(updateQuery).length === 0) {
+      task = await this.taskModel.findById(taskId);
+    } else {
+      task = await this.taskModel.findByIdAndUpdate(
+        taskId,
+        {
+          ...updateQuery, // Merge the update query
+        },
+        {
+          new: true, // Return the updated document
+          runValidators: true, // Ensure validators run for the update
+        },
+      );
+    }
+
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${taskId} not found`);
+    }
+
+    await task.save();
+
+    const populatedTask = await task.populate([
+      "workspace",
+      "createdByUser",
+      "completedByUser",
+    ]);
+
+    return populatedTask;
+  }
+
+  async deleteTask(): Promise<TaskDocument> {
+    throw new Error("Method not implemented.");
   }
 
   private async _getWorkspaceWithAdminAccess(
@@ -189,7 +344,11 @@ export class TasksService {
       throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
     }
 
-    const member = workspace.members.find(
+    const { members } = await workspace.populate<{
+      members: MemberDocument[];
+    }>("members");
+
+    const member = members.find(
       (member) => (member as MemberDocument).userId.toString() === memberId,
     );
 
@@ -199,6 +358,6 @@ export class TasksService {
       );
     }
 
-    return workspace;
+    return [workspace, member] as const;
   }
 }
