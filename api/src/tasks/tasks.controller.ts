@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   HttpStatus,
@@ -194,6 +195,49 @@ export class TasksController {
       statusCode: HttpStatus.OK,
       message: "Task updated successfully",
       data: updatedTask,
+    } satisfies ResponsePayloadDto);
+  }
+
+  @UseGuards(AuthGuard("jwt"))
+  @Delete(":id/delete")
+  async deleteTask(
+    @Req() req: RequestType,
+    @Res() res: ResponseType,
+    @Param("id") id: string,
+    @Query("workspace_id") workspaceId?: string,
+  ) {
+    if (!workspaceId) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "workspace_id query parameter is required",
+        data: null,
+      } satisfies ResponsePayloadDto);
+    }
+
+    if (!id) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: "id query parameter is required",
+        data: null,
+      } satisfies ResponsePayloadDto);
+    }
+
+    let deletedTask: TaskDocument;
+
+    try {
+      deletedTask = await this.tasksService.deleteTask(
+        req.user!["userId"],
+        workspaceId,
+        id,
+      );
+    } catch (e) {
+      return respondWithError(e, res);
+    }
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "Task deleted successfully",
+      data: deletedTask,
     } satisfies ResponsePayloadDto);
   }
 }

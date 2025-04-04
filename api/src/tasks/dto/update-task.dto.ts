@@ -16,11 +16,16 @@ export const noRefineUpdateTaskDtoSchema = noRefineCreateTaskDtoSchema
 
         text: z
           .string({
-            required_error: "Item text is required",
             invalid_type_error: "Item text must be a string",
           })
-          .min(1, "Item text cannot be empty")
-          .max(255, "Item text cannot exceed 255 characters"),
+          .max(255, "Item text cannot exceed 255 characters")
+          .optional()
+          .default("")
+          .transform((text) => {
+            if (text.length === 0) return undefined;
+
+            return text;
+          }),
 
         completed: z
           .boolean({

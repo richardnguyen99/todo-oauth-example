@@ -204,12 +204,29 @@ export class TasksService {
     const updateQuery: mongoose.UpdateQuery<TaskDocument> = {
       $set: {
         ...updateTaskDto,
-        completedBy: updateTaskDto.completed
-          ? new mongoose.Types.ObjectId(userId)
-          : null,
         dueDate,
       },
     };
+
+    // Only modify `completedBy` when `completed` is explicitly defined the dto
+    // either true or false. Otherwise, don't do anything
+    if (
+      updateTaskDto.completed !== undefined &&
+      updateTaskDto.completed === true
+    ) {
+      updateQuery.$set = {
+        ...updateQuery.$set,
+        completedBy: new mongoose.Types.ObjectId(userId),
+      };
+    } else if (
+      updateTaskDto.completed !== undefined &&
+      updateTaskDto.completed === false
+    ) {
+      updateQuery.$set = {
+        ...updateQuery.$set,
+        completedBy: null,
+      };
+    }
 
     if (updateTaskDto.addItems && updateTaskDto.addItems.length > 0) {
       updateQuery.$push = {
@@ -299,8 +316,29 @@ export class TasksService {
     return populatedTask;
   }
 
-  async deleteTask(): Promise<TaskDocument> {
-    throw new Error("Method not implemented.");
+  async deleteTask(
+    userId: string,
+    workspaceId: string,
+    taskId: string,
+  ): Promise<TaskDocument> {
+    // Validate the input ObjectIDs
+    if (!isObjectId(taskId)) {
+      throw new BadRequestException(
+        `Invalid \`taskId=${taskId}\` provided. All of them should be valid ObjectIDs.`,
+      );
+    }
+
+    await this._getWorkspaceWithAdminAccess(userId, workspaceId);
+
+    // Check if the task exists
+
+    const task = await this.taskModel.findByIdAndDelete(taskId);
+
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${taskId} not found`);
+    }
+
+    return task;
   }
 
   private async _getWorkspaceWithAdminAccess(
