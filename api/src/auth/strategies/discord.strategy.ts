@@ -24,7 +24,8 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
       clientSecret: configService.get<string>("DISCORD_CLIENT_SECRET"),
       callbackURL: `${configService.get<string>("API_URL")}/auth/discord/callback`,
       scope: ["identify", "email"],
-    });
+      passReqToCallback: false,
+    } as Strategy.StrategyOptions);
   }
 
   async validate(
@@ -47,7 +48,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
       oauthId: id,
       oauthProvider: provider,
       username: `${username}-${discriminator}`,
-      email: email,
+      email: email || "",
       emailVerified: verified,
       oauthAccessToken: encryptedAccessTokenString,
       oauthRefreshToken: encryptedRefreshTokenString,

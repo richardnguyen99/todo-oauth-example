@@ -23,9 +23,9 @@ export class GoogleStrategy extends PassportStrategy(
     private encryptionService: EncryptionService,
   ) {
     super({
-      clientID: configService.get<string>("GOOGLE_CLIENT_ID"),
-      clientSecret: configService.get<string>("GOOGLE_CLIENT_SECRET"),
-      callbackURL: `${configService.get<string>("API_URL")}/auth/google/callback`,
+      clientID: configService.get<string>("GOOGLE_CLIENT_ID") || "",
+      clientSecret: configService.get<string>("GOOGLE_CLIENT_SECRET") || "",
+      callbackURL: `${configService.get<string>("API_URL") || ""}/auth/google/callback`,
       scope: [
         "https://www.googleapis.com/auth/userinfo.email",
         "openid",
@@ -64,12 +64,12 @@ export class GoogleStrategy extends PassportStrategy(
     } = profile;
 
     const user = await this.authService.validateUser({
-      avatar: picture,
+      avatar: picture || "",
       oauthId: id,
       oauthProvider: provider,
-      username: username || email,
-      email: email,
-      emailVerified: email_verified,
+      username: username || email || "",
+      email: email || "",
+      emailVerified: email_verified || false,
       oauthAccessToken: encryptedAccessTokenString,
       oauthRefreshToken: encryptedRefreshTokenString,
     });

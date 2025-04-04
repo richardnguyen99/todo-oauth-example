@@ -17,7 +17,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
         RefreshTokenStrategy.extractJWT,
       ]),
       ignoreExpiration: false,
-      secretOrKey: configService.get("JWT_REFRESH_SECRET"),
+      secretOrKey: configService.get<string>("JWT_REFRESH_SECRET") || "",
       passReqToCallback: true,
     });
   }

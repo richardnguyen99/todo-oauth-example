@@ -29,7 +29,7 @@ export class Member {
     enum: ["admin", "member", "owner"],
     default: "member",
   })
-  role: string;
+  role: "admin" | "member" | "owner";
 
   @Prop({
     type: mongoose.Schema.Types.Boolean,

@@ -12,6 +12,7 @@ import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 import { EncryptionModule } from "./encryption/encryption.module";
 import { WorkspacesModule } from "./workspaces/workspaces.module";
+import { TasksModule } from "./tasks/tasks.module";
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { WorkspacesModule } from "./workspaces/workspaces.module";
     }),
     EncryptionModule,
     WorkspacesModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

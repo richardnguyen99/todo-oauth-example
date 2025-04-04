@@ -144,11 +144,11 @@ export class UsersService {
     return users[0] || null;
   }
 
-  async findOneById(id: string): Promise<UserDocument | undefined> {
+  async findOneById(id: string): Promise<UserDocument | null> {
     return this.userModel.findById(id).populate("accounts").exec();
   }
 
-  async findOne(username: string): Promise<User | undefined> {
+  async findOne(username: string): Promise<UserDocument | null> {
     return this.userModel.findOne({
       username: username,
     });

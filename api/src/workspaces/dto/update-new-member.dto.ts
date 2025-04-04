@@ -16,5 +16,5 @@ export class UpdateMemberDto {
   @IsIn(["admin", "member"], {
     message: "Role must be either 'admin' or 'member'",
   })
-  role: string | undefined; // Role can be either "admin" or "member"
+  role: "admin" | "member" | undefined; // Role can be either "admin" or "member"
 }

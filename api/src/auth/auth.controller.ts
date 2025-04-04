@@ -89,9 +89,9 @@ export class AuthController {
   @UseGuards(AuthGuard(["jwt"]))
   @Get("/logout")
   async logout(@Request() req: ExpressRequest, @Res() res: ExpressResponse) {
-    const userId = req.user["userId"] as string;
-    const accessToken = req.user["access_token"] as string;
-    const refreshToken = req.user["refresh_token"] as string;
+    const userId = req.user!["userId"] as string;
+    const accessToken = req.user!["access_token"] as string;
+    const refreshToken = req.user!["refresh_token"] as string;
 
     await this.cacheManager.set(`${userId}:${accessToken}`, 1, 5 * 60 * 1000);
     await this.cacheManager.set(
@@ -109,8 +109,8 @@ export class AuthController {
   @UseGuards(AuthGuard(["refresh-token"]))
   @Get("/refresh")
   async refresh(@Req() req: ExpressRequest, @Res() res: ExpressResponse) {
-    const userId = req.user["sub"];
-    const refreshToken = req.user["refreshToken"];
+    const userId = req.user!["sub"];
+    const refreshToken = req.user!["refreshToken"];
 
     const refreshTokenInCache = await this.cacheManager.get<number>(
       `${userId}:${refreshToken}`,
