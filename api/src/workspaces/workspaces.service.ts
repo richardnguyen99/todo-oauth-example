@@ -18,6 +18,7 @@ import { CreateWorkspaceDto } from "./dto/create-workspace.dto";
 import { AddNewMemberDto } from "./dto/add-new-member.dto";
 import { UpdateMemberDto } from "./dto/update-new-member.dto";
 import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
+import { Task } from "src/tasks/schemas/tasks.schema";
 
 @Injectable()
 export class WorkspacesService {
@@ -30,6 +31,9 @@ export class WorkspacesService {
 
     @InjectModel(Member.name)
     private memberModel: Model<Member>,
+
+    @InjectModel(Task.name)
+    private taskModel: Model<Task>,
   ) {}
 
   async findWorkspaceById(workspaceId: string): Promise<WorkspaceDocument> {
@@ -288,6 +292,11 @@ export class WorkspacesService {
       workspaceId,
     );
 
+    // Delete all tasks associated with the workspace
+    const taskResult = await this.taskModel.deleteMany({
+      workspaceId: workspace._id,
+    });
+
     // Delete all members associated with the workspace
     const memberResult = await this.memberModel.deleteMany({
       workspaceId: workspace._id,
@@ -299,6 +308,7 @@ export class WorkspacesService {
     });
 
     return {
+      taskDeleteCount: taskResult.deletedCount,
       memberDeleteCount: memberResult.deletedCount,
       workspaceDeleteCount: workspaceResult.deletedCount,
     };

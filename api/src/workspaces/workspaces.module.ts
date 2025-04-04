@@ -13,6 +13,7 @@ import {
 } from "./schemas/workspaces.schema";
 import { User, UserSchema } from "src/users/schemas/user.schema";
 import { JwtStrategy } from "src/auth/strategies/jwt.strategy";
+import { Task, TaskSchema } from "src/tasks/schemas/tasks.schema";
 
 @Module({
   providers: [ConfigService, WorkspacesService, JwtStrategy],
@@ -46,6 +47,13 @@ import { JwtStrategy } from "src/auth/strategies/jwt.strategy";
         name: User.name,
         useFactory: () => {
           const schema = UserSchema;
+          return schema;
+        },
+      },
+      {
+        name: Task.name,
+        useFactory: () => {
+          const schema = TaskSchema;
           return schema;
         },
       },
