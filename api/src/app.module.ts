@@ -14,6 +14,7 @@ import { EncryptionModule } from "./encryption/encryption.module";
 import { WorkspacesModule } from "./workspaces/workspaces.module";
 import { TasksModule } from "./tasks/tasks.module";
 import { RequestIdMiddleware } from "./middlewares/request-id/request-id.middleware";
+import { LoggerMiddleware } from "./middlewares/logger/logger.middleware";
 
 @Module({
   imports: [
@@ -58,5 +59,7 @@ import { RequestIdMiddleware } from "./middlewares/request-id/request-id.middlew
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(RequestIdMiddleware).forRoutes("*");
+
+    consumer.apply(LoggerMiddleware).forRoutes("*");
   }
 }
