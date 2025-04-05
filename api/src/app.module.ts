@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { CacheModule } from "@nestjs/cache-manager";
@@ -13,6 +13,8 @@ import { UsersModule } from "./users/users.module";
 import { EncryptionModule } from "./encryption/encryption.module";
 import { WorkspacesModule } from "./workspaces/workspaces.module";
 import { TasksModule } from "./tasks/tasks.module";
+import { RequestIdMiddleware } from "./middlewares/request-id/request-id.middleware";
+import { LoggerMiddleware } from "./middlewares/logger/logger.middleware";
 
 @Module({
   imports: [
@@ -54,4 +56,10 @@ import { TasksModule } from "./tasks/tasks.module";
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestIdMiddleware).forRoutes("*");
+
+    consumer.apply(LoggerMiddleware).forRoutes("*");
+  }
+}
