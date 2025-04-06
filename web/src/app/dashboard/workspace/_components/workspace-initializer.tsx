@@ -44,7 +44,7 @@ export default function WorkspaceInitializer() {
         (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
       );
 
-      setWorkspaces(data.data);
+      setWorkspaces(sortedWorkspaces);
       return;
     }
 

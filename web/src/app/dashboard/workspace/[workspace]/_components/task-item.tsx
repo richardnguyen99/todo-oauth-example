@@ -1,5 +1,6 @@
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
+import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -45,14 +46,16 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
           >
             {task.title}
           </p>
-          {task.priority === "High" && (
+          {task.priority === "high" && (
             <Badge variant="destructive" className="text-[10px] px-1 py-0 h-4">
               High
             </Badge>
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2 mt-1">
-          <span className="text-xs text-muted-foreground">{task.dueDate}</span>
+          <span className="text-xs text-muted-foreground">
+            {format(task.dueDate, "MMM d, yyyy")}
+          </span>
           {task.tags.map((tag) => (
             <Badge
               key={tag}

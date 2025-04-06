@@ -2,13 +2,12 @@
 
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
-import { notFound, useParams } from "next/navigation";
 
-import { Workspace, WorkspaceParams } from "../_types/workspace";
-import TaskMenuBar from "../_components/task-menubar";
-import TaskForm from "../_components/task-form";
-import TaskItem from "../_components/task-item";
+import TaskItem from "./_components/task-item";
 import { useWorkspaceStore } from "../../_providers/workspace";
+import { useTaskStore } from "./_providers/task";
+import TaskList from "./_components/task-list";
+import TaskSkeletonItem from "./_components/task-skeleton-item";
 
 const tasks = [
   {
@@ -86,72 +85,18 @@ const tasks = [
 ];
 
 export default function WorkspacePage(): JSX.Element | never {
-  const { workspace } = useParams<WorkspaceParams>();
-  const { activeWorkspace, workspaces, status, setActiveWorkspace, setStatus } =
-    useWorkspaceStore((s) => s);
+  const { activeWorkspace } = useWorkspaceStore((s) => s);
+  const { status } = useTaskStore((s) => s);
 
-  React.useEffect(() => {
-    if (status === "loading") {
-      return;
-    }
-
-    const activeWorkspaceFromStore = workspaces.find(
-      (ws: Workspace) => ws._id === workspace
-    );
-
-    if (activeWorkspaceFromStore) {
-      setActiveWorkspace(activeWorkspaceFromStore);
-
-      if (status === "redirecting") {
-        setStatus("success");
-      }
-    } else {
-      if (status !== "redirecting") {
-        setStatus("idle");
-        notFound();
-      }
-    }
-  }, [status, activeWorkspace, workspaces]);
-
-  return status === "loading" ? (
-    // Handle loading state
-    <div className="flex items-center justify-center h-full">
-      <LucideReact.LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
-    </div>
-  ) : (
-    <div className="max-w-4xl mx-auto">
-      {activeWorkspace && <TaskMenuBar activeWorkspace={activeWorkspace!} />}
-
-      <TaskForm />
-
-      {/* Tasks List */}
+  if (status === "loading") {
+    return (
       <div className="space-y-1">
-        {tasks
-          .filter(
-            (task) =>
-              activeWorkspace !== null &&
-              task.workspace === activeWorkspace!.title
-          )
-          .map((task) => (
-            <TaskItem key={task.id} task={task} />
-          ))}
-
-        {tasks.filter(
-          (task) =>
-            activeWorkspace !== null &&
-            task.workspace === activeWorkspace!.title
-        ).length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="rounded-full bg-muted p-3 mb-4">
-              <LucideReact.CheckCircle className="h-6 w-6 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-medium mb-1">No tasks yet</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Add your first task to get started
-            </p>
-          </div>
-        )}
+        {Array.from({ length: 5 }).map((_, index) => (
+          <TaskSkeletonItem key={index} />
+        ))}
       </div>
-    </div>
-  );
+    );
+  }
+
+  return <TaskList />;
 }

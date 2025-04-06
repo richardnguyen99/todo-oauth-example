@@ -10,17 +10,50 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { colorMap } from "../_constants/colors";
-import { Workspace } from "../_types/workspace";
-import ShareWorkspaceDialog from "./share-workspace-dialog";
-import SidebarUpdateWorkspaceDialog from "./sidebar-update-workspace-dialog";
-import DeleteWorkspaceDialog from "./delete-workspace-dialog";
+import { colorMap } from "../../_constants/colors";
+import { Workspace } from "../../_types/workspace";
+import ShareWorkspaceDialog from "../../_components/share-workspace-dialog";
+import SidebarUpdateWorkspaceDialog from "../../_components/sidebar-update-workspace-dialog";
+import DeleteWorkspaceDialog from "../../_components/delete-workspace-dialog";
+import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 
 type Props = Readonly<{
   activeWorkspace: Workspace;
 }>;
 
-export default function TaskMenuBar({ activeWorkspace }: Props): JSX.Element {
+export default function TaskMenuBar(): JSX.Element {
+  const { activeWorkspace } = useWorkspaceStore((s) => s);
+
+  if (!activeWorkspace) {
+    /**
+     * This component should not render if there is no active workspace.
+     * This can happen during initial loading or if the workspace was deleted.
+     */
+    return (
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              `h-8 w-8 rounded-md flex items-center justify-center bg-accent animate-pulse`
+            )}
+          ></div>
+          <div className="text-2xl font-bold w-20 h-8 bg-accent animate-pulse rounded-md"></div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-1">
+            <LucideReact.Users className="h-4 w-4" />
+            <span>Share</span>
+          </Button>
+
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <LucideReact.MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const Icon = LucideReact[
     activeWorkspace.icon as keyof typeof LucideReact
   ] as React.ComponentType<LucideReact.LucideProps>;

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Workspace } from "../_types/workspace";
 import { colorMap } from "../_constants/colors";
+import { useWorkspaceStore } from "../../_providers/workspace";
 
 type Props = Readonly<{
   workspace: Workspace;
@@ -25,6 +26,8 @@ export default function SideBarItem({
     workspace.icon as keyof typeof LucideReact
   ] as React.ComponentType<LucideReact.LucideProps>;
 
+  const { setActiveWorkspace } = useWorkspaceStore((s) => s);
+
   return (
     <Link
       key={workspace._id}
@@ -36,6 +39,17 @@ export default function SideBarItem({
           "hover:bg-accent/50 hover:text-accent-foreground": !isActive,
         }
       )}
+      onClick={(e) => {
+        if (isActive) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          return;
+        }
+
+        // Set the active workspace to null to prevent overlapping state issues
+        setActiveWorkspace(null);
+      }}
       title={workspace.title}
     >
       <div
