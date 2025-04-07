@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppProvider from "./provider";
 import UserInitializer from "@/components/user-initializer";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +35,8 @@ export default function RootLayout({ children }: Props): JSX.Element {
         <AppProvider>
           <UserInitializer />
           {children}
+
+          <Toaster />
         </AppProvider>
       </body>
     </html>

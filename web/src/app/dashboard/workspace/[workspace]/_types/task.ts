@@ -46,3 +46,15 @@ export type Task = {
   createdByUser?: User;
   completedByUser?: User;
 };
+
+export type TasksResponse = {
+  statusCode: number;
+  message: string;
+  data: Task[];
+};
+
+export type TaskResponse = {
+  statusCode: number;
+  message: string;
+  data: Task;
+};

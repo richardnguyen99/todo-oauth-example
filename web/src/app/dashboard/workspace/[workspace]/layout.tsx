@@ -10,6 +10,7 @@ import TaskForm from "./_components/task-form";
 import { useWorkspaceStore } from "../../_providers/workspace";
 import { TaskStoreProvider } from "./_providers/task";
 import TaskInitializer from "./_components/task-initializer";
+import { TaskCreator } from "./_components/task-creator";
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -53,7 +54,7 @@ export default function WorkspacePageLayout({
   ) : (
     <div className="max-w-4xl mx-auto">
       <TaskMenuBar />
-      <TaskForm />
+
       <TaskStoreProvider>
         <TaskInitializer />
         {children}
