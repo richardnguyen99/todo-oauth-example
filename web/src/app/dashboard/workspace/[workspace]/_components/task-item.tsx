@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Task } from "../_types/task";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tooltip } from "@radix-ui/react-tooltip";
+import TaskAvatar from "./task-avatar";
 
 type Props = Readonly<
   {
@@ -99,7 +101,7 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
             <Badge
               key={tag}
               variant="outline"
-              className="text-sm px-1.5 py-1 h-4 bg-accent"
+              className="text-xs px-1.5 py-1 h-4 bg-accent"
             >
               {tag}
             </Badge>
@@ -107,13 +109,17 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
         </div>
 
         <div className="ml-auto text-xs text-muted-foreground inline-flex">
-          <Avatar className="h-6 w-6 bg-accent">
-            <AvatarImage
-              src={task.createdByUser?.avatar}
-              alt={task.createdByUser?.username}
-            ></AvatarImage>
-            <AvatarFallback>{task.createdByUser?.username}</AvatarFallback>
-          </Avatar>
+          <TaskAvatar
+            content={`Created by ${task.createdByUser?.username || "username"}`}
+          >
+            <Avatar className="h-6 w-6 bg-accent">
+              <AvatarImage
+                src={task.createdByUser?.avatar}
+                alt={task.createdByUser?.username}
+              ></AvatarImage>
+              <AvatarFallback>{task.createdByUser?.username}</AvatarFallback>
+            </Avatar>
+          </TaskAvatar>
         </div>
       </div>
     </div>
