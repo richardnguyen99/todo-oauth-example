@@ -2,7 +2,6 @@
 
 import React, { type JSX } from "react";
 
-import { useWorkspaceStore } from "../../_providers/workspace";
 import { useTaskStore } from "./_providers/task";
 import TaskList from "./_components/task-list";
 import TaskSkeletonItem from "./_components/task-skeleton-item";

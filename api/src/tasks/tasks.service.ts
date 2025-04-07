@@ -156,7 +156,13 @@ export class TasksService {
 
     const workspaceDoc = await newTask.save();
 
-    return workspaceDoc;
+    const populatedTask = await workspaceDoc.populate([
+      "workspace",
+      "createdByUser",
+      "completedByUser",
+    ]);
+
+    return populatedTask;
   }
 
   async updateTask(

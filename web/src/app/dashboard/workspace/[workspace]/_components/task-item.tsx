@@ -4,18 +4,11 @@ import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { Task } from "../_types/task";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip } from "@radix-ui/react-tooltip";
 import TaskAvatar from "./task-avatar";
+import TaskActionDropdown from "./task-action-dropdown";
+import TaskCheckbox from "./task-checkbox";
 
 type Props = Readonly<
   {
@@ -31,15 +24,14 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
         "bg-muted/50 text-muted-foreground": task.completed,
         "hover:bg-accent/30": !task.completed,
       })}
+      onClick={(e) => {
+        console.log(e);
+      }}
     >
       <div className="flex items-start gap-3 p-3 pb-0">
-        <button className="flex-shrink-0 text-muted-foreground hover:text-foreground">
-          {task.completed ? (
-            <LucideReact.CheckSquare className="h-6 w-6 text-primary" />
-          ) : (
-            <LucideReact.Square className="h-6 w-6" />
-          )}
-        </button>
+        <div className="flex flex-shrink-0">
+          <TaskCheckbox task={task} />
+        </div>
 
         <div className="flex flex-1 min-w-0 items-center gap-2 h-6">
           <p
@@ -56,33 +48,7 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
           )}
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 text-muted-foreground"
-            >
-              <LucideReact.MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <span>Edit task</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <span>Set due date</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <span>Add to workspace</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-500">
-              <span>Delete task</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <TaskActionDropdown />
       </div>
 
       <div className="flex px-3">
