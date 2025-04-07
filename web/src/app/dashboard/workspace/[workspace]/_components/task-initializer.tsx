@@ -46,7 +46,7 @@ export default function TaskInitializer() {
       // Ensure tasks have the correct type
       const tasks = data.data.map((task) => ({
         ...task,
-        dueDate: new Date(task.dueDate),
+        dueDate: task.dueDate ? new Date(task.dueDate) : null,
       }));
 
       setTasks(tasks);

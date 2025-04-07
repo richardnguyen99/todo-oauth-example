@@ -36,7 +36,7 @@ export class Task {
   };
 
   @Prop({
-    type: mongoose.Schema.Types.String,
+    type: mongoose.Schema.Types.Boolean,
     required: true,
     default: false,
   })

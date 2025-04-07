@@ -45,9 +45,12 @@ export class TasksService {
     );
 
     // Now find tasks for the workspace
-    const tasks = await this.taskModel.find({
-      workspaceId: workspace._id, // Filter by workspaceId
-    });
+    const tasks = await this.taskModel
+      .find({
+        workspaceId: workspace._id, // Filter by workspaceId
+      })
+      .populate("createdByUser")
+      .exec();
 
     return tasks;
   }

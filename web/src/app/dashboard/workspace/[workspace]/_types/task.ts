@@ -33,7 +33,7 @@ export type Task = {
   description: string | null;
   items: Item[];
   completed: boolean;
-  dueDate: Date;
+  dueDate: Date | null;
   priority: Priority;
   tags: string[];
   createdBy: string;
