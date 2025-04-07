@@ -1,6 +1,4 @@
 import React, { type JSX } from "react";
-import * as LucideReact from "lucide-react";
-import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import TaskAvatar from "./task-avatar";
 import TaskActionDropdown from "./task-action-dropdown";
 import TaskCheckbox from "./task-checkbox";
+import TaskDueDate from "./task-due-date";
 
 type Props = Readonly<
   {
@@ -59,9 +58,9 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
 
       <div className="flex flex-wrap items-center gap-2 mt-2 p-3 pt-0">
         <div className="flex items-center gap-2 pl-9">
-          <span className="text-xs text-muted-foreground">
-            {format(task.dueDate ?? new Date(), "MMM d, yyyy")}
-          </span>
+          {task.dueDate && (
+            <TaskDueDate completed={task.completed} dueDate={task.dueDate} />
+          )}
 
           {task.tags.map((tag) => (
             <Badge
