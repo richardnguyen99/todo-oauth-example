@@ -14,10 +14,12 @@ import { TaskCreator } from "./_components/task-creator";
 
 type Props = Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>;
 
 export default function WorkspacePageLayout({
   children,
+  modal,
 }: Props): JSX.Element | never {
   const { workspace } = useParams<WorkspaceParams>();
   const { activeWorkspace, workspaces, status, setActiveWorkspace, setStatus } =
@@ -58,6 +60,7 @@ export default function WorkspacePageLayout({
       <TaskStoreProvider>
         <TaskInitializer />
         {children}
+        {modal}
       </TaskStoreProvider>
     </div>
   );

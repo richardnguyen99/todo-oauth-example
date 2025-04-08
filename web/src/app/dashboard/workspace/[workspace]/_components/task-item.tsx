@@ -1,4 +1,7 @@
+"use client";
+
 import React, { type JSX } from "react";
+import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -8,24 +11,33 @@ import TaskAvatar from "./task-avatar";
 import TaskActionDropdown from "./task-action-dropdown";
 import TaskCheckbox from "./task-checkbox";
 import TaskDueDate from "./task-due-date";
+import Link from "next/link";
 
 type Props = Readonly<
   {
     task: Task;
-  } & React.HTMLAttributes<HTMLDivElement>
+  } & React.HTMLAttributes<HTMLAnchorElement>
 >;
 
 export default function TaskItem({ task, ...rest }: Props): JSX.Element {
+  const { replace } = useRouter();
+
+  const handleClick = React.useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      replace(`/dashboard/workspace/${task.workspaceId}/task/${task._id}`);
+    },
+    [task._id]
+  );
+
   return (
-    <div
+    <Link
       {...rest}
-      className={cn(`rounded-md transition-colors`, {
+      className={cn(`rounded-md transition-colors cursor-pointer`, {
         "bg-muted/50 text-muted-foreground": task.completed,
         "hover:bg-accent/30": !task.completed,
       })}
-      onClick={(e) => {
-        console.log(e);
-      }}
+      href={`/dashboard/workspace/${task.workspaceId}/task/${task._id}`}
+      passHref
     >
       <div className="flex items-start gap-3 p-3 pb-0">
         <div className="flex flex-shrink-0">
@@ -87,6 +99,6 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
           </TaskAvatar>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

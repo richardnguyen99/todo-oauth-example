@@ -52,6 +52,7 @@ export default function TaskCheckbox({ task }: Props): JSX.Element {
 
   const handleClick = React.useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
       e.stopPropagation();
 
       mutate(!task.completed);

@@ -3,8 +3,8 @@
 import React, { type JSX } from "react";
 
 import { useTaskStore } from "./_providers/task";
-import TaskList from "./_components/task-list";
 import TaskSkeletonItem from "./_components/task-skeleton-item";
+import TaskList from "./_components/task-list";
 
 export default function WorkspacePage(): JSX.Element | never {
   const { status } = useTaskStore((s) => s);
