@@ -1,7 +1,7 @@
 import { AxiosError } from "axios";
 
 import { User } from "@/_types/user";
-import { Workspace } from "../../_types/workspace";
+import { Workspace, WorkspaceParams } from "../../_types/workspace";
 
 type TaskStatus = "success" | "error" | "loading" | "idle" | "redirecting";
 
@@ -57,4 +57,8 @@ export type TaskResponse = {
   statusCode: number;
   message: string;
   data: Task;
+};
+
+export type TaskParams = WorkspaceParams & {
+  task: string;
 };

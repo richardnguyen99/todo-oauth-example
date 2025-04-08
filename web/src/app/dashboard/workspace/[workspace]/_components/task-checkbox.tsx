@@ -2,7 +2,7 @@ import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
 
 import { Task, TaskResponse } from "../_types/task";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { AxiosResponse } from "axios";
@@ -15,6 +15,7 @@ type Props = Readonly<{
 export default function TaskCheckbox({ task }: Props): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
   const { tasks, setTasks } = useTaskStore((s) => s);
+  const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
     mutationKey: ["tasks", task._id],
@@ -31,7 +32,6 @@ export default function TaskCheckbox({ task }: Props): JSX.Element {
 
     onSuccess: (response) => {
       const updatedTask = response.data;
-
       const updatedTasks = tasks.map((t) => {
         if (t._id === updatedTask._id) {
           return {
@@ -43,6 +43,12 @@ export default function TaskCheckbox({ task }: Props): JSX.Element {
       });
 
       setTasks(updatedTasks);
+      queryClient.invalidateQueries({
+        queryKey: ["tasks"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["task", task._id],
+      });
     },
 
     onError: (error) => {
