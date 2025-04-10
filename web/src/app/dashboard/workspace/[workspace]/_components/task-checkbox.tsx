@@ -68,7 +68,7 @@ export default function TaskCheckbox({ task }: Props): JSX.Element {
 
   return (
     <button
-      className="flex-shrink-0 text-muted-foreground hover:text-foreground"
+      className="flex-shrink-0 text-muted-foreground hover:text-foreground cursor-pointer"
       onClick={handleClick}
       type="button"
     >

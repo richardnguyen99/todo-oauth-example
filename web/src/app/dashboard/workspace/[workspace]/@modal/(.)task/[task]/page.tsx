@@ -19,7 +19,7 @@ export default function TaskInterceptingRoute(): JSX.Element {
 
   return (
     <Dialog defaultOpen={true} onOpenChange={handleChange}>
-      <DialogContent className="sm:max-w-3xl w-full sm:w-1/2 md:w-3/4 h-[calc(100vh-4rem)] flex flex-col gap-2 pl-0">
+      <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-4xl h-[calc(100vh-4rem)] flex flex-col gap-0 p-0 [&>button:last-child]:hidden">
         <TaskPreview params={params} />
       </DialogContent>
     </Dialog>
