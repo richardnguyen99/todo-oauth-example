@@ -4,6 +4,7 @@ import React, { type JSX } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { Separator } from "@radix-ui/react-dropdown-menu";
 import {
   AlarmClockIcon,
   ArrowRight,
@@ -26,13 +27,12 @@ import {
   X,
 } from "lucide-react";
 
-import TaskDialog from "./task-dialog";
+import TaskDialog from "./task-tab-dialog";
 import { TaskParams, TaskResponse } from "../../../../_types/task";
 import api from "@/lib/axios";
 import { DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@radix-ui/react-dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 
 type Props = Readonly<{

@@ -17,6 +17,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import TaskTabActionDropdown from "./task-tab-action-dropdown";
+import TaskTabActionClose from "./task-tab-action-close";
+import TaskTabActionNavigation from "./task-tab-action-navigation";
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -35,23 +38,17 @@ export default function TaskDialog({ children, task }: Props): JSX.Element {
             </div>
 
             <div className="flex items-center w-full sm:w-fit gap-2 order-1 sm:order-2">
-              <Button variant="ghost" size="icon">
-                <ChevronLeft className="h-4 w-4 rounded-full hover:bg-accent" />
-              </Button>
+              <TaskTabActionNavigation
+                next={false}
+                taskId="something"
+                url="#"
+              />
 
-              <Button variant="ghost" size="icon">
-                <ChevronRight className="h-4 w-4 rounded-full hover:bg-accent" />
-              </Button>
+              <TaskTabActionNavigation next taskId="something" url="#" />
 
-              <Button variant="ghost" size="icon">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
+              <TaskTabActionDropdown />
 
-              <DialogClose asChild>
-                <Button variant="ghost" size="icon">
-                  <X className="h-4 w-4" />
-                </Button>
-              </DialogClose>
+              <TaskTabActionClose />
             </div>
           </div>
         </DialogTitle>

@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 
 import { TaskParams } from "../../../_types/task";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import TaskPreview from "./_components/task-preview";
+import TaskPreview from "./_components/task-tab-preview";
 
 export default function TaskInterceptingRoute(): JSX.Element {
   const params = useParams<TaskParams>();
