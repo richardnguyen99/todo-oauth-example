@@ -11,7 +11,7 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { UserState, User } from "@/stores/user-store";
+import { User } from "@/stores/user-store";
 
 type Props = {
   user: User;
@@ -78,12 +78,7 @@ export default function AuthenticatedCard({ user }: Props): JSX.Element {
         <div className="border-t pt-4 mt-4">
           <h3 className="text-sm font-medium mb-2">Account Actions</h3>
           <div className="flex flex-col gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="justify-start"
-              onClick={() => console.log("Edit profile clicked")}
-            >
+            <Button variant="outline" size="sm" className="justify-start">
               <Edit className="h-4 w-4 mr-2" />
               Update username
             </Button>

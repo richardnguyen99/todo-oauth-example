@@ -10,9 +10,10 @@ import { useTaskStore } from "../_providers/task";
 
 type Props = Readonly<{
   task: Task;
+  setTask?: (task: Task) => void;
 }>;
 
-export default function TaskCheckbox({ task }: Props): JSX.Element {
+export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
   const { tasks, setTasks } = useTaskStore((s) => s);
   const queryClient = useQueryClient();
@@ -30,7 +31,7 @@ export default function TaskCheckbox({ task }: Props): JSX.Element {
       return response.data;
     },
 
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       const updatedTask = response.data;
       const updatedTasks = tasks.map((t) => {
         if (t._id === updatedTask._id) {
@@ -43,11 +44,14 @@ export default function TaskCheckbox({ task }: Props): JSX.Element {
       });
 
       setTasks(updatedTasks);
-      queryClient.invalidateQueries({
+      setTask?.(updatedTask);
+
+      await queryClient.invalidateQueries({
         queryKey: ["tasks"],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["task", task._id],
+
+      await queryClient.invalidateQueries({
+        queryKey: ["task-preview", task._id],
       });
     },
 

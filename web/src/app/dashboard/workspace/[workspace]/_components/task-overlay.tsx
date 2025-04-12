@@ -24,8 +24,6 @@ export default function TaskOverlay({
 }: Props): JSX.Element {
   const searchParams = useSearchParams();
 
-  console.log(searchParams);
-
   return (
     <>
       <TaskList />

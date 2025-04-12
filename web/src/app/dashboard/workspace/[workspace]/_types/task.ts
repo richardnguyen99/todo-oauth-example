@@ -3,7 +3,12 @@ import { AxiosError } from "axios";
 import { User } from "@/_types/user";
 import { Workspace, WorkspaceParams } from "../../_types/workspace";
 
-type TaskStatus = "success" | "error" | "loading" | "idle" | "redirecting";
+export type TaskStatus =
+  | "success"
+  | "error"
+  | "loading"
+  | "idle"
+  | "redirecting";
 
 export type TaskState = {
   tasks: Task[];

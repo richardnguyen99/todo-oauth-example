@@ -20,20 +20,22 @@ import {
 import TaskTabActionDropdown from "./task-tab-action-dropdown";
 import TaskTabActionClose from "./task-tab-action-close";
 import TaskTabActionNavigation from "./task-tab-action-navigation";
+import { useTaskWithIdStore } from "../../../../task/_providers/task";
 
 type Props = Readonly<{
   children: React.ReactNode;
-  task: Task;
 }>;
 
-export default function TaskDialog({ children, task }: Props): JSX.Element {
+export default function TaskDialog({ children }: Props): JSX.Element {
+  const { task, setTask } = useTaskWithIdStore((s) => s);
+
   return (
     <>
       <DialogHeader className="border-b py-5 text-left">
         <DialogTitle asChild>
           <div className="flex sm:items-center flex-col sm:flex-row justify-between px-5">
             <div className="flex items-center gap-3 order-2 sm:order-1">
-              <TaskCheckbox task={task} />
+              <TaskCheckbox task={task} setTask={setTask} />
               <p className="line-clamp-1">{task.title}</p>
             </div>
 
