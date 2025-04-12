@@ -20,22 +20,14 @@ type Props = Readonly<
 >;
 
 export default function TaskItem({ task, ...rest }: Props): JSX.Element {
-  const { replace } = useRouter();
-
-  const handleClick = React.useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      replace(`/dashboard/workspace/${task.workspaceId}/task/${task._id}`);
-    },
-    [task._id]
-  );
-
   return (
     <Link
       {...rest}
-      className={cn(`rounded-md transition-colors cursor-pointer`, {
+      className={cn(`rounded-md transition-colors cursor-pointer z-0`, {
         "bg-muted/50 text-muted-foreground": task.completed,
         "hover:bg-accent/30": !task.completed,
       })}
+      tabIndex={-1}
       href={`/dashboard/workspace/${task.workspaceId}/task/${task._id}`}
       passHref
     >

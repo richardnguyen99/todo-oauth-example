@@ -33,8 +33,10 @@ export default function TaskTabDeleteDialog({ children }: Props): JSX.Element {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
+          <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction asChild onClick={(e) => e.stopPropagation()}>
             <Button className="dark:bg-red-500 dark:hover:bg-red-600 bg-red-400 hover:bg-red-500">
               Delete
             </Button>
