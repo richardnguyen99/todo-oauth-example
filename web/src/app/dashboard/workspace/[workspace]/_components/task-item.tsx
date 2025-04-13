@@ -51,7 +51,7 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
           )}
         </div>
 
-        <TaskActionDropdown />
+        <TaskActionDropdown task={task} />
       </div>
 
       <div className="flex px-3">

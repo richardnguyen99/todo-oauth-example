@@ -16,7 +16,7 @@ export default function TaskInterceptingRoute(): JSX.Element {
   const handleChange = React.useCallback((newOpen: boolean) => {
     setOpen(newOpen);
     if (!newOpen) {
-      router.back();
+      router.push(`/dashboard/workspace/${params.workspace}`);
     }
   }, []);
 

@@ -10,6 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 type Props = Readonly<{
   taskId: string;
@@ -21,8 +22,19 @@ export default function TaskTabActionNavigation(props: Props): JSX.Element {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={props.url}>
+        <Button
+          variant="ghost"
+          size="icon"
+          asChild
+          disabled={props.taskId === ""}
+        >
+          <Link
+            href={props.url}
+            aria-disabled={props.taskId === ""}
+            className={cn({
+              "cursor-not-allowed opacity-30": props.taskId === "",
+            })}
+          >
             {props.next ? (
               <ChevronRight className="h-4 w-4" />
             ) : (
@@ -32,7 +44,13 @@ export default function TaskTabActionNavigation(props: Props): JSX.Element {
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        {props.next ? "Next task" : "Previous task"}
+        {props.next
+          ? props.taskId === ""
+            ? "No next task"
+            : `Next task ${props.taskId}`
+          : props.taskId === ""
+          ? "No previous task"
+          : `Previous task ${props.taskId}`}
       </TooltipContent>
     </Tooltip>
   );

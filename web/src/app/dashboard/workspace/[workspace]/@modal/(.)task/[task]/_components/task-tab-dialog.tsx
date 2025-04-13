@@ -21,13 +21,27 @@ import TaskTabActionDropdown from "./task-tab-action-dropdown";
 import TaskTabActionClose from "./task-tab-action-close";
 import TaskTabActionNavigation from "./task-tab-action-navigation";
 import { useTaskWithIdStore } from "../../../../task/_providers/task";
+import { useTaskStore } from "../../../../_providers/task";
 
 type Props = Readonly<{
   children: React.ReactNode;
 }>;
 
 export default function TaskDialog({ children }: Props): JSX.Element {
+  const { tasks } = useTaskStore((s) => s);
   const { task, setTask } = useTaskWithIdStore((s) => s);
+
+  const prevTask = React.useMemo(() => {
+    const currentIndex = tasks.findIndex((t) => t._id === task._id);
+    const prevIndex = currentIndex - 1;
+    return tasks[prevIndex] ?? null;
+  }, [task, tasks]);
+
+  const nextTask = React.useMemo(() => {
+    const currentIndex = tasks.findIndex((t) => t._id === task._id);
+    const nextIndex = currentIndex + 1;
+    return tasks[nextIndex] ?? null;
+  }, [task, tasks]);
 
   return (
     <>
@@ -42,13 +56,25 @@ export default function TaskDialog({ children }: Props): JSX.Element {
             <div className="flex items-center w-full sm:w-fit gap-2 order-1 sm:order-2">
               <TaskTabActionNavigation
                 next={false}
-                taskId="something"
-                url="#"
+                taskId={prevTask?._id ?? ""}
+                url={
+                  prevTask !== null
+                    ? `/dashboard/workspace/${task.workspaceId}/task/${prevTask._id}`
+                    : "#"
+                }
               />
 
-              <TaskTabActionNavigation next taskId="something" url="#" />
+              <TaskTabActionNavigation
+                next
+                taskId={nextTask?._id ?? ""}
+                url={
+                  nextTask !== null
+                    ? `/dashboard/workspace/${task.workspaceId}/task/${nextTask._id}`
+                    : "#"
+                }
+              />
 
-              <TaskTabActionDropdown task={task} />
+              <TaskTabActionDropdown />
 
               <TaskTabActionClose />
             </div>
