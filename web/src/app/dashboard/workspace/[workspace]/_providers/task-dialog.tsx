@@ -28,11 +28,14 @@ export default function TaskDialogProvider({ children }: Props): JSX.Element {
   const pathname = usePathname();
   const { activeWorkspace } = useWorkspaceStore((s) => s);
 
-  const handleChange = React.useCallback((newOpen: boolean) => {
-    if (!newOpen) {
-      router.push(`/dashboard/workspace/${activeWorkspace?._id}`);
-    }
-  }, []);
+  const handleChange = React.useCallback(
+    (newOpen: boolean) => {
+      if (!newOpen) {
+        router.push(`/dashboard/workspace/${activeWorkspace?._id}`);
+      }
+    },
+    [activeWorkspace]
+  );
 
   React.useEffect(() => {
     // If the pathname includes the task route, show the dialog and persist it
