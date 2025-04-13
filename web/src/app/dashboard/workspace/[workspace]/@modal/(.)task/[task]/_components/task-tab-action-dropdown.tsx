@@ -1,6 +1,7 @@
 "use client";
 
 import React, { type JSX } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   Tooltip,
@@ -8,17 +9,38 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
+import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
 import {
   TaskTabActionDropdownContent,
   TaskTabActionDropdownTrigger,
-} from "../../../../_components/task-action-dropdown";
+} from "@/app/dashboard/workspace/[workspace]/_components/task-action-dropdown";
+import { type Task } from "@/app/dashboard/workspace/[workspace]/_types/task";
+import { useTaskDialogContext } from "../_providers/task-dialog";
 
 export default function TaskTabActionDropdown(): JSX.Element {
-  const [open, setOpen] = React.useState(false);
+  const [openDropdown, setOpenDropdown] = React.useState(false);
+  const { open: showDialog, setOpen: setShowDialog } = useTaskDialogContext();
+  const { task } = useTaskWithIdStore((s) => s);
+  const router = useRouter();
+
+  const handleBeforeDelete = React.useCallback(() => {
+    console.log("before delete");
+  }, []);
+
+  const handleDeleteSuccess = React.useCallback(
+    (task: Task) => {
+      setTimeout(() => {
+        setShowDialog(false);
+        router.replace(`/dashboard/workspace/${task.workspaceId}`);
+      }, 100);
+      setOpenDropdown(false);
+    },
+    [setOpenDropdown, setShowDialog, router]
+  );
 
   return (
     <>
-      <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
         <span tabIndex={0} className="sr-only" />
 
         <Tooltip>
@@ -29,7 +51,10 @@ export default function TaskTabActionDropdown(): JSX.Element {
           {!open && <TooltipContent>Actions</TooltipContent>}
         </Tooltip>
 
-        <TaskTabActionDropdownContent />
+        <TaskTabActionDropdownContent
+          task={task}
+          onDeleteSuccess={handleDeleteSuccess}
+        />
       </DropdownMenu>
     </>
   );

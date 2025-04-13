@@ -16,3 +16,9 @@ export type TaskWithIdActions = {
   setStatus: (status: TaskStatus) => void;
   setError: (error: AxiosError) => void;
 };
+
+export type DeleteTaskResponse = {
+  statusCode: number;
+  message: string;
+  data: Task;
+};

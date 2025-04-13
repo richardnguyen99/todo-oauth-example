@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import TaskDeleteDialog from "./task-delete-dialog";
+import { Task } from "../_types/task";
 
 export const TaskTabActionDropdownItem = React.forwardRef<
   React.ComponentRef<"div">,
@@ -50,11 +51,33 @@ export const TaskTabActionDropdownItem = React.forwardRef<
 });
 TaskTabActionDropdownItem.displayName = "TaskTabActionDropdownItem";
 
+type ContentProps = Readonly<{
+  task: Task;
+
+  onBeforeDelete?: (
+    task: Task,
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => void;
+  onDeleteSuccess?: (task: Task) => void;
+  onDeleteError?: (error: Error) => void;
+  onAfterDelete?: (task: Task | undefined, error: Error | null) => void;
+}>;
+
 // For reusability in task tab
 export const TaskTabActionDropdownContent = React.forwardRef<
   React.ComponentRef<"div">,
-  React.ComponentProps<typeof DropdownMenuContent>
->(function TaskTabActionDropdownContentRef(props, ref): JSX.Element {
+  React.ComponentProps<typeof DropdownMenuContent> & ContentProps
+>(function TaskTabActionDropdownContentRef(
+  {
+    task,
+    onBeforeDelete,
+    onDeleteError,
+    onDeleteSuccess,
+    onAfterDelete,
+    ...props
+  },
+  ref
+): JSX.Element {
   return (
     <DropdownMenuContent ref={ref} {...props} className="w-56">
       <DropdownMenuLabel>Action List</DropdownMenuLabel>
@@ -72,7 +95,13 @@ export const TaskTabActionDropdownContent = React.forwardRef<
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
 
-      <TaskDeleteDialog>
+      <TaskDeleteDialog
+        task={task}
+        onSuccess={onDeleteSuccess || undefined}
+        onError={onDeleteError || undefined}
+        onSettled={onAfterDelete || undefined}
+        onClick={(e) => onBeforeDelete?.(task, e)}
+      >
         <TaskTabActionDropdownItem variant="destructive">
           Delete Task
           <DropdownMenuShortcut>⇧⌘D</DropdownMenuShortcut>
@@ -103,13 +132,17 @@ export const TaskTabActionDropdownTrigger = React.forwardRef<
 });
 TaskTabActionDropdownTrigger.displayName = "TaskTabActionDropdownTrigger";
 
-export default function TaskTabActionDropdown(): JSX.Element {
+type Props = Readonly<{
+  task: Task;
+}>;
+
+export default function TaskTabActionDropdown({ task }: Props): JSX.Element {
   return (
     <>
       <DropdownMenu>
         <span tabIndex={0} className="sr-only" />
         <TaskTabActionDropdownTrigger />
-        <TaskTabActionDropdownContent />
+        <TaskTabActionDropdownContent task={task} />
       </DropdownMenu>
     </>
   );

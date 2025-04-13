@@ -48,7 +48,7 @@ export default function TaskDialog({ children }: Props): JSX.Element {
 
               <TaskTabActionNavigation next taskId="something" url="#" />
 
-              <TaskTabActionDropdown />
+              <TaskTabActionDropdown task={task} />
 
               <TaskTabActionClose />
             </div>

@@ -38,7 +38,6 @@ export const TaskWithIdStoreProvider = ({
   React.useEffect(() => {
     return () => {
       storeRef.current = null;
-      console.log("TaskWithIdStoreProvider unmounted");
     };
   }, []);
 
