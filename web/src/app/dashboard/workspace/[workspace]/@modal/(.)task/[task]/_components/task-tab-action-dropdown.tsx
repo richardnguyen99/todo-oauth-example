@@ -15,11 +15,11 @@ import {
   TaskTabActionDropdownTrigger,
 } from "@/app/dashboard/workspace/[workspace]/_components/task-action-dropdown";
 import { type Task } from "@/app/dashboard/workspace/[workspace]/_types/task";
-import { useTaskDialogContext } from "../_providers/task-dialog";
+import { useTaskDialogContext } from "../../../../_providers/task-dialog";
 
 export default function TaskTabActionDropdown(): JSX.Element {
   const [openDropdown, setOpenDropdown] = React.useState(false);
-  const { open: showDialog, setOpen: setShowDialog } = useTaskDialogContext();
+  const { dialogShow, setDialogShow } = useTaskDialogContext();
   const { task } = useTaskWithIdStore((s) => s);
   const router = useRouter();
 
@@ -30,12 +30,12 @@ export default function TaskTabActionDropdown(): JSX.Element {
   const handleDeleteSuccess = React.useCallback(
     (task: Task) => {
       setTimeout(() => {
-        setShowDialog(false);
+        setDialogShow(false);
         router.replace(`/dashboard/workspace/${task.workspaceId}`);
       }, 100);
       setOpenDropdown(false);
     },
-    [setOpenDropdown, setShowDialog, router]
+    [setOpenDropdown, setDialogShow, router]
   );
 
   return (

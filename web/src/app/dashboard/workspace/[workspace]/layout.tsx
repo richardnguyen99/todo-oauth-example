@@ -6,11 +6,10 @@ import { notFound, useParams } from "next/navigation";
 
 import { Workspace, WorkspaceParams } from "../_types/workspace";
 import TaskMenuBar from "./_components/task-menubar";
-import TaskForm from "./_components/task-form";
 import { useWorkspaceStore } from "../../_providers/workspace";
 import { TaskStoreProvider } from "./_providers/task";
 import TaskInitializer from "./_components/task-initializer";
-import { TaskCreator } from "./_components/task-creator";
+import TaskDialogProvider from "./_providers/task-dialog";
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -22,7 +21,7 @@ export default function WorkspacePageLayout({
   modal,
 }: Props): JSX.Element | never {
   const { workspace } = useParams<WorkspaceParams>();
-  const { activeWorkspace, workspaces, status, setActiveWorkspace, setStatus } =
+  const { workspaces, status, setActiveWorkspace, setStatus } =
     useWorkspaceStore((s) => s);
 
   React.useEffect(() => {
@@ -61,7 +60,7 @@ export default function WorkspacePageLayout({
         <TaskInitializer />
         {children}
 
-        <div>{modal}</div>
+        <TaskDialogProvider>{modal}</TaskDialogProvider>
       </TaskStoreProvider>
     </div>
   );
