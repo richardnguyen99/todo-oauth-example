@@ -7,7 +7,9 @@ import Redirect from "@/components/redirect";
 import { useWorkspaceStore } from "../_providers/workspace";
 
 export default function Page(): JSX.Element {
-  const { workspaces, status } = useWorkspaceStore((s) => s);
+  const { workspaces, setActiveWorkspace, status } = useWorkspaceStore(
+    (s) => s
+  );
 
   if (status === "loading") {
     // If the workspace store is still loading, show a loading spinner
@@ -29,7 +31,12 @@ export default function Page(): JSX.Element {
   }
 
   return workspaces.length > 0 ? (
-    <Redirect url={`/dashboard/workspace/${workspaces[0]._id}`} />
+    <Redirect
+      url={`/dashboard/workspace/${workspaces[0]._id}`}
+      onReplace={(url) => {
+        setActiveWorkspace(workspaces[0]);
+      }}
+    />
   ) : (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <div className="rounded-full bg-muted p-3 mb-4">

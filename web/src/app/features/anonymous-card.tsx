@@ -56,7 +56,6 @@ export default function AnonymousCard(): JSX.Element {
                 "w-full !bg-white dark:!bg-white hover:!bg-gray-100 dark:hover:!bg-gray-100 !text-gray-800 dark:!text-gray-700 border !border-gray-300 flex items-center justify-center gap-2",
             })
           )}
-          onClick={() => console.log("Google login clicked")}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

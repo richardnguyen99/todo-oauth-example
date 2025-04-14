@@ -71,9 +71,8 @@ export function UpdateWorkspaceForm({ onCancel }: Props): JSX.Element {
   const queryClient = useQueryClient();
   const { workspace } = useParams<WorkspaceParams>();
   const { push } = useRouter();
-  const { activeWorkspace, setWorkspaces, workspaces } = useWorkspaceStore(
-    (s) => s
-  );
+  const { activeWorkspace, setWorkspaces, workspaces, setActiveWorkspace } =
+    useWorkspaceStore((s) => s);
 
   // Initialize the form with default values
   const form = useForm<FormValues>({
@@ -105,23 +104,23 @@ export function UpdateWorkspaceForm({ onCancel }: Props): JSX.Element {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["fetch-workspace"] });
 
+      const newWorkspace = {
+        ...activeWorkspace,
+        ...data.data,
+      };
+
       // Update the workspace in the store
       const newWorkspaces = workspaces.map((ws: Workspace) => {
         if (ws._id === data.data._id) {
           // Update the workspace with new values
-          return {
-            ...ws,
-            title: data.data.title,
-            icon: data.data.icon,
-            color: data.data.color as Color, // Ensure type safety
-          };
+          return newWorkspace;
         }
         return ws;
       });
 
       setWorkspaces(newWorkspaces);
+      setActiveWorkspace(newWorkspace);
 
-      push(`/dashboard/workspace/${data.data._id}`);
       onCancel();
     },
 
