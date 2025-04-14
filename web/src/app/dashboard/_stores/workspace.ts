@@ -1,4 +1,4 @@
-import { Axios, AxiosError } from "axios";
+import { type AxiosError } from "axios";
 import { createStore } from "zustand/vanilla";
 
 import { Workspace } from "../workspace/_types/workspace";
