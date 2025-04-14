@@ -15,7 +15,7 @@ type Props = Readonly<{
 }>;
 
 export const TaskDialogContext = React.createContext<TaskDialogContextType>(
-  {} as TaskDialogContextType
+  {} as TaskDialogContextType,
 );
 
 /**
@@ -34,7 +34,7 @@ export default function TaskDialogProvider({ children }: Props): JSX.Element {
         router.push(`/dashboard/workspace/${activeWorkspace?._id}`);
       }
     },
-    [activeWorkspace]
+    [activeWorkspace],
   );
 
   React.useEffect(() => {
@@ -49,7 +49,7 @@ export default function TaskDialogProvider({ children }: Props): JSX.Element {
   return (
     <TaskDialogContext.Provider value={{ dialogShow, setDialogShow }}>
       <Dialog open={dialogShow} onOpenChange={handleChange}>
-        <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-4xl h-[calc(100vh-4rem)] flex flex-col gap-0 p-0 [&>button:last-child]:hidden">
+        <DialogContent className="flex h-[calc(100vh-4rem)] flex-col gap-0 p-0 sm:max-w-xl md:max-w-2xl lg:max-w-4xl [&>button:last-child]:hidden">
           {children}
         </DialogContent>
       </Dialog>

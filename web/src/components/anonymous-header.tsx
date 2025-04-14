@@ -16,17 +16,17 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6 mx-auto">
+    <header className="bg-background sticky top-0 z-40 w-full border-b">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
-        <Link href="/" className="flex gap-2 items-center text-xl font-bold">
-          <CheckCircle className="h-6 w-6 text-primary" />
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold">
+          <CheckCircle className="text-primary h-6 w-6" />
           <span>TaskMaster</span>
         </Link>
 
         {/* Mobile Menu Button */}
         <button
-          className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground md:hidden"
+          className="text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center rounded-md p-2 md:hidden"
           onClick={toggleMenu}
           aria-label="Toggle menu"
         >
@@ -41,25 +41,25 @@ export default function Header() {
         <nav className="hidden md:flex md:items-center md:space-x-4 lg:space-x-6">
           <Link
             href="#features"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
           >
             Features
           </Link>
           <Link
             href="#how-it-works"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
           >
             How It Works
           </Link>
           <Link
             href="#pricing"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
           >
             Pricing
           </Link>
           <Link
             href="#faq"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
           >
             FAQ
           </Link>
@@ -76,42 +76,42 @@ export default function Header() {
         {/* Mobile Navigation */}
         <div
           className={cn(
-            "absolute top-full left-0 right-0 bg-background border-b shadow-lg md:hidden",
-            isMenuOpen ? "block" : "hidden"
+            "bg-background absolute top-full right-0 left-0 border-b shadow-lg md:hidden",
+            isMenuOpen ? "block" : "hidden",
           )}
         >
-          <div className="container py-4 px-4 space-y-4 mx-auto">
+          <div className="container mx-auto space-y-4 px-4 py-4">
             <nav className="flex flex-col space-y-4">
               <Link
                 href="#features"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Features
               </Link>
               <Link
                 href="#how-it-works"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 How It Works
               </Link>
               <Link
                 href="#pricing"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Pricing
               </Link>
               <Link
                 href="#faq"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 FAQ
               </Link>
             </nav>
-            <div className="flex flex-col space-y-2 pt-2 border-t">
+            <div className="flex flex-col space-y-2 border-t pt-2">
               <Link href="/login" onClick={() => setIsMenuOpen(false)}>
                 <Button className="w-full justify-center">Login</Button>
               </Link>

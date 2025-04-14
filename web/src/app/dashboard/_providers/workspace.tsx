@@ -34,13 +34,13 @@ export const WorkspaceStoreProvider = ({
 };
 
 export const useWorkspaceStore = <T,>(
-  selector: (store: WorkspaceStore) => T
+  selector: (store: WorkspaceStore) => T,
 ): T => {
   const userStoreContext = useContext(WorkspaceStoreContext);
 
   if (!userStoreContext) {
     throw new Error(
-      `useWorkspaceStore must be used within WorkspaceStoreProvider`
+      `useWorkspaceStore must be used within WorkspaceStoreProvider`,
     );
   }
 

@@ -8,7 +8,7 @@ import { type MemberStore, createMemberStore } from "../_stores/member";
 export type MemberStoreApi = ReturnType<typeof createMemberStore>;
 
 export const MemberStoreContext = createContext<MemberStoreApi | undefined>(
-  undefined
+  undefined,
 );
 
 export interface MemberStoreProviderProps {

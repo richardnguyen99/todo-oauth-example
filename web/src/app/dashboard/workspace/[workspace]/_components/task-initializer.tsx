@@ -18,7 +18,7 @@ type ResponseData = {
 export default function TaskInitializer() {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
   const { setTasks, setStatus, setError } = useTaskStore((s) => s);
-  const { isLoading, isPending, isError, data, error } = useQuery<
+  const { isLoading, isPending, data, error } = useQuery<
     ResponseData,
     AxiosError
   >({
@@ -29,7 +29,7 @@ export default function TaskInitializer() {
       }
 
       const response = await api.get(
-        `/tasks?workspace_id=${activeWorkspace?._id}`
+        `/tasks?workspace_id=${activeWorkspace?._id}`,
       );
 
       return response.data;

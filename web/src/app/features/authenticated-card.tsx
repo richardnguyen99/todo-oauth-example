@@ -28,10 +28,10 @@ export default function AuthenticatedCard({ user }: Props): JSX.Element {
   };
 
   return (
-    <Card className="w-full md:w-md mx-auto">
-      <CardHeader className="pt-6 flex flex-col items-center space-y-3">
+    <Card className="mx-auto w-full md:w-md">
+      <CardHeader className="flex flex-col items-center space-y-3 pt-6">
         <div className="relative">
-          <Avatar className="h-24 w-24 border-4 border-background">
+          <Avatar className="border-background h-24 w-24 border-4">
             <AvatarImage src={user.avatar} alt={user.username} />
             <AvatarFallback className="text-xl">
               {getInitials(user.username || "")}
@@ -39,18 +39,18 @@ export default function AuthenticatedCard({ user }: Props): JSX.Element {
           </Avatar>
           <span
             className={clsx(
-              "absolute bottom-1 right-1 h-4 w-4 rounded-full ring-2 ring-background",
+              "ring-background absolute right-1 bottom-1 h-4 w-4 rounded-full ring-2",
               {
                 "bg-green-500": user?.verified,
                 "bg-gray-400": !user?.verified,
-              }
+              },
             )}
             title={`${user.verified ? "Verified" : "Not verified"}`}
           />
         </div>
 
-        <div className="text-center space-y-1 w-full">
-          <h2 className="text-2xl font-bold line-clamp-1">{user.username}</h2>
+        <div className="w-full space-y-1 text-center">
+          <h2 className="line-clamp-1 text-2xl font-bold">{user.username}</h2>
           <Badge variant="secondary" className="font-normal">
             {user.id}
           </Badge>
@@ -58,12 +58,12 @@ export default function AuthenticatedCard({ user }: Props): JSX.Element {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-2 text-sm">
           <Mail className="h-4 w-4" />
           <span>{user.email}</span>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-2 text-sm">
           <CalendarDays className="h-4 w-4" />
           <span>
             Joined{" "}
@@ -75,11 +75,11 @@ export default function AuthenticatedCard({ user }: Props): JSX.Element {
           </span>
         </div>
 
-        <div className="border-t pt-4 mt-4">
-          <h3 className="text-sm font-medium mb-2">Account Actions</h3>
+        <div className="mt-4 border-t pt-4">
+          <h3 className="mb-2 text-sm font-medium">Account Actions</h3>
           <div className="flex flex-col gap-2">
             <Button variant="outline" size="sm" className="justify-start">
-              <Edit className="h-4 w-4 mr-2" />
+              <Edit className="mr-2 h-4 w-4" />
               Update username
             </Button>
 
@@ -90,11 +90,11 @@ export default function AuthenticatedCard({ user }: Props): JSX.Element {
                   variant: "outline",
                   size: "sm",
                   className:
-                    "justify-start text-destructive hover:text-destructive",
-                })
+                    "text-destructive hover:text-destructive justify-start",
+                }),
               )}
             >
-              <LogOut className="h-4 w-4 mr-2" />
+              <LogOut className="mr-2 h-4 w-4" />
               Log out
             </a>
           </div>
@@ -102,7 +102,7 @@ export default function AuthenticatedCard({ user }: Props): JSX.Element {
       </CardContent>
 
       <CardFooter className="flex justify-center border-t pt-4">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           Last updated:{" "}
           {new Date(user.updatedAt).toLocaleDateString("en-US", {
             year: "numeric",

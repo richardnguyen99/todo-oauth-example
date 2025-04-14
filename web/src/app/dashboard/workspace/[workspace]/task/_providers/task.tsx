@@ -49,13 +49,13 @@ export const TaskWithIdStoreProvider = ({
 };
 
 export const useTaskWithIdStore = <T,>(
-  selector: (store: TaskWithIdStore) => T
+  selector: (store: TaskWithIdStore) => T,
 ): T => {
   const userWithIdStoreContext = useContext(TaskWithIdStoreContext);
 
   if (!userWithIdStoreContext) {
     throw new Error(
-      `useTaskWithIdStore must be used within TaskWithIdStoreProvider`
+      `useTaskWithIdStore must be used within TaskWithIdStoreProvider`,
     );
   }
 

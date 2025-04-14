@@ -30,7 +30,7 @@ export default function WorkspacePageLayout({
     }
 
     const activeWorkspaceFromStore = workspaces.find(
-      (ws: Workspace) => ws._id === workspace
+      (ws: Workspace) => ws._id === workspace,
     );
 
     if (activeWorkspaceFromStore) {
@@ -45,15 +45,15 @@ export default function WorkspacePageLayout({
         notFound();
       }
     }
-  }, [status, workspace]);
+  }, [status, workspace, workspaces]);
 
   return status === "loading" ? (
     // Handle loading state
-    <div className="flex items-center justify-center h-full">
-      <LucideReact.LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+    <div className="flex h-full items-center justify-center">
+      <LucideReact.LoaderCircle className="text-muted-foreground h-6 w-6 animate-spin" />
     </div>
   ) : (
-    <div className="max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl">
       <TaskMenuBar />
 
       <TaskStoreProvider>

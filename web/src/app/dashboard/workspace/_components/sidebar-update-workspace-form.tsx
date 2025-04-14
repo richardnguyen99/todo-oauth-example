@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { AxiosError, AxiosResponse } from "axios";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
@@ -34,11 +34,15 @@ import { colorList, colorMap } from "../_constants/colors";
 import { icons } from "../_constants/icons";
 import { useWorkspaceStore } from "../../_providers/workspace";
 import {
-  Color,
+  UpdateWorkspaceErrorResponse,
   UpdateWorkspaceResponse,
   Workspace,
   WorkspaceParams,
 } from "../_types/workspace";
+
+const [firstColor, ...otherColors] = Object.keys(
+  colorMap,
+) as (keyof typeof colorMap)[];
 
 // Create a Zod schema for form validation
 const formSchema = z.object({
@@ -51,9 +55,7 @@ const formSchema = z.object({
       message: "Please select a valid icon",
     }),
   color: z
-    .string({
-      required_error: "Please select a color",
-    })
+    .enum([firstColor, ...otherColors])
     .refine((value) => colorList.some((c) => c.name === value), {
       message: "Please select a valid color",
     }),
@@ -70,7 +72,6 @@ export function UpdateWorkspaceForm({ onCancel }: Props): JSX.Element {
   const [loading, setLoading] = React.useState(false);
   const queryClient = useQueryClient();
   const { workspace } = useParams<WorkspaceParams>();
-  const { push } = useRouter();
   const { activeWorkspace, setWorkspaces, workspaces, setActiveWorkspace } =
     useWorkspaceStore((s) => s);
 
@@ -94,7 +95,7 @@ export function UpdateWorkspaceForm({ onCancel }: Props): JSX.Element {
       setLoading(true);
 
       const response = await api.put<
-        any,
+        unknown,
         AxiosResponse<UpdateWorkspaceResponse>
       >(`/workspaces/${workspace}/update`, newWorkspace);
 
@@ -128,10 +129,10 @@ export function UpdateWorkspaceForm({ onCancel }: Props): JSX.Element {
       setLoading(false);
     },
 
-    onError: (error: AxiosError) => {
+    onError: (error: AxiosError<UpdateWorkspaceErrorResponse>) => {
       form.setError("root.badRequest", {
         type: "400",
-        message: (error.response?.data as any).message,
+        message: error.response?.data.message,
       });
       console.error("Error creating workspace:", error);
     },
@@ -149,7 +150,7 @@ export function UpdateWorkspaceForm({ onCancel }: Props): JSX.Element {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((values) =>
-          mutate(values, { onSuccess: () => form.reset() })
+          mutate(values, { onSuccess: () => form.reset() }),
         )}
         className="space-y-6"
       >
@@ -245,10 +246,9 @@ export function UpdateWorkspaceForm({ onCancel }: Props): JSX.Element {
         {/* Preview */}
         <div className="mt-2">
           <Label>Preview</Label>
-          <div className="flex items-center gap-3 mt-2 p-3 border rounded-md">
+          <div className="mt-2 flex items-center gap-3 rounded-md border p-3">
             <div
-              className={`h-8 w-8 rounded-md flex items-center justify-center ${
-                // @ts-ignore
+              className={`flex h-8 w-8 items-center justify-center rounded-md ${
                 colorMap[watchedValues.color]
               }`}
             >
@@ -258,7 +258,7 @@ export function UpdateWorkspaceForm({ onCancel }: Props): JSX.Element {
               <span className="text-sm font-medium">
                 {watchedValues.title || "Workspace Name"}
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 {selectedColorName} • {watchedValues.icon}
               </span>
             </div>
@@ -267,12 +267,12 @@ export function UpdateWorkspaceForm({ onCancel }: Props): JSX.Element {
 
         <div>
           {form.formState.errors.root?.badRequest && (
-            <div className="text-red-500 text-sm">
+            <div className="text-sm text-red-500">
               {form.formState.errors.root?.badRequest.message}
             </div>
           )}
 
-          <div className="flex justify-end gap-2 mt-4">
+          <div className="mt-4 flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>

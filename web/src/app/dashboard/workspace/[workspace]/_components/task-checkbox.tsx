@@ -1,11 +1,10 @@
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Task, TaskResponse } from "../_types/task";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
-import { AxiosResponse } from "axios";
 import { useTaskStore } from "../_providers/task";
 
 type Props = Readonly<{
@@ -21,11 +20,11 @@ export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
   const { mutate } = useMutation({
     mutationKey: ["tasks", task._id],
     mutationFn: async (completed: boolean) => {
-      const response = await api.put<any, AxiosResponse<TaskResponse>>(
+      const response = await api.put<TaskResponse>(
         `/tasks/${task._id}/update?workspace_id=${activeWorkspace?._id}`,
         {
           completed,
-        }
+        },
       );
 
       return response.data;
@@ -67,17 +66,17 @@ export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
 
       mutate(!task.completed);
     },
-    [task]
+    [mutate, task.completed],
   );
 
   return (
     <button
-      className="flex-shrink-0 text-muted-foreground hover:text-foreground cursor-pointer"
+      className="text-muted-foreground hover:text-foreground flex-shrink-0 cursor-pointer"
       onClick={handleClick}
       type="button"
     >
       {task.completed ? (
-        <LucideReact.CheckSquare className="h-6 w-6 text-primary" />
+        <LucideReact.CheckSquare className="text-primary h-6 w-6" />
       ) : (
         <LucideReact.Square className="h-6 w-6" />
       )}

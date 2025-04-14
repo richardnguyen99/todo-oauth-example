@@ -57,7 +57,7 @@ export default function UserInitializer() {
             (account: { oauthId: string; oauthProvider: string }) => ({
               oauthId: account.oauthId,
               oauthProvider: account.oauthProvider,
-            })
+            }),
           ),
         },
         status: "success",

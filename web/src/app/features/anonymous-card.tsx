@@ -15,13 +15,13 @@ import clsx from "clsx";
 
 export default function AnonymousCard(): JSX.Element {
   return (
-    <Card className="w-md mx-auto">
+    <Card className="mx-auto w-md">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
         <CardDescription>Sign in to continue to your account</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-center text-sm">
           Choose your preferred login method to continue
         </p>
 
@@ -31,8 +31,8 @@ export default function AnonymousCard(): JSX.Element {
             buttonVariants({
               variant: "outline",
               className:
-                "w-full !bg-[#5865F2] dark:!bg-[#5865F2] hover:!bg-[#4752c4] dark:hover:!bg-[#4752c4] text-white hover:text-white flex items-center justify-center gap-2",
-            })
+                "flex w-full items-center justify-center gap-2 !bg-[#5865F2] text-white hover:!bg-[#4752c4] hover:text-white dark:!bg-[#5865F2] dark:hover:!bg-[#4752c4]",
+            }),
           )}
         >
           <svg
@@ -53,8 +53,8 @@ export default function AnonymousCard(): JSX.Element {
             buttonVariants({
               variant: "outline",
               className:
-                "w-full !bg-white dark:!bg-white hover:!bg-gray-100 dark:hover:!bg-gray-100 !text-gray-800 dark:!text-gray-700 border !border-gray-300 flex items-center justify-center gap-2",
-            })
+                "flex w-full items-center justify-center gap-2 border !border-gray-300 !bg-white !text-gray-800 hover:!bg-gray-100 dark:!bg-white dark:!text-gray-700 dark:hover:!bg-gray-100",
+            }),
           )}
         >
           <svg
@@ -84,7 +84,7 @@ export default function AnonymousCard(): JSX.Element {
         </a>
       </CardContent>
       <CardFooter className="flex justify-center">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           By continuing, you agree to our Terms of Service and Privacy Policy
         </p>
       </CardFooter>

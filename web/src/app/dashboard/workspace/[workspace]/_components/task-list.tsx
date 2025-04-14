@@ -19,11 +19,11 @@ export default function TaskList(): JSX.Element {
 
         {tasks.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="rounded-full bg-muted p-3 mb-4">
-              <CheckCircle className="h-6 w-6 text-muted-foreground" />
+            <div className="bg-muted mb-4 rounded-full p-3">
+              <CheckCircle className="text-muted-foreground h-6 w-6" />
             </div>
-            <h3 className="text-lg font-medium mb-1">No tasks yet</h3>
-            <p className="text-sm text-muted-foreground mb-4">
+            <h3 className="mb-1 text-lg font-medium">No tasks yet</h3>
+            <p className="text-muted-foreground mb-4 text-sm">
               Add your first task to get started
             </p>
           </div>

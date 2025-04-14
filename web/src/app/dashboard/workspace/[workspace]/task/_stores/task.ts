@@ -15,7 +15,7 @@ export const defaultInitState: TaskWithIdState = {
 export type TaskWithIdStore = TaskWithIdState & TaskWithIdActions;
 
 export const createTaskWithIdStore = (
-  initState: TaskWithIdState = defaultInitState
+  initState: TaskWithIdState = defaultInitState,
 ) => {
   return createStore<TaskWithIdStore>()((set) => ({
     ...initState,

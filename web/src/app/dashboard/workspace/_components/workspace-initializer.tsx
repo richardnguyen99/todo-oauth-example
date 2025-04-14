@@ -16,7 +16,7 @@ type ResponseData = {
 
 export default function WorkspaceInitializer() {
   const { setWorkspaces, setStatus, setError } = useWorkspaceStore((s) => s);
-  const { isLoading, isPending, isError, data, error } = useQuery<
+  const { isLoading, isPending, data, error } = useQuery<
     ResponseData,
     AxiosError
   >({
@@ -41,7 +41,7 @@ export default function WorkspaceInitializer() {
       });
 
       const sortedWorkspaces = data.data.sort(
-        (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+        (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime(),
       );
 
       setWorkspaces(sortedWorkspaces);

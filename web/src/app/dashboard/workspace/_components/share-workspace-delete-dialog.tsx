@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Member, RemoveMemberResponse } from "../_types/member";
-import { WorkspaceParams } from "../_types/workspace";
+import { WorkspaceErrorResponse, WorkspaceParams } from "../_types/workspace";
 import { useMemberStore } from "../../_providers/member";
 
 type Props = Readonly<{
@@ -32,7 +32,7 @@ export default function ShareWorkspaceDeleteDialog({
   show,
   setShow,
 }: Props): JSX.Element {
-  const [error, setError] = React.useState<string | null>(null);
+  const [_, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
   const { workspace } = useParams<WorkspaceParams>();
   const queryClient = useQueryClient();
@@ -51,7 +51,7 @@ export default function ShareWorkspaceDeleteDialog({
       return response.data;
     },
 
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["workspaceMembers", workspace, member.userId],
       });
@@ -65,16 +65,16 @@ export default function ShareWorkspaceDeleteDialog({
       setLoading(false);
     },
 
-    onError: (error: AxiosError) => {
+    onError: (error: AxiosError<WorkspaceErrorResponse>) => {
       console.error(error);
 
-      setError(`${error.code}: ${(error.response?.data as any).message}`);
+      setError(`${error.code}: ${error.response?.data.message}`);
     },
   });
 
   const handleDelete = React.useCallback(() => {
     mutate();
-  }, [member.role]);
+  }, [mutate]);
 
   return (
     <AlertDialog open={show}>

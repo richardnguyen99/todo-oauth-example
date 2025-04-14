@@ -11,15 +11,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { colorMap } from "../../_constants/colors";
-import { Workspace } from "../../_types/workspace";
 import ShareWorkspaceDialog from "../../_components/share-workspace-dialog";
 import SidebarUpdateWorkspaceDialog from "../../_components/sidebar-update-workspace-dialog";
 import DeleteWorkspaceDialog from "../../_components/delete-workspace-dialog";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
-
-type Props = Readonly<{
-  activeWorkspace: Workspace;
-}>;
 
 export default function TaskMenuBar(): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
@@ -30,14 +25,14 @@ export default function TaskMenuBar(): JSX.Element {
      * This can happen during initial loading or if the workspace was deleted.
      */
     return (
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div
             className={cn(
-              `h-8 w-8 rounded-md flex items-center justify-center bg-accent animate-pulse`
+              `bg-accent flex h-8 w-8 animate-pulse items-center justify-center rounded-md`,
             )}
           ></div>
-          <div className="text-2xl font-bold w-20 h-8 bg-accent animate-pulse rounded-md"></div>
+          <div className="bg-accent h-8 w-20 animate-pulse rounded-md text-2xl font-bold"></div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -59,12 +54,12 @@ export default function TaskMenuBar(): JSX.Element {
   ] as React.ComponentType<LucideReact.LucideProps>;
 
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div className="mb-6 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div
           className={cn(
-            `h-8 w-8 rounded-md flex items-center justify-center`,
-            colorMap[activeWorkspace.color]
+            `flex h-8 w-8 items-center justify-center rounded-md`,
+            colorMap[activeWorkspace.color],
           )}
         >
           <Icon className="h-5 w-5 text-white" />
@@ -76,7 +71,6 @@ export default function TaskMenuBar(): JSX.Element {
         <ShareWorkspaceDialog
           workspaceId={activeWorkspace._id}
           workspaceTitle={activeWorkspace.title}
-          workspaceColor={activeWorkspace.color}
         />
 
         <DropdownMenu>

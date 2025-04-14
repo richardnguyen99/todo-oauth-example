@@ -19,7 +19,7 @@ import { useTaskDialogContext } from "../../../../_providers/task-dialog";
 
 export default function TaskTabActionDropdown(): JSX.Element {
   const [openDropdown, setOpenDropdown] = React.useState(false);
-  const { dialogShow, setDialogShow } = useTaskDialogContext();
+  const { setDialogShow } = useTaskDialogContext();
   const { task } = useTaskWithIdStore((s) => s);
   const router = useRouter();
 
@@ -35,7 +35,7 @@ export default function TaskTabActionDropdown(): JSX.Element {
       }, 100);
       setOpenDropdown(false);
     },
-    [setOpenDropdown, setDialogShow, router]
+    [setOpenDropdown, setDialogShow, router],
   );
 
   return (
@@ -54,6 +54,7 @@ export default function TaskTabActionDropdown(): JSX.Element {
         <TaskTabActionDropdownContent
           task={task}
           onDeleteSuccess={handleDeleteSuccess}
+          onBeforeDelete={handleBeforeDelete}
         />
       </DropdownMenu>
     </>

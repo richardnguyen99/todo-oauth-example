@@ -29,7 +29,7 @@ export const defaultInitState: WorkspaceState = {
 export type WorkspaceStore = WorkspaceState & WorkspaceActions;
 
 export const createWorkspaceStore = (
-  initState: WorkspaceState = defaultInitState
+  initState: WorkspaceState = defaultInitState,
 ) => {
   return createStore<WorkspaceStore>()((set) => ({
     ...initState,

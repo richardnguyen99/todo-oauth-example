@@ -8,7 +8,7 @@ import { type TaskStore, createTaskStore } from "../_stores/task";
 export type taskStoreApi = ReturnType<typeof createTaskStore>;
 
 export const TaskStoreContext = createContext<taskStoreApi | undefined>(
-  undefined
+  undefined,
 );
 
 export interface TaskStoreProviderProps {

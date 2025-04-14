@@ -17,8 +17,8 @@ export default function SidebarList({
 
   if (status === "loading") {
     return (
-      <nav className="h-[calc(100%-5rem)] flex items-center justify-center">
-        <LucideReact.LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+      <nav className="flex h-[calc(100%-5rem)] items-center justify-center">
+        <LucideReact.LoaderCircle className="text-muted-foreground h-6 w-6 animate-spin" />
       </nav>
     );
   }

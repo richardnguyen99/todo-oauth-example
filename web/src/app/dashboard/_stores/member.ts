@@ -26,7 +26,7 @@ export const defaultInitState: MemberState = {
 export type MemberStore = MemberState & MemberActions;
 
 export const createMemberStore = (
-  initState: MemberState = defaultInitState
+  initState: MemberState = defaultInitState,
 ) => {
   return createStore<MemberStore>()((set) => ({
     ...initState,

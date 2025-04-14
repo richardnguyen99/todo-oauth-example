@@ -1,7 +1,7 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -22,7 +22,7 @@ import {
   UpdateMemberParams,
   UpdateMemberResponse,
 } from "../_types/member";
-import { WorkspaceParams } from "../_types/workspace";
+import { WorkspaceErrorResponse, WorkspaceParams } from "../_types/workspace";
 import { useMemberStore } from "../../_providers/member";
 
 type Props = Readonly<{
@@ -47,10 +47,10 @@ export default function ShareWorkspaceUpdateDialog({
     mutationFn: async (values: UpdateMemberParams) => {
       setLoading(true);
 
-      const response = await api.put<
-        AxiosError,
-        AxiosResponse<UpdateMemberResponse>
-      >(`/workspaces/${workspace}/update_member/${member.userId}`, values);
+      const response = await api.put<UpdateMemberResponse>(
+        `/workspaces/${workspace}/update_member/${member.userId}`,
+        values,
+      );
 
       return response.data;
     },
@@ -82,10 +82,10 @@ export default function ShareWorkspaceUpdateDialog({
       setLoading(false);
     },
 
-    onError: (error: AxiosError) => {
+    onError: (error: AxiosError<WorkspaceErrorResponse>) => {
       console.error(error);
 
-      setError(`${error.code}: ${(error.response?.data as any).message}`);
+      setError(`${error.code}: ${error.response?.data.message}`);
     },
   });
 
@@ -93,7 +93,7 @@ export default function ShareWorkspaceUpdateDialog({
     mutate({
       role: member.role === "admin" ? "member" : "admin",
     });
-  }, [member.role]);
+  }, [member.role, mutate]);
 
   return (
     <AlertDialog open={show}>
@@ -124,10 +124,10 @@ export default function ShareWorkspaceUpdateDialog({
                 Reminder: roles can do some specified actions on this workspace
               </p>
 
-              <ul className="list-disc list-inside mt-2 pl-2">
+              <ul className="mt-2 list-inside list-disc pl-2">
                 <li>
                   <strong>Member</strong>
-                  <ul className="list-[square] list-inside pl-2">
+                  <ul className="list-inside list-[square] pl-2">
                     <li>Can view tasks</li>
                     <li>Can edit tasks</li>
                     <li>Can delete tasks</li>
@@ -136,7 +136,7 @@ export default function ShareWorkspaceUpdateDialog({
                 </li>
                 <li className="mt-2">
                   <strong>Admin</strong>
-                  <ul className="list-[square] list-inside pl-2">
+                  <ul className="list-inside list-[square] pl-2">
                     <li>All member tasks</li>
                     <li>Can invite new members</li>
                     <li>Can remove members</li>
@@ -145,7 +145,7 @@ export default function ShareWorkspaceUpdateDialog({
                 </li>
               </ul>
 
-              {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+              {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>

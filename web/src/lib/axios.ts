@@ -32,7 +32,7 @@ const api: AxiosInstance = axios.create({
 // No Authorization headers needed since tokens are in cookies
 api.interceptors.request.use(
   (config) => config,
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Handle 401s by triggering refresh
@@ -71,7 +71,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

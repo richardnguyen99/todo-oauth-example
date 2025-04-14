@@ -11,7 +11,7 @@ export default function TodoPage(): JSX.Element {
 
   if (status === "loading") {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex h-screen items-center justify-center">
         <LoaderCircleIcon className="animate-spin" />
       </div>
     );
