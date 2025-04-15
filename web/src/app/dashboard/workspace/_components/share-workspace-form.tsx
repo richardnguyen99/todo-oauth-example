@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { TriangleAlert, UserPlus } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 
 import api from "@/lib/axios";
 import { cn } from "@/lib/utils";
@@ -30,6 +30,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useMemberStore } from "../../_providers/member";
 import { AddMemberResponse } from "../_types/member";
+import { WorkspaceErrorResponse } from "../_types/workspace";
 
 // Define the available roles
 const roles = [
@@ -69,14 +70,14 @@ export default function ShareWorkspaceForm({
   const { mutate } = useMutation({
     mutationKey: ["inviteUser"],
     mutationFn: async (values: FormValues) => {
-      const response = await api.post<any, AxiosResponse<AddMemberResponse>>(
+      const response = await api.post<AddMemberResponse>(
         `/workspaces/${workspaceId}/add_member`,
         values,
         {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       return response.data;
@@ -93,10 +94,10 @@ export default function ShareWorkspaceForm({
       setMembers([...members, data.data]);
     },
 
-    onError: (error: AxiosError) => {
+    onError: (error: AxiosError<WorkspaceErrorResponse>) => {
       form.setError("root.badRequest", {
         type: "400",
-        message: (error.response?.data as any).message,
+        message: error.response?.data.message,
       });
     },
   });
@@ -118,7 +119,7 @@ export default function ShareWorkspaceForm({
             onSuccess: () => {
               form.reset();
             },
-          })
+          }),
         )}
         className="space-y-6"
       >
@@ -156,7 +157,7 @@ export default function ShareWorkspaceForm({
 
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger className="w-30 mt-2">
+                  <SelectTrigger className="mt-2 w-30">
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                 </FormControl>
@@ -177,7 +178,7 @@ export default function ShareWorkspaceForm({
                 })}
               >
                 {form.watch("role") === "admin" && (
-                  <TriangleAlert className="inline mr-1 h-4 w-4 text-amber-500 dark:text-amber-400" />
+                  <TriangleAlert className="mr-1 inline h-4 w-4 text-amber-500 dark:text-amber-400" />
                 )}
                 {roles.find((r) => r.value === form.watch("role"))?.description}
               </FormDescription>
@@ -187,7 +188,7 @@ export default function ShareWorkspaceForm({
         />
 
         <div>
-          <div className="flex justify-end gap-2 mt-4">
+          <div className="mt-4 flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>

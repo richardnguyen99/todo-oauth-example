@@ -25,14 +25,14 @@ export default function HomePage() {
         <Header />
         <main className="flex-1">
           <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
-            <div className="container px-4 md:px-6 mx-auto">
+            <div className="container mx-auto px-4 md:px-6">
               <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
                 <div className="flex flex-col justify-center space-y-4">
                   <div className="space-y-2">
                     <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                       Stay organized and get more done
                     </h1>
-                    <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                    <p className="text-muted-foreground max-w-[600px] md:text-xl">
                       TaskMaster helps you manage your tasks, organize your
                       life, and achieve your goals with a simple and intuitive
                       interface.
@@ -57,7 +57,7 @@ export default function HomePage() {
                       src="/task-landing.svg"
                       alt="TaskMaster App Screenshot"
                       fill
-                      className="object-contain rounded-2xl shadow-2xl"
+                      className="rounded-2xl object-contain shadow-2xl"
                       priority
                     />
                   </div>
@@ -68,18 +68,18 @@ export default function HomePage() {
 
           <section
             id="features"
-            className="w-full py-12 md:py-24 lg:py-32 bg-muted"
+            className="bg-muted w-full py-12 md:py-24 lg:py-32"
           >
-            <div className="container px-4 md:px-6 mx-auto">
+            <div className="container mx-auto px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center">
                 <div className="space-y-2">
-                  <div className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground">
+                  <div className="bg-primary text-primary-foreground inline-block rounded-lg px-3 py-1 text-sm">
                     Features
                   </div>
                   <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
                     Everything you need to stay productive
                   </h2>
-                  <p className="max-w-[900px] text-muted-foreground md:text-xl">
+                  <p className="text-muted-foreground max-w-[900px] md:text-xl">
                     TaskMaster comes packed with all the tools you need to
                     organize your tasks and boost your productivity.
                   </p>
@@ -87,32 +87,32 @@ export default function HomePage() {
               </div>
               <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 md:grid-cols-2 lg:grid-cols-3">
                 <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">
-                  <List className="h-12 w-12 text-primary" />
+                  <List className="text-primary h-12 w-12" />
                   <h3 className="text-xl font-bold">Task Management</h3>
-                  <p className="text-center text-muted-foreground">
+                  <p className="text-muted-foreground text-center">
                     Create, organize, and prioritize your tasks with ease.
                   </p>
                 </div>
                 <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">
-                  <Clock className="h-12 w-12 text-primary" />
+                  <Clock className="text-primary h-12 w-12" />
                   <h3 className="text-xl font-bold">Reminders</h3>
-                  <p className="text-center text-muted-foreground">
+                  <p className="text-muted-foreground text-center">
                     Never miss a deadline with customizable reminders and
                     notifications.
                   </p>
                 </div>
                 <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">
-                  <Users className="h-12 w-12 text-primary" />
+                  <Users className="text-primary h-12 w-12" />
                   <h3 className="text-xl font-bold">Collaboration</h3>
-                  <p className="text-center text-muted-foreground">
+                  <p className="text-muted-foreground text-center">
                     Share tasks and projects with friends, family, or
                     colleagues.
                   </p>
                 </div>
                 <div className="flex flex-col items-center space-y-2 rounded-lg border p-6 shadow-sm">
-                  <Star className="h-12 w-12 text-primary" />
+                  <Star className="text-primary h-12 w-12" />
                   <h3 className="text-xl font-bold">Smart Lists</h3>
-                  <p className="text-center text-muted-foreground">
+                  <p className="text-muted-foreground text-center">
                     Automatically organize tasks based on due dates, priorities,
                     and tags.
                   </p>
@@ -128,12 +128,12 @@ export default function HomePage() {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="h-12 w-12 text-primary"
+                    className="text-primary h-12 w-12"
                   >
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
                   </svg>
                   <h3 className="text-xl font-bold">Data Security</h3>
-                  <p className="text-center text-muted-foreground">
+                  <p className="text-muted-foreground text-center">
                     Your data is encrypted and securely stored in the cloud.
                   </p>
                 </div>
@@ -148,7 +148,7 @@ export default function HomePage() {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="h-12 w-12 text-primary"
+                    className="text-primary h-12 w-12"
                   >
                     <path d="M2 12h5" />
                     <path d="M17 12h5" />
@@ -160,7 +160,7 @@ export default function HomePage() {
                     <path d="M15.54 8.46l3.54-3.54" />
                   </svg>
                   <h3 className="text-xl font-bold">Cross-Platform</h3>
-                  <p className="text-center text-muted-foreground">
+                  <p className="text-muted-foreground text-center">
                     Access your tasks from anywhere on any device.
                   </p>
                 </div>
@@ -169,16 +169,16 @@ export default function HomePage() {
           </section>
 
           <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32">
-            <div className="container px-4 md:px-6 mx-auto">
+            <div className="container mx-auto px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center">
                 <div className="space-y-2">
-                  <div className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground">
+                  <div className="bg-primary text-primary-foreground inline-block rounded-lg px-3 py-1 text-sm">
                     How It Works
                   </div>
                   <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
                     Simple, intuitive, and powerful
                   </h2>
-                  <p className="max-w-[900px] text-muted-foreground md:text-xl">
+                  <p className="text-muted-foreground max-w-[900px] md:text-xl">
                     TaskMaster is designed to be easy to use while providing
                     powerful features to help you stay organized.
                   </p>
@@ -195,7 +195,7 @@ export default function HomePage() {
                 <div className="flex flex-col justify-center space-y-4">
                   <ul className="grid gap-6">
                     <li className="flex items-start gap-4">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full">
                         1
                       </div>
                       <div>
@@ -207,7 +207,7 @@ export default function HomePage() {
                       </div>
                     </li>
                     <li className="flex items-start gap-4">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full">
                         2
                       </div>
                       <div>
@@ -221,7 +221,7 @@ export default function HomePage() {
                       </div>
                     </li>
                     <li className="flex items-start gap-4">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full">
                         3
                       </div>
                       <div>
@@ -240,34 +240,34 @@ export default function HomePage() {
 
           <section
             id="testimonials"
-            className="w-full py-12 md:py-24 lg:py-32 bg-muted"
+            className="bg-muted w-full py-12 md:py-24 lg:py-32"
           >
-            <div className="container px-4 md:px-6 mx-auto">
+            <div className="container mx-auto px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center">
                 <div className="space-y-2">
                   <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
                     Loved by thousands of users
                   </h2>
-                  <p className="max-w-[900px] text-muted-foreground md:text-xl">
+                  <p className="text-muted-foreground max-w-[900px] md:text-xl">
                     Don&apos;t just take our word for it. Here&apos;s what our
                     users have to say about TaskMaster.
                   </p>
                 </div>
               </div>
               <div className="mx-auto grid max-w-5xl gap-6 py-12 lg:grid-cols-3">
-                <div className="flex flex-col justify-between rounded-lg border bg-background p-6 shadow-sm">
+                <div className="bg-background flex flex-col justify-between rounded-lg border p-6 shadow-sm">
                   <div className="space-y-2">
                     <div className="flex space-x-0.5">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className="h-5 w-5 fill-primary text-primary"
+                          className="fill-primary text-primary h-5 w-5"
                         />
                       ))}
                     </div>
                     <p className="text-muted-foreground">
-                      "TaskMaster has completely transformed how I manage my
-                      daily tasks. I&apos;m more productive than ever!"
+                      &ldquo;TaskMaster has completely transformed how I manage
+                      my daily tasks. I&apos;m more productive than ever!&rdquo;
                     </p>
                   </div>
                   <div className="mt-6 flex items-center space-x-3">
@@ -280,25 +280,25 @@ export default function HomePage() {
                     />
                     <div>
                       <p className="text-sm font-medium">Aiony Haust</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs">
                         Marketing Manager
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col justify-between rounded-lg border bg-background p-6 shadow-sm">
+                <div className="bg-background flex flex-col justify-between rounded-lg border p-6 shadow-sm">
                   <div className="space-y-2">
                     <div className="flex space-x-0.5">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className="h-5 w-5 fill-primary text-primary"
+                          className="fill-primary text-primary h-5 w-5"
                         />
                       ))}
                     </div>
                     <p className="text-muted-foreground">
-                      "The collaboration features are game-changing. My team can
-                      now work together seamlessly on projects."
+                      &ldquo;The collaboration features are game-changing. My
+                      team can now work together seamlessly on projects.&rdquo;
                     </p>
                   </div>
                   <div className="mt-6 flex items-center space-x-3">
@@ -311,19 +311,19 @@ export default function HomePage() {
                     />
                     <div>
                       <p className="text-sm font-medium">Alex Suprun</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs">
                         Product Manager
                       </p>
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col justify-between rounded-lg border bg-background p-6 shadow-sm">
+                <div className="bg-background flex flex-col justify-between rounded-lg border p-6 shadow-sm">
                   <div className="space-y-2">
                     <div className="flex space-x-0.5">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className="h-5 w-5 fill-primary text-primary"
+                          className="fill-primary text-primary h-5 w-5"
                         />
                       ))}
                     </div>
@@ -343,7 +343,7 @@ export default function HomePage() {
                     />
                     <div>
                       <p className="text-sm font-medium">Julian Wan</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs">
                         Freelance Designer
                       </p>
                     </div>
@@ -354,23 +354,23 @@ export default function HomePage() {
           </section>
 
           <section id="pricing" className="w-full py-12 md:py-24 lg:py-32">
-            <div className="container px-4 md:px-6 mx-auto">
+            <div className="container mx-auto px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center">
                 <div className="space-y-2">
-                  <div className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground">
+                  <div className="bg-primary text-primary-foreground inline-block rounded-lg px-3 py-1 text-sm">
                     Pricing
                   </div>
                   <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
                     Simple, transparent pricing
                   </h2>
-                  <p className="max-w-[900px] text-muted-foreground md:text-xl">
+                  <p className="text-muted-foreground max-w-[900px] md:text-xl">
                     Choose the plan that works best for you. All plans include a
                     14-day free trial.
                   </p>
                 </div>
               </div>
               <div className="mx-auto grid max-w-5xl gap-6 py-12 lg:grid-cols-3">
-                <div className="flex flex-col rounded-lg border bg-background p-6 shadow-sm">
+                <div className="bg-background flex flex-col rounded-lg border p-6 shadow-sm">
                   <div className="space-y-2">
                     <h3 className="text-2xl font-bold">Free</h3>
                     <p className="text-muted-foreground">
@@ -383,19 +383,19 @@ export default function HomePage() {
                   </div>
                   <ul className="mt-6 space-y-2">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>Up to 3 lists</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>Up to 30 tasks</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>Basic reminders</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>Mobile app access</span>
                     </li>
                   </ul>
@@ -405,8 +405,8 @@ export default function HomePage() {
                     </Link>
                   </div>
                 </div>
-                <div className="flex flex-col rounded-lg border bg-background p-6 shadow-sm relative">
-                  <div className="absolute -top-4 left-0 right-0 mx-auto w-fit rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                <div className="bg-background relative flex flex-col rounded-lg border p-6 shadow-sm">
+                  <div className="bg-primary text-primary-foreground absolute -top-4 right-0 left-0 mx-auto w-fit rounded-full px-3 py-1 text-xs font-medium">
                     Most Popular
                   </div>
                   <div className="space-y-2">
@@ -421,23 +421,23 @@ export default function HomePage() {
                   </div>
                   <ul className="mt-6 space-y-2">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>Unlimited lists</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>Unlimited tasks</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>Advanced reminders</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>File attachments</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>Priority support</span>
                     </li>
                   </ul>
@@ -447,7 +447,7 @@ export default function HomePage() {
                     </Link>
                   </div>
                 </div>
-                <div className="flex flex-col rounded-lg border bg-background p-6 shadow-sm">
+                <div className="bg-background flex flex-col rounded-lg border p-6 shadow-sm">
                   <div className="space-y-2">
                     <h3 className="text-2xl font-bold">Team</h3>
                     <p className="text-muted-foreground">
@@ -460,23 +460,23 @@ export default function HomePage() {
                   </div>
                   <ul className="mt-6 space-y-2">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>Everything in Pro</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>Team collaboration</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>User roles & permissions</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>Team analytics</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <CheckCircle className="text-primary h-4 w-4" />
                       <span>Priority support</span>
                     </li>
                   </ul>
@@ -490,14 +490,14 @@ export default function HomePage() {
             </div>
           </section>
 
-          <section id="faq" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-            <div className="container px-4 md:px-6 mx-auto">
+          <section id="faq" className="bg-muted w-full py-12 md:py-24 lg:py-32">
+            <div className="container mx-auto px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center">
                 <div className="space-y-2">
                   <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
                     Frequently Asked Questions
                   </h2>
-                  <p className="max-w-[900px] text-muted-foreground md:text-xl">
+                  <p className="text-muted-foreground max-w-[900px] md:text-xl">
                     Have questions? We&apos;ve got answers.
                   </p>
                 </div>
@@ -560,12 +560,12 @@ export default function HomePage() {
           </section>
 
           <section className="w-full py-12 md:py-24 lg:py-32">
-            <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10 mx-auto">
+            <div className="container mx-auto grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                   Ready to get organized?
                 </h2>
-                <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                <p className="text-muted-foreground max-w-[600px] md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                   Join thousands of users who are already boosting their
                   productivity with TaskMaster.
                 </p>

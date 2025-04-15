@@ -1,4 +1,5 @@
 import { User } from "@/_types/user";
+import { ApiResponse } from "@/app/_types/response";
 
 export type Color =
   | "red"
@@ -47,8 +48,23 @@ export type WorkspaceResponse = {
   data: Workspace[];
 };
 
-export type UpdateWorkspaceResponse = {
+export type WorkspaceErrorResponse = {
+  statusCode: number;
+  message: string;
+  data: null;
+};
+
+export type AddWorkspaceResponse = {
   statusCode: number;
   message: string;
   data: Workspace;
 };
+
+export type UpdateWorkspaceResponse = AddWorkspaceResponse;
+export type UpdateWorkspaceErrorResponse = WorkspaceErrorResponse;
+
+export type DeleteWorkspaceResponse = ApiResponse<{
+  taskDeleteCount: number;
+  memberDeleteCount: number;
+  workspaceDeleteCount: number;
+}>;

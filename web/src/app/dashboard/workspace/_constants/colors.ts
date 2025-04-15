@@ -23,7 +23,7 @@ export const colorMap: ColorMap = {
   zinc: "bg-zinc-500 dark:bg-zinc-400",
   neutral: "bg-neutral-500 dark:bg-neutral-400",
   stone: "bg-stone-500 dark:bg-stone-400",
-};
+} as const;
 
 export const colorList = [
   { name: "red", value: "bg-red-500 dark:bg-red-400" },

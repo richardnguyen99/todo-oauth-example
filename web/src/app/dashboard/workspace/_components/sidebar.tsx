@@ -41,16 +41,16 @@ export default function SideBar(): JSX.Element {
   return (
     <aside
       ref={sidebarRef}
-      className={`w-fit border-r bg-muted/40 h-[calc(100vh-4rem)] sticky top-16 transition-all duration-300 ease-in-out ${
+      className={`bg-muted/40 sticky top-16 h-[calc(100vh-4rem)] w-fit border-r transition-all duration-300 ease-in-out ${
         isMobile && !sidebarOpen ? "w-0" : ""
       }`}
     >
-      <div className="h-full py-4 px-4">
-        <div className="flex items-center justify-between mb-6">
+      <div className="h-full px-4 py-4">
+        <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg font-semibold whitespace-nowrap">
             <span
-              className={`inline-block transition-all duration-300 ease-in-out overflow-hidden  align-middle ${
-                sidebarOpen ? "max-w-[200px] mr-3" : "max-w-0 mr-0"
+              className={`inline-block overflow-hidden align-middle transition-all duration-300 ease-in-out ${
+                sidebarOpen ? "mr-3 max-w-[200px]" : "mr-0 max-w-0"
               }`}
             >
               Workspaces
@@ -66,11 +66,11 @@ export default function SideBar(): JSX.Element {
       {/* Sidebar Toggle Button */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="absolute top-1/2 transform left-[calc(100%-16px)] -translate-y-1/2 bg-background border border-border rounded-full h-8 w-8 flex items-center justify-center z-10 shadow-md hover:bg-accent/50 transition-all duration-300 ease-in-out"
+        className="bg-background border-border hover:bg-accent/50 absolute top-1/2 left-[calc(100%-16px)] z-10 flex h-8 w-8 -translate-y-1/2 transform items-center justify-center rounded-full border shadow-md transition-all duration-300 ease-in-out"
         aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
       >
         <LucideReact.ChevronDown
-          className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${
+          className={`text-muted-foreground h-4 w-4 transition-transform duration-300 ${
             sidebarOpen ? "rotate-90" : "-rotate-90"
           }`}
         />

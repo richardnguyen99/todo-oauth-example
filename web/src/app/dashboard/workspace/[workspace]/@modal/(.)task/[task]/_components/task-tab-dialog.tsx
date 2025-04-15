@@ -1,17 +1,13 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { ChevronLeft, ChevronRight, MoreHorizontal, X } from "lucide-react";
 
 import {
-  DialogClose,
   DialogDescription,
   DialogTitle,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { Task } from "../../../../_types/task";
-import TaskCheckbox from "../../../../_components/task-checkbox";
-import { Button } from "@/components/ui/button";
+import TaskCheckbox from "@/app/dashboard/workspace/[workspace]/_components/task-checkbox";
 import {
   Tooltip,
   TooltipContent,
@@ -20,8 +16,8 @@ import {
 import TaskTabActionDropdown from "./task-tab-action-dropdown";
 import TaskTabActionClose from "./task-tab-action-close";
 import TaskTabActionNavigation from "./task-tab-action-navigation";
-import { useTaskWithIdStore } from "../../../../task/_providers/task";
-import { useTaskStore } from "../../../../_providers/task";
+import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
+import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -47,13 +43,13 @@ export default function TaskDialog({ children }: Props): JSX.Element {
     <>
       <DialogHeader className="border-b py-5 text-left">
         <DialogTitle asChild>
-          <div className="flex sm:items-center flex-col sm:flex-row justify-between px-5">
-            <div className="flex items-center gap-3 order-2 sm:order-1">
+          <div className="flex flex-col justify-between px-5 sm:flex-row sm:items-center">
+            <div className="order-2 flex items-center gap-3 sm:order-1">
               <TaskCheckbox task={task} setTask={setTask} />
               <p className="line-clamp-1">{task.title}</p>
             </div>
 
-            <div className="flex items-center w-full sm:w-fit gap-2 order-1 sm:order-2">
+            <div className="order-1 flex w-full items-center gap-2 sm:order-2 sm:w-fit">
               <TaskTabActionNavigation
                 next={false}
                 taskId={prevTask?._id ?? ""}
@@ -82,10 +78,10 @@ export default function TaskDialog({ children }: Props): JSX.Element {
         </DialogTitle>
 
         <DialogDescription asChild>
-          <div className="pl-14 pr-5 sm:pl-14 flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+          <div className="flex w-full flex-col gap-2 pr-5 pl-14 sm:flex-row sm:items-center sm:pl-14">
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="overflow-hidden whitespace-nowrap text-ellipsis cursor-default max-w-fit">
+                <div className="max-w-fit cursor-default overflow-hidden text-ellipsis whitespace-nowrap">
                   ID: {task._id}
                 </div>
               </TooltipTrigger>
@@ -98,9 +94,9 @@ export default function TaskDialog({ children }: Props): JSX.Element {
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="overflow-hidden whitespace-nowrap text-ellipsis cursor-default max-w-fit">
+                <div className="max-w-fit cursor-default overflow-hidden text-ellipsis whitespace-nowrap">
                   @ Workspace:{" "}
-                  <span className="bg-accent px-1.5 py-1 rounded">
+                  <span className="bg-accent rounded px-1.5 py-1">
                     {task.workspace?.title}
                   </span>
                 </div>

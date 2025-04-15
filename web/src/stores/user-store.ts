@@ -1,4 +1,4 @@
-import { Axios, AxiosError } from "axios";
+import { type AxiosError } from "axios";
 import { createStore } from "zustand/vanilla";
 
 export type Account = {

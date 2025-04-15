@@ -16,11 +16,11 @@ export default function TaskDueDate({
   return (
     <div
       className={cn(
-        "flex items-center gap-1 text-xs text-muted-foreground rounded-md border px-1 py-0.5 transition-colors duration-200",
+        "text-muted-foreground flex items-center gap-1 rounded-md border px-1 py-0.5 text-xs transition-colors duration-200",
         {
-          "dark:bg-lime-400 bg-lime-400 text-black": completed,
+          "bg-lime-400 text-black dark:bg-lime-400": completed,
           "dark:bg-muted/50 bg-muted/50 text-muted-foreground": !completed,
-        }
+        },
       )}
     >
       <Clock className="h-4 w-4" />

@@ -46,8 +46,8 @@ export default function ShareWorkspaceMemberItem({
 
   return (
     <>
-      <li className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50 group transition-colors duration-200 ease-in-out">
-        <div className="flex items-center gap-3 min-w-0">
+      <li className="hover:bg-muted/50 group flex items-center justify-between rounded-md p-2 transition-colors duration-200 ease-in-out">
+        <div className="flex min-w-0 items-center gap-3">
           <Avatar className="h-9 w-9 flex-shrink-0">
             <AvatarImage src={member.user.avatar} alt={member.user.username} />
             <AvatarFallback className={`bg-accent text-white`}>
@@ -56,17 +56,17 @@ export default function ShareWorkspaceMemberItem({
           </Avatar>
 
           <div className="min-w-0">
-            <p className="text-sm font-medium truncate">
+            <p className="truncate text-sm font-medium">
               {member.user.username}
             </p>
-            <p className="text-xs text-muted-foreground truncate">
+            <p className="text-muted-foreground truncate text-xs">
               {member.userId}
             </p>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-xs bg-secondary px-1.5 py-0.5 rounded-full capitalize">
+            <div className="mt-0.5 flex items-center gap-2">
+              <span className="bg-secondary rounded-full px-1.5 py-0.5 text-xs capitalize">
                 {member.role}
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 Joined {formattedDate}
               </span>
             </div>
@@ -79,11 +79,11 @@ export default function ShareWorkspaceMemberItem({
               variant="ghost"
               size="icon"
               className={cn(
-                "h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out disabled:opacity-0 group-hover:disabled:opacity-50 hover:cursor-pointer",
+                "h-8 w-8 opacity-0 transition-opacity duration-200 ease-in-out group-hover:opacity-100 hover:cursor-pointer disabled:opacity-0 group-hover:disabled:opacity-50",
                 {
                   "opacity-100": showDropdown,
                   "cursor-not-allowed": dropdownDisable,
-                }
+                },
               )}
             >
               {dropdownDisable ? (
@@ -110,7 +110,7 @@ export default function ShareWorkspaceMemberItem({
                   className="text-red-500 focus:text-red-500"
                   onClick={() => setShowDeleteAlert(true)}
                 >
-                  <Trash2 className=" stroke-red-500 mr-2 h-4 w-4" />
+                  <Trash2 className="mr-2 h-4 w-4 stroke-red-500" />
                   <span>Remove Member</span>
                 </DropdownMenuItem>
               </>

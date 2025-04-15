@@ -3,7 +3,7 @@
 import React, { type JSX } from "react";
 import { Loader2Icon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 
 import api from "@/lib/axios";
 import { MemberResponse } from "../_types/member";
@@ -25,8 +25,8 @@ export default function ShareWorkspaceList({
   >({
     queryKey: ["workspaceMembers", workspaceId],
     queryFn: async () => {
-      const response = await api.get<any, AxiosResponse<MemberResponse>>(
-        `/workspaces/${workspaceId}/members`
+      const response = await api.get<MemberResponse>(
+        `/workspaces/${workspaceId}/members`,
       );
 
       return response.data;
@@ -43,11 +43,11 @@ export default function ShareWorkspaceList({
 
       setMembers(members);
     }
-  }, [isPending, data]);
+  }, [isPending, data, setMembers]);
 
   if (isLoading || isPending) {
     return (
-      <div className="space-y-2 h-40 w-full flex items-center justify-center">
+      <div className="flex h-40 w-full items-center justify-center space-y-2">
         <Loader2Icon className="h-4 w-4 animate-spin text-gray-500" />
       </div>
     );
@@ -62,6 +62,8 @@ export default function ShareWorkspaceList({
       </div>
     );
   }
+
+  console.log(members);
 
   return (
     <ul className="space-y-2 pr-3">

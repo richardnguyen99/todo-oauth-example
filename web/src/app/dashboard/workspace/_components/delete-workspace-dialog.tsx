@@ -18,8 +18,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { WorkspaceParams } from "../_types/workspace";
+import { DeleteWorkspaceResponse, WorkspaceParams } from "../_types/workspace";
 import { useWorkspaceStore } from "../../_providers/workspace";
+import { ErrorApiResponse } from "@/app/_types/response";
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -29,25 +30,22 @@ export default function DeleteWorkspaceDialog({
   children,
 }: Props): JSX.Element {
   const [show, setShow] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [_, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
   const { workspace } = useParams<WorkspaceParams>();
   const queryClient = useQueryClient();
-  const {
-    workspaces,
-    activeWorkspace,
-    setActiveWorkspace,
-    setWorkspaces,
-    setStatus,
-  } = useWorkspaceStore((s) => s);
-  const { replace, push } = useRouter();
+  const { workspaces, activeWorkspace, setWorkspaces, setStatus } =
+    useWorkspaceStore((s) => s);
+  const { push } = useRouter();
 
   const { mutate } = useMutation({
     mutationKey: ["deleteWorkspace", workspace],
     mutationFn: async () => {
       setLoading(true);
 
-      const response = await api.delete(`/workspaces/${workspace}/delete`);
+      const response = await api.delete<DeleteWorkspaceResponse>(
+        `/workspaces/${workspace}/delete`,
+      );
 
       return response.data;
     },
@@ -58,7 +56,7 @@ export default function DeleteWorkspaceDialog({
       });
 
       const newWorkspaces = workspaces.filter(
-        (workspace) => workspace._id !== activeWorkspace?._id
+        (workspace) => workspace._id !== activeWorkspace?._id,
       );
 
       setWorkspaces(newWorkspaces);
@@ -72,14 +70,14 @@ export default function DeleteWorkspaceDialog({
       setLoading(false);
     },
 
-    onError: (error: AxiosError) => {
-      setError(`${error.code}: ${(error.response?.data as any).message}`);
+    onError: (error: AxiosError<ErrorApiResponse>) => {
+      setError(`${error.code}: ${error.response?.data.message}`);
     },
   });
 
   const handleDelete = React.useCallback(() => {
     mutate();
-  }, [workspaces]);
+  }, [mutate]);
 
   return (
     <AlertDialog open={show} onOpenChange={setShow}>
@@ -95,7 +93,7 @@ export default function DeleteWorkspaceDialog({
                 to remove the following workspace?
               </p>
               <br />
-              <ul className="list-disc pl-5 mb-3">
+              <ul className="mb-3 list-disc pl-5">
                 <li>
                   <strong className="dark:text-white">Workspace Title:</strong>{" "}
                   {activeWorkspace?.title}

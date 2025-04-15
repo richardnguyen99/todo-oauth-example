@@ -19,11 +19,11 @@ export default function LoginPage(): JSX.Element {
   return (
     <div className="flex min-h-screen flex-col">
       <AnonymousHeader />
-      <main className="flex-1 flex items-center justify-center p-4 md:p-8">
+      <main className="flex flex-1 items-center justify-center p-4 md:p-8">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="flex justify-center mb-2">
-              <CheckCircle className="h-10 w-10 text-primary" />
+            <div className="mb-2 flex justify-center">
+              <CheckCircle className="text-primary h-10 w-10" />
             </div>
             <CardTitle className="text-2xl">Welcome back</CardTitle>
             <CardDescription>
@@ -37,8 +37,8 @@ export default function LoginPage(): JSX.Element {
                 buttonVariants({
                   variant: "outline",
                   className:
-                    "w-full !bg-[#5865F2] !hover:bg-[#4752C4] !text-white hover:!text-white border-0 flex items-center justify-center gap-2 h-12",
-                })
+                    "!hover:bg-[#4752C4] flex h-12 w-full items-center justify-center gap-2 border-0 !bg-[#5865F2] !text-white hover:!text-white",
+                }),
               )}
             >
               <DiscordIcon className="h-5 w-5" />
@@ -51,27 +51,27 @@ export default function LoginPage(): JSX.Element {
                 buttonVariants({
                   variant: "outline",
                   className:
-                    "w-full !bg-white hover:!bg-gray-50 !text-gray-800 border !border-gray-300 flex items-center justify-center gap-2 h-12",
-                })
+                    "flex h-12 w-full items-center justify-center gap-2 border !border-gray-300 !bg-white !text-gray-800 hover:!bg-gray-50",
+                }),
               )}
             >
               <GoogleIcon className="h-5 w-5" />
               <span>Continue with Google</span>
             </a>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-2 text-center text-sm text-muted-foreground">
+          <CardFooter className="text-muted-foreground flex flex-col space-y-2 text-center text-sm">
             <p>
               By continuing, you agree to TaskMaster&apos;s{" "}
               <Link
                 href="/#"
-                className="underline underline-offset-4 hover:text-primary"
+                className="hover:text-primary underline underline-offset-4"
               >
                 Terms of Service
               </Link>{" "}
               and{" "}
               <Link
                 href="/#"
-                className="underline underline-offset-4 hover:text-primary"
+                className="hover:text-primary underline underline-offset-4"
               >
                 Privacy Policy
               </Link>

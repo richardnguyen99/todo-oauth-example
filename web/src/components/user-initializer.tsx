@@ -57,7 +57,7 @@ export default function UserInitializer() {
             (account: { oauthId: string; oauthProvider: string }) => ({
               oauthId: account.oauthId,
               oauthProvider: account.oauthProvider,
-            })
+            }),
           ),
         },
         status: "success",
@@ -72,7 +72,7 @@ export default function UserInitializer() {
     }
 
     setStatus("idle");
-  }, [isPending, error, data]);
+  }, [isPending, error, data, setStatus, login, setError]);
 
   return null;
 }

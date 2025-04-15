@@ -3,7 +3,6 @@ import * as LucideReact from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Task } from "../_types/task";
 import { Button } from "@/components/ui/button";
 
 type Props = Readonly<React.HTMLAttributes<HTMLDivElement>>;
@@ -13,25 +12,25 @@ export default function TaskSkeletonItem({ ...rest }: Props): JSX.Element {
     <div
       {...rest}
       className={cn(
-        `flex items-start gap-3 p-3 rounded-md bg-muted/50 animate-pulse`
+        `bg-muted/50 flex animate-pulse items-start gap-3 rounded-md p-3`,
       )}
     >
-      <button className="mt-0.5 flex-shrink-0 text-muted-foreground hover:text-foreground">
+      <button className="text-muted-foreground hover:text-foreground mt-0.5 flex-shrink-0">
         <LucideReact.Square className="h-5 w-5" />
       </button>
 
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <div className={cn("h-5 w-32 bg-muted rounded animate-pulse")}></div>
-          <Badge className="w-8 px-1 py-0 h-4 bg-muted rounded animate-pulse"></Badge>
+          <div className={cn("bg-muted h-5 w-32 animate-pulse rounded")}></div>
+          <Badge className="bg-muted h-4 w-8 animate-pulse rounded px-1 py-0"></Badge>
         </div>
-        <div className="flex flex-wrap items-center gap-2 mt-1 h-4 bg-muted rounded animate-pulse"></div>
+        <div className="bg-muted mt-1 flex h-4 animate-pulse flex-wrap items-center gap-2 rounded"></div>
       </div>
 
       <Button
         variant="ghost"
         size="icon"
-        className="h-7 w-7 text-muted-foreground"
+        className="text-muted-foreground h-7 w-7"
       >
         <LucideReact.MoreHorizontal className="h-4 w-4" />
       </Button>

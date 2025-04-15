@@ -6,12 +6,12 @@ export default function SideBarSkeletonItem(): JSX.Element {
   return (
     <div
       className={cn(
-        `flex items-center w-full rounded-md py-2 px-2 text-sm font-medium transition-colors animate-pulse bg-secondary`
+        `bg-secondary flex w-full animate-pulse items-center rounded-md px-2 py-2 text-sm font-medium transition-colors`,
       )}
     >
       <div
         className={cn(
-          `h-7 w-7 rounded-md flex items-center justify-center flex-shrink-0`
+          `flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md`,
         )}
       ></div>
     </div>

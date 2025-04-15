@@ -32,7 +32,16 @@ import { Label } from "@/components/ui/label";
 import { colorList, colorMap } from "../_constants/colors";
 import { icons } from "../_constants/icons";
 import { useWorkspaceStore } from "../../_providers/workspace";
-import { Color, Workspace } from "../_types/workspace";
+import {
+  AddWorkspaceResponse,
+  Color,
+  Workspace,
+  WorkspaceErrorResponse,
+} from "../_types/workspace";
+
+const [defaultColor, ...otherColors] = Object.keys(
+  colorMap,
+) as (keyof typeof colorMap)[];
 
 // Create a Zod schema for form validation
 const formSchema = z.object({
@@ -45,9 +54,7 @@ const formSchema = z.object({
       message: "Please select a valid icon",
     }),
   color: z
-    .string({
-      required_error: "Please select a color",
-    })
+    .enum([defaultColor, ...otherColors])
     .refine((value) => colorList.some((c) => c.name === value), {
       message: "Please select a valid color",
     }),
@@ -82,38 +89,40 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
       color: string;
       icon: string;
     }) => {
-      const response = await api.post("/workspaces/new", newWorkspace);
-
-      const newWorkspaces = [
-        ...workspaces,
-        {
-          _id: response.data.data._id,
-          title: response.data.data.title,
-          color: response.data.data.color as Color,
-          icon: response.data.data.icon,
-          createdAt: new Date(response.data.data.createdAt),
-          updatedAt: new Date(response.data.data.updatedAt),
-          members: response.data.data.members,
-          owner: response.data.data.owner,
-        } satisfies Workspace,
-      ].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
-
-      setWorkspaces(newWorkspaces);
+      const response = await api.post<AddWorkspaceResponse>(
+        "/workspaces/new",
+        newWorkspace,
+      );
 
       return response.data;
     },
 
     onSuccess: (data) => {
+      const newWorkspaces = [
+        ...workspaces,
+        {
+          _id: data.data._id,
+          title: data.data.title,
+          color: data.data.color as Color,
+          icon: data.data.icon,
+          createdAt: new Date(data.data.createdAt),
+          updatedAt: new Date(data.data.updatedAt),
+          members: data.data.members,
+          owner: data.data.owner,
+        } satisfies Workspace,
+      ].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+
+      setWorkspaces(newWorkspaces);
       queryClient.invalidateQueries({ queryKey: ["fetch-workspace"] });
       onCancel();
 
       push(`/dashboard/workspace/${data.data._id}`);
     },
 
-    onError: (error: AxiosError) => {
+    onError: (error: AxiosError<WorkspaceErrorResponse>) => {
       form.setError("root.badRequest", {
         type: "400",
-        message: (error.response?.data as any).message,
+        message: error.response?.data.message,
       });
       console.error("Error creating workspace:", error);
     },
@@ -131,7 +140,7 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((values) =>
-          mutate(values, { onSuccess: () => form.reset() })
+          mutate(values, { onSuccess: () => form.reset() }),
         )}
         className="space-y-6"
       >
@@ -227,10 +236,9 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
         {/* Preview */}
         <div className="mt-2">
           <Label>Preview</Label>
-          <div className="flex items-center gap-3 mt-2 p-3 border rounded-md">
+          <div className="mt-2 flex items-center gap-3 rounded-md border p-3">
             <div
-              className={`h-8 w-8 rounded-md flex items-center justify-center ${
-                // @ts-ignore
+              className={`flex h-8 w-8 items-center justify-center rounded-md ${
                 colorMap[watchedValues.color]
               }`}
             >
@@ -240,7 +248,7 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
               <span className="text-sm font-medium">
                 {watchedValues.title || "Workspace Name"}
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 {selectedColorName} • {watchedValues.icon}
               </span>
             </div>
@@ -249,12 +257,12 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
 
         <div>
           {form.formState.errors.root?.badRequest && (
-            <div className="text-red-500 text-sm">
+            <div className="text-sm text-red-500">
               {form.formState.errors.root?.badRequest.message}
             </div>
           )}
 
-          <div className="flex justify-end gap-2 mt-4">
+          <div className="mt-4 flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>

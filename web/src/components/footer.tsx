@@ -4,14 +4,14 @@ import { CheckCircle } from "lucide-react";
 
 export default function Footer(): JSX.Element {
   return (
-    <footer className="w-full border-t bg-background">
-      <div className="container flex flex-col gap-6 py-12 px-4 md:px-6 md:flex-row md:justify-between mx-auto">
+    <footer className="bg-background w-full border-t">
+      <div className="container mx-auto flex flex-col gap-6 px-4 py-12 md:flex-row md:justify-between md:px-6">
         <div className="flex flex-col gap-6 md:w-1/3">
-          <div className="flex gap-2 items-center text-xl font-bold">
-            <CheckCircle className="h-6 w-6 text-primary" />
+          <div className="flex items-center gap-2 text-xl font-bold">
+            <CheckCircle className="text-primary h-6 w-6" />
             <span>TaskMaster</span>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             TaskMaster helps you manage your tasks, organize your life, and
             achieve your goals with a simple and intuitive interface.
           </p>
@@ -23,7 +23,7 @@ export default function Footer(): JSX.Element {
               <li>
                 <Link
                   href="#features"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   Features
                 </Link>
@@ -31,7 +31,7 @@ export default function Footer(): JSX.Element {
               <li>
                 <Link
                   href="#pricing"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   Pricing
                 </Link>
@@ -39,7 +39,7 @@ export default function Footer(): JSX.Element {
               <li>
                 <Link
                   href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   Integrations
                 </Link>
@@ -47,7 +47,7 @@ export default function Footer(): JSX.Element {
               <li>
                 <Link
                   href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   Changelog
                 </Link>
@@ -60,7 +60,7 @@ export default function Footer(): JSX.Element {
               <li>
                 <Link
                   href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   About
                 </Link>
@@ -68,7 +68,7 @@ export default function Footer(): JSX.Element {
               <li>
                 <Link
                   href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   Blog
                 </Link>
@@ -76,7 +76,7 @@ export default function Footer(): JSX.Element {
               <li>
                 <Link
                   href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   Careers
                 </Link>
@@ -84,7 +84,7 @@ export default function Footer(): JSX.Element {
               <li>
                 <Link
                   href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   Contact
                 </Link>
@@ -97,7 +97,7 @@ export default function Footer(): JSX.Element {
               <li>
                 <Link
                   href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   Terms
                 </Link>
@@ -105,7 +105,7 @@ export default function Footer(): JSX.Element {
               <li>
                 <Link
                   href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   Privacy
                 </Link>
@@ -113,7 +113,7 @@ export default function Footer(): JSX.Element {
               <li>
                 <Link
                   href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   Cookies
                 </Link>
@@ -121,7 +121,7 @@ export default function Footer(): JSX.Element {
               <li>
                 <Link
                   href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground text-sm"
                 >
                   Licenses
                 </Link>
@@ -131,8 +131,8 @@ export default function Footer(): JSX.Element {
         </div>
       </div>
       <div className="border-t py-6">
-        <div className="container flex flex-col items-center justify-between gap-4 px-4 md:px-6 md:flex-row mx-auto">
-          <p className="text-xs text-muted-foreground">
+        <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 md:flex-row md:px-6">
+          <p className="text-muted-foreground text-xs">
             &copy; {new Date().getFullYear()} TaskMaster. All rights reserved.
           </p>
           <div className="flex gap-4">

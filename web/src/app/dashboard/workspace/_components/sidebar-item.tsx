@@ -33,11 +33,11 @@ export default function SideBarItem({
       key={workspace._id}
       href={href}
       className={cn(
-        `flex items-center w-full rounded-md py-2 px-2 text-sm font-medium transition-colors`,
+        `flex w-full items-center rounded-md px-2 py-2 text-sm font-medium transition-colors`,
         {
           "bg-accent text-accent-foreground": isActive,
           "hover:bg-accent/50 hover:text-accent-foreground": !isActive,
-        }
+        },
       )}
       onClick={(e) => {
         if (isActive) {
@@ -54,19 +54,19 @@ export default function SideBarItem({
     >
       <div
         className={cn(
-          `h-7 w-7 rounded-md flex items-center justify-center flex-shrink-0`,
-          colorMap[workspace.color]
+          `flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md`,
+          colorMap[workspace.color],
         )}
       >
         <Icon className="h-4 w-4 text-white" />
       </div>
       <span
         className={cn(
-          `whitespace-nowrap transition-all duration-300 ease-in-out overflow-hidden`,
+          `overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out`,
           {
-            "max-w-[200px] ml-3": isSidebarOpen,
-            "max-w-0 ml-0": !isSidebarOpen,
-          }
+            "ml-3 max-w-[200px]": isSidebarOpen,
+            "ml-0 max-w-0": !isSidebarOpen,
+          },
         )}
       >
         {workspace.title}

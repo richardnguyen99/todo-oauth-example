@@ -21,12 +21,15 @@ export const TaskTabActionDropdownItem = React.forwardRef<
   React.ComponentRef<"div">,
   React.ComponentProps<typeof DropdownMenuItem>
 >(function TaskTabActionDropdownItemRef(props, ref): JSX.Element {
-  const handleSelect = React.useCallback((e: Event) => {
-    e.preventDefault();
+  const handleSelect = React.useCallback(
+    (e: Event) => {
+      e.preventDefault();
 
-    if (!props.onSelect) return;
-    props.onSelect(e);
-  }, []);
+      if (!props.onSelect) return;
+      props.onSelect(e);
+    },
+    [props],
+  );
 
   const handleClick = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -35,7 +38,7 @@ export const TaskTabActionDropdownItem = React.forwardRef<
       if (!props.onClick) return;
       props.onClick(e);
     },
-    []
+    [props],
   );
 
   return (
@@ -56,7 +59,7 @@ type ContentProps = Readonly<{
 
   onBeforeDelete?: (
     task: Task,
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => void;
   onDeleteSuccess?: (task: Task) => void;
   onDeleteError?: (error: Error) => void;
@@ -76,7 +79,7 @@ export const TaskTabActionDropdownContent = React.forwardRef<
     onAfterDelete,
     ...props
   },
-  ref
+  ref,
 ): JSX.Element {
   return (
     <DropdownMenuContent ref={ref} {...props} className="w-56">

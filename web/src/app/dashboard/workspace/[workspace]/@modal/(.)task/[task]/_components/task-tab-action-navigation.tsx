@@ -49,8 +49,8 @@ export default function TaskTabActionNavigation(props: Props): JSX.Element {
             ? "No next task"
             : `Next task ${props.taskId}`
           : props.taskId === ""
-          ? "No previous task"
-          : `Previous task ${props.taskId}`}
+            ? "No previous task"
+            : `Previous task ${props.taskId}`}
       </TooltipContent>
     </Tooltip>
   );

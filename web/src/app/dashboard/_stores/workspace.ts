@@ -1,4 +1,4 @@
-import { Axios, AxiosError } from "axios";
+import { type AxiosError } from "axios";
 import { createStore } from "zustand/vanilla";
 
 import { Workspace } from "../workspace/_types/workspace";
@@ -29,7 +29,7 @@ export const defaultInitState: WorkspaceState = {
 export type WorkspaceStore = WorkspaceState & WorkspaceActions;
 
 export const createWorkspaceStore = (
-  initState: WorkspaceState = defaultInitState
+  initState: WorkspaceState = defaultInitState,
 ) => {
   return createStore<WorkspaceStore>()((set) => ({
     ...initState,

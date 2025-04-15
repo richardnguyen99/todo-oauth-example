@@ -11,17 +11,17 @@ type Props = {
 
 export default async function WorkspacePage({
   children,
-  params,
+  params: _params,
 }: Props): Promise<JSX.Element | never> {
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="flex flex-1 relative">
+      <div className="relative flex flex-1">
         <WorkspaceStoreProvider>
           <WorkspaceInitializer />
           <SideBar />
 
           {/* Main Content */}
-          <main className="flex-1 p-4 md:p-6 transition-all duration-300 ease-in-out">
+          <main className="flex-1 p-4 transition-all duration-300 ease-in-out md:p-6">
             {children}
           </main>
         </WorkspaceStoreProvider>

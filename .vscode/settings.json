@@ -1,4 +1,11 @@
 {
   "editor.formatOnSave": true,
+  "eslint.enable": true,
+  "eslint.useFlatConfig": true,
+  "eslint.workingDirectories": [
+    { "pattern": "./web/" },
+    { "pattern": "./api/" }
+  ],
+  "eslint.validate": ["javascript", "typescript", "typescriptreact"],
   "cSpell.words": ["sonner"]
 }

@@ -14,14 +14,12 @@ import {
 } from "@/components/ui/dialog";
 import ShareWorkspaceForm from "./share-workspace-form";
 import ShareWorkspaceList from "./share-workspace-list";
-import { Color } from "../_types/workspace";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MemberStoreProvider } from "../../_providers/member";
 
 type Props = Readonly<{
   workspaceId: string;
   workspaceTitle: string;
-  workspaceColor: Color;
 
   onInviteUser?: (user: { userId: string; role: "admin" | "member" }) => void;
 }>;
@@ -29,7 +27,6 @@ type Props = Readonly<{
 export default function ShareWorkspaceDialog({
   workspaceId,
   workspaceTitle,
-  workspaceColor,
 }: Props): JSX.Element {
   const [open, setOpen] = React.useState(false);
 
@@ -51,7 +48,7 @@ export default function ShareWorkspaceDialog({
 
         <MemberStoreProvider>
           <div className="mb-6">
-            <h3 className="text-sm font-medium mb-3">Current Members</h3>
+            <h3 className="mb-3 text-sm font-medium">Current Members</h3>
 
             <ScrollArea className="h-[180px]">
               <ShareWorkspaceList workspaceId={workspaceId} />
@@ -59,7 +56,7 @@ export default function ShareWorkspaceDialog({
           </div>
 
           <div className="pt-2">
-            <h3 className="text-lg font-medium mb-3">Invite New Members</h3>
+            <h3 className="mb-3 text-lg font-medium">Invite New Members</h3>
             <ShareWorkspaceForm
               onCancel={() => setOpen(false)}
               workspaceTitle={workspaceTitle}

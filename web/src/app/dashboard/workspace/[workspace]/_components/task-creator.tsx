@@ -2,7 +2,6 @@
 
 import React, { type JSX } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosResponse } from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -79,15 +78,15 @@ export function TaskCreator({ className, ...rest }: Props): JSX.Element {
       setLoading(true);
 
       await new Promise((resolve) =>
-        setTimeout(() => resolve({ success: true }), 1000)
+        setTimeout(() => resolve({ success: true }), 1000),
       );
 
-      const response = await api.post<any, AxiosResponse<TaskResponse>>(
+      const response = await api.post<TaskResponse>(
         `/tasks/new?workspace_id=${activeWorkspace._id}`,
         {
           ...taskData,
           workspaceId: activeWorkspace._id,
-        }
+        },
       );
 
       return response.data;
@@ -122,7 +121,7 @@ export function TaskCreator({ className, ...rest }: Props): JSX.Element {
         <Button
           {...rest}
           variant="secondary"
-          className={cn("gap-2 h-16 mt-1 w-full cursor-pointer", className)}
+          className={cn("mt-1 h-16 w-full cursor-pointer gap-2", className)}
         >
           <Plus className="h-4 w-4" />
           Add Task
@@ -226,7 +225,7 @@ export function TaskCreator({ className, ...rest }: Props): JSX.Element {
               <Button type="submit" disabled={loading}>
                 {loading ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Adding...
                   </>
                 ) : (

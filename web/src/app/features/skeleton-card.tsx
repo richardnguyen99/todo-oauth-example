@@ -9,26 +9,26 @@ import {
 
 export default function SkeletonCard(): JSX.Element {
   return (
-    <Card className="w-md mx-auto">
-      <CardHeader className="text-center space-y-2">
+    <Card className="mx-auto w-md">
+      <CardHeader className="space-y-2 text-center">
         {/* Title skeleton */}
-        <div className="h-7 bg-muted rounded-md w-3/5 mx-auto animate-pulse" />
+        <div className="bg-muted mx-auto h-7 w-3/5 animate-pulse rounded-md" />
         {/* Description skeleton */}
-        <div className="h-4 bg-muted rounded-md w-4/5 mx-auto animate-pulse" />
+        <div className="bg-muted mx-auto h-4 w-4/5 animate-pulse rounded-md" />
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Text skeleton */}
-        <div className="h-4 bg-muted rounded-md w-full mx-auto animate-pulse" />
+        <div className="bg-muted mx-auto h-4 w-full animate-pulse rounded-md" />
 
         {/* Discord button skeleton */}
-        <div className="h-10 bg-muted rounded-md w-full animate-pulse" />
+        <div className="bg-muted h-10 w-full animate-pulse rounded-md" />
 
         {/* Google button skeleton */}
-        <div className="h-10 bg-muted rounded-md w-full animate-pulse" />
+        <div className="bg-muted h-10 w-full animate-pulse rounded-md" />
       </CardContent>
       <CardFooter className="flex justify-center">
         {/* Footer text skeleton */}
-        <div className="h-3 bg-muted rounded-md w-4/5 animate-pulse" />
+        <div className="bg-muted h-3 w-4/5 animate-pulse rounded-md" />
       </CardFooter>
     </Card>
   );

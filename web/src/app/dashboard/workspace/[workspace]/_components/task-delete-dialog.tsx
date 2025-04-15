@@ -2,7 +2,6 @@
 
 import React, { type JSX } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosResponse } from "axios";
 
 import {
   AlertDialog,
@@ -41,8 +40,8 @@ export default function TaskTabDeleteDialog({
   const { mutate } = useMutation({
     mutationKey: ["task-delete", task._id],
     mutationFn: async () => {
-      const response = await api.delete<any, AxiosResponse<DeleteTaskResponse>>(
-        `/tasks/${task._id}/delete?workspace_id=${task.workspaceId}`
+      const response = await api.delete<DeleteTaskResponse>(
+        `/tasks/${task._id}/delete?workspace_id=${task.workspaceId}`,
       );
 
       return response.data;
@@ -72,7 +71,7 @@ export default function TaskTabDeleteDialog({
 
       mutate();
     },
-    [mutate]
+    [mutate],
   );
 
   return (
@@ -92,7 +91,7 @@ export default function TaskTabDeleteDialog({
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction asChild onClick={handleDelete}>
-            <Button className="dark:bg-red-500 dark:hover:bg-red-600 bg-red-400 hover:bg-red-500">
+            <Button className="bg-red-400 hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-600">
               Delete
             </Button>
           </AlertDialogAction>
