@@ -23,7 +23,7 @@ import {
 import { ResponsePayloadDto } from "src/dto/response.dto";
 import { TasksService } from "./tasks.service";
 import { TaskDocument } from "./schemas/tasks.schema";
-import { ZodValidationPipe } from "./zod-validation/zod-validation.pipe";
+import { ZodValidationPipe } from "../zod-validation/zod-validation.pipe";
 import { CreateTaskDto, createTaskDtoSchema } from "./dto/create-task.dto";
 import { respondWithError } from "src/utils/handle-error";
 import { UpdateTaskDto, updateTaskDtoSchema } from "./dto/update-task.dto";

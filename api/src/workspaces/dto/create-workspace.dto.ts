@@ -1,4 +1,4 @@
-import { IsIn, IsNotEmpty } from "class-validator";
+import { z } from "zod";
 
 export const colors = [
   "red",
@@ -27,25 +27,26 @@ export const colors = [
 
 export type Color = (typeof colors)[number];
 
-export class CreateWorkspaceDto {
-  @IsNotEmpty({
-    message: "Title is required",
-  })
-  title: string;
+export const createWorkspaceDtoSchema = z.object({
+  title: z
+    .string({
+      required_error: "Title is required",
+      invalid_type_error: "Title must be a string",
+    })
+    .min(1, "Title cannot be empty")
+    .max(255, "Title cannot exceed 255 characters"),
 
-  @IsNotEmpty({
-    message: "Icon is required",
-  })
-  icon: string;
+  icon: z
+    .string({
+      required_error: "Icon is required",
+      invalid_type_error: "Icon must be a string",
+    })
+    .min(1, "Icon cannot be empty"),
 
-  @IsNotEmpty({
-    message: "Color is required",
-  })
-  @IsIn(colors)
-  color: Color;
+  color: z.enum(colors, {
+    required_error: "Color is required",
+    invalid_type_error: "Color must be one of the predefined values",
+  }),
+});
 
-  @IsNotEmpty({
-    message: "Owner ID is required",
-  })
-  ownerId: string;
-}
+export type CreateWorkspaceDto = z.infer<typeof createWorkspaceDtoSchema>;

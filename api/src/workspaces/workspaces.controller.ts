@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -11,6 +12,7 @@ import {
   Req,
   Res,
   UseGuards,
+  UsePipes,
 } from "@nestjs/common";
 import {
   type Response as ExpressResponse,
@@ -22,6 +24,12 @@ import { WorkspacesService } from "./workspaces.service";
 import { ResponsePayloadDto } from "src/dto/response.dto";
 import { MemberDocument, WorkspaceDocument } from "./schemas/workspaces.schema";
 import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
+import { ZodValidationPipe } from "src/zod-validation/zod-validation.pipe";
+import {
+  CreateWorkspaceDto,
+  createWorkspaceDtoSchema,
+} from "./dto/create-workspace.dto";
+import { respondWithError } from "src/utils/handle-error";
 
 @Controller("workspaces")
 export class WorkspacesController {
@@ -96,34 +104,19 @@ export class WorkspacesController {
   @UseGuards(AuthGuard("jwt"))
   @Post("new")
   @Header("Content-Type", "application/json")
+  @UsePipes(new ZodValidationPipe(createWorkspaceDtoSchema))
   async createWorkspace(
     @Req() req: ExpressRequest,
     @Res() res: ExpressResponse,
+    @Body() body: CreateWorkspaceDto,
   ) {
     const { userId } = req.user as any;
-    const body = req.body;
-
-    const createWorkspaceDto = {
-      title: body.title,
-      icon: body.icon,
-      color: body.color,
-      ownerId: userId as string, // Set the ownerId to the user's ID
-    };
-
     let newWorkspace: WorkspaceDocument;
 
     try {
-      newWorkspace = await this.workspaceService.createWorkspace(
-        userId as string, // Pass the ownerId
-        createWorkspaceDto,
-      );
+      newWorkspace = await this.workspaceService.createWorkspace(userId, body);
     } catch (error) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: `Failed to create workspace: ${(error as Error).message}`,
-        data: null,
-      } satisfies ResponsePayloadDto);
-
+      respondWithError(error, res);
       return;
     }
 

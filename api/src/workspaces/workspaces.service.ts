@@ -88,6 +88,7 @@ export class WorkspacesService {
       owner: ownerId, // Set the owner to the user's ID
     });
 
+    // Create the default member (the owner)
     const newMember = new this.memberModel({
       userId: ownerId,
       workspaceId: newWorkspace._id,
