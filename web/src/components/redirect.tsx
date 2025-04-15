@@ -15,7 +15,7 @@ export default function Redirect({ url, onReplace }: Props) {
     }
 
     replace(url);
-  }, []);
+  }, [onReplace, replace, url]);
 
   return null;
 }

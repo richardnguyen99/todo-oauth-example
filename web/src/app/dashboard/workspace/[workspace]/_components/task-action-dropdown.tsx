@@ -21,12 +21,15 @@ export const TaskTabActionDropdownItem = React.forwardRef<
   React.ComponentRef<"div">,
   React.ComponentProps<typeof DropdownMenuItem>
 >(function TaskTabActionDropdownItemRef(props, ref): JSX.Element {
-  const handleSelect = React.useCallback((e: Event) => {
-    e.preventDefault();
+  const handleSelect = React.useCallback(
+    (e: Event) => {
+      e.preventDefault();
 
-    if (!props.onSelect) return;
-    props.onSelect(e);
-  }, []);
+      if (!props.onSelect) return;
+      props.onSelect(e);
+    },
+    [props],
+  );
 
   const handleClick = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -35,7 +38,7 @@ export const TaskTabActionDropdownItem = React.forwardRef<
       if (!props.onClick) return;
       props.onClick(e);
     },
-    [],
+    [props],
   );
 
   return (

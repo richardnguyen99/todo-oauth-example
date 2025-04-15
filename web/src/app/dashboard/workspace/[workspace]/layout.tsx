@@ -45,7 +45,7 @@ export default function WorkspacePageLayout({
         notFound();
       }
     }
-  }, [status, workspace, workspaces]);
+  }, [setActiveWorkspace, setStatus, status, workspace, workspaces]);
 
   return status === "loading" ? (
     // Handle loading state

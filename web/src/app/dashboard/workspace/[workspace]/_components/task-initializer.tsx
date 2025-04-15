@@ -61,7 +61,16 @@ export default function TaskInitializer() {
     }
 
     setStatus("idle");
-  }, [isPending, error, data, activeWorkspace]);
+  }, [
+    isPending,
+    error,
+    data,
+    activeWorkspace,
+    isLoading,
+    setStatus,
+    setTasks,
+    setError,
+  ]);
 
   return null;
 }

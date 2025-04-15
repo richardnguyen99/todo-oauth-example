@@ -54,7 +54,7 @@ export default function WorkspaceInitializer() {
     }
 
     setStatus("idle");
-  }, [isPending, error, data]);
+  }, [isPending, error, data, isLoading, setStatus, setWorkspaces, setError]);
 
   return null;
 }

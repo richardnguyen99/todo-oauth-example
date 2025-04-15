@@ -34,7 +34,7 @@ export default function TaskDialogProvider({ children }: Props): JSX.Element {
         router.push(`/dashboard/workspace/${activeWorkspace?._id}`);
       }
     },
-    [activeWorkspace],
+    [activeWorkspace?._id, router],
   );
 
   React.useEffect(() => {
@@ -44,7 +44,7 @@ export default function TaskDialogProvider({ children }: Props): JSX.Element {
     } else {
       setDialogShow(false);
     }
-  }, [pathname]);
+  }, [activeWorkspace?._id, pathname]);
 
   return (
     <TaskDialogContext.Provider value={{ dialogShow, setDialogShow }}>

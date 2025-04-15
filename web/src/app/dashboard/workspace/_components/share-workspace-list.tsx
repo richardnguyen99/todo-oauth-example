@@ -43,7 +43,7 @@ export default function ShareWorkspaceList({
 
       setMembers(members);
     }
-  }, [isPending, data]);
+  }, [isPending, data, setMembers]);
 
   if (isLoading || isPending) {
     return (
@@ -62,6 +62,8 @@ export default function ShareWorkspaceList({
       </div>
     );
   }
+
+  console.log(members);
 
   return (
     <ul className="space-y-2 pr-3">

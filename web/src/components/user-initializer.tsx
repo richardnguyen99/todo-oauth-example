@@ -72,7 +72,7 @@ export default function UserInitializer() {
     }
 
     setStatus("idle");
-  }, [isPending, error, data]);
+  }, [isPending, error, data, setStatus, login, setError]);
 
   return null;
 }
