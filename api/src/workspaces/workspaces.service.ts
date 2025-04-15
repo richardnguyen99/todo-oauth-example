@@ -152,6 +152,13 @@ export class WorkspacesService {
 
     const { newMemberId, role } = addNewMemberDto; // Destructure to get newMemberId and role
 
+    // Check if the user to be added exists
+    const user = await this.userModel.findById(newMemberId);
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${newMemberId} not found`);
+    }
+
     // Check if the user is already a member of the workspace
     const existingMember = await this.memberModel.findOne({
       userId: newMemberId,

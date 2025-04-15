@@ -222,16 +222,11 @@ export class WorkspacesController {
   ) {
     let member: MemberDocument;
 
-    const addNewMemberDto = {
-      newMemberId: body.newMemberId,
-      role: body.role,
-    };
-
     try {
       member = await this.workspaceService.addMemberToWorkspace(
         user.userId as string,
         workspaceId as string,
-        addNewMemberDto,
+        body,
       );
     } catch (e) {
       respondWithError(e, res);
