@@ -91,9 +91,10 @@ export default function ShareWorkspaceUpdateDialog({
 
   const handleUpdate = React.useCallback(() => {
     mutate({
+      memberId: member.userId,
       role: member.role === "admin" ? "member" : "admin",
     });
-  }, [member.role, mutate]);
+  }, [member.role, member.userId, mutate]);
 
   return (
     <AlertDialog open={show}>

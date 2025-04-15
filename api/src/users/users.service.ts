@@ -31,7 +31,7 @@ export class UsersService {
 
   async createWithOauth(
     createUserWithOauth: CreateUserWithOauthDto,
-  ): Promise<User> {
+  ): Promise<UserDocument> {
     const {
       avatar,
       email,
@@ -108,7 +108,9 @@ export class UsersService {
     return this.userModel.find().exec();
   }
 
-  async findOneWithOAuth(oauthUserDto: OauthUserDto): Promise<User | null> {
+  async findOneWithOAuth(
+    oauthUserDto: OauthUserDto,
+  ): Promise<UserDocument | null> {
     const users = await this.userModel.aggregate([
       // Lookup to join accounts collection
       {

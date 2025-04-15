@@ -14,6 +14,7 @@ export type Member = {
 };
 
 export type UpdateMemberParams = {
+  memberId: string;
   role: Omit<MemberRole, "owner">;
 };
 

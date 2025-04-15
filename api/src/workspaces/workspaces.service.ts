@@ -16,9 +16,10 @@ import {
 } from "src/workspaces/schemas/workspaces.schema";
 import { CreateWorkspaceDto } from "./dto/create-workspace.dto";
 import { AddNewMemberDto } from "./dto/add-new-member.dto";
-import { UpdateMemberDto } from "./dto/update-new-member.dto";
+import { UpdateMemberDto } from "./dto/update-member.dto";
 import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
 import { Task } from "src/tasks/schemas/tasks.schema";
+import { UpdateWorkspaceDto } from "./dto/update-workspace.dto";
 
 @Injectable()
 export class WorkspacesService {
@@ -104,7 +105,19 @@ export class WorkspacesService {
     return newWorkspace;
   }
 
-  async getWorkspaceMembers(workspaceId: string): Promise<MemberDocument[]> {
+  async getWorkspaceMembers(
+    userId: string,
+    workspaceId: string,
+  ): Promise<MemberDocument[]> {
+    // Check if the user is a member of the workspace
+    const isMember = await this.checkIfUserIsMember(userId, workspaceId);
+
+    if (!isMember) {
+      throw new ForbiddenException(
+        `User with ID ${userId} is not a member of this workspace.`,
+      );
+    }
+
     const workspace = await this.findWorkspaceById(workspaceId);
 
     // Check if the workspace exists
@@ -182,7 +195,7 @@ export class WorkspacesService {
       workspaceId,
     );
 
-    const { memberId, role } = updateMemberDto; // Destructure to get newMemberId and role
+    const { memberId, role } = updateMemberDto; // Destructure to get memberId and role
 
     // Check if the user is already a member of the workspace
     const existingMember = await this.memberModel.findOne({
@@ -246,7 +259,7 @@ export class WorkspacesService {
   async updateWorkspace(
     ownerId: string,
     workspaceId: string,
-    updateData: Partial<CreateWorkspaceDto>,
+    updateData: UpdateWorkspaceDto,
   ): Promise<WorkspaceDocument> {
     // Check if the workspace exists
     const workspace = await this._getWorkspaceWithAdminAccess(

@@ -1,16 +1,17 @@
-import { IsIn, IsNotEmpty } from "class-validator";
+import { z } from "zod";
 
-export class AddNewMemberDto {
-  @IsNotEmpty({
-    message: "New member ID is required",
-  })
-  newMemberId: string;
+export const addNewMemberDtoSchema = z.object({
+  newMemberId: z
+    .string({
+      required_error: "New member ID is required",
+      invalid_type_error: "New member ID must be a string",
+    })
+    .min(1, "New member ID cannot be empty"),
 
-  @IsNotEmpty({
-    message: "Role is required",
-  })
-  @IsIn(["admin", "member"], {
-    message: "Role must be either 'admin' or 'member'",
-  })
-  role: string; // Role can be either "admin" or "member"
-}
+  role: z.enum(["admin", "member"], {
+    required_error: "Role is required",
+    invalid_type_error: "Role must be either 'admin' or 'member'",
+  }),
+});
+
+export type AddNewMemberDto = z.infer<typeof addNewMemberDtoSchema>;

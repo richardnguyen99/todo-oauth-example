@@ -3,7 +3,7 @@ import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 
 import { UsersService } from "src/users/users.service";
-import { User, UserDocument } from "src/users/schemas/user.schema";
+import { UserDocument } from "src/users/schemas/user.schema";
 import { ValidateUserDto } from "./dto/user.dto";
 import { RefreshTokenPayloadDto } from "./dto/payload.dto";
 
@@ -15,7 +15,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async validateUser(validateUserDto: ValidateUserDto): Promise<User> {
+  async validateUser(validateUserDto: ValidateUserDto): Promise<UserDocument> {
     const user = await this.usersService.findOneWithOAuth({
       oauthProvider: validateUserDto.oauthProvider,
       oauthId: validateUserDto.oauthId,
