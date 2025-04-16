@@ -60,7 +60,7 @@ export default function WorkspacePageLayout({
         <TaskInitializer />
         {children}
 
-        <TaskDialogProvider>{modal}</TaskDialogProvider>
+        {modal}
       </TaskStoreProvider>
     </div>
   );
