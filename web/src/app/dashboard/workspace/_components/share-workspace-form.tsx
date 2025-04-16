@@ -95,6 +95,7 @@ export default function ShareWorkspaceForm({
     },
 
     onError: (error: AxiosError<WorkspaceErrorResponse>) => {
+      console.log(error);
       form.setError("root.badRequest", {
         type: "400",
         message: error.response?.data.message,
@@ -186,17 +187,18 @@ export default function ShareWorkspaceForm({
             </FormItem>
           )}
         />
+        <div className="line-clamp-1 text-xs text-red-400 dark:text-red-500">
+          {form.formState.errors.root?.badRequest.message}
+        </div>
 
-        <div>
-          <div className="mt-4 flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Invite User
-            </Button>
-          </div>
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Invite User
+          </Button>
         </div>
       </form>
     </Form>
