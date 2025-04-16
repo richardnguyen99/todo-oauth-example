@@ -9,7 +9,6 @@ import TaskMenuBar from "./_components/task-menubar";
 import { useWorkspaceStore } from "../../_providers/workspace";
 import { TaskStoreProvider } from "./_providers/task";
 import TaskInitializer from "./_components/task-initializer";
-import TaskDialogProvider from "./_providers/task-dialog";
 
 type Props = Readonly<{
   children: React.ReactNode;
