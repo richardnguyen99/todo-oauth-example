@@ -23,9 +23,7 @@ export default function TaskTabActionDropdown(): JSX.Element {
   const { task } = useTaskWithIdStore((s) => s);
   const router = useRouter();
 
-  const handleBeforeDelete = React.useCallback(() => {
-    console.log("before delete");
-  }, []);
+  const handleBeforeDelete = React.useCallback(() => {}, []);
 
   const handleDeleteSuccess = React.useCallback(
     (task: Task) => {

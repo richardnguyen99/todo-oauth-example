@@ -63,8 +63,6 @@ export default function ShareWorkspaceList({
     );
   }
 
-  console.log(members);
-
   return (
     <ul className="space-y-2 pr-3">
       {members.map((member) => (

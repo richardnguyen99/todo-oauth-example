@@ -95,7 +95,6 @@ export default function ShareWorkspaceForm({
     },
 
     onError: (error: AxiosError<WorkspaceErrorResponse>) => {
-      console.log(error);
       form.setError("root.badRequest", {
         type: "400",
         message: error.response?.data.message,

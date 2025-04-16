@@ -48,19 +48,15 @@ export default function TaskTabDeleteDialog({
     },
 
     onSuccess: (data) => {
-      console.log("Task deleted successfully:", data);
-
       setTasks(tasks.filter((t) => t._id !== task._id));
       onSuccess?.(data.data);
     },
 
     onError: (error) => {
-      console.error("Error deleting task:", error);
       onError?.(error);
     },
 
     onSettled: (data, error) => {
-      console.log("Task deletion settled");
       onSettled?.(data!.data, error);
     },
   });
