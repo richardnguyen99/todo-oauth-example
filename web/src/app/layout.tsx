@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
 import AppProvider from "./provider";
 import UserInitializer from "@/components/user-initializer";
 import { Toaster } from "@/components/ui/sonner";
