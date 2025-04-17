@@ -2,6 +2,7 @@
   "editor.formatOnSave": true,
   "eslint.enable": true,
   "eslint.useFlatConfig": true,
+  "editor.wordWrap": "off",
   "eslint.workingDirectories": [
     { "pattern": "./web/" },
     { "pattern": "./api/" }

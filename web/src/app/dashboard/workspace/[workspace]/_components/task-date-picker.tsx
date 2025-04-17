@@ -22,16 +22,15 @@ export default function TaskDatePicker({
   onSelect,
 }: Props): JSX.Element {
   const [date, setDate] = React.useState<Date | undefined>(
-    initialDate ?? undefined,
+    initialDate || undefined,
   );
-
   const handleSelect = React.useCallback<SelectSingleEventHandler>(
     (day, selectedDate, modifiers, e) => {
       if (onSelect) {
         onSelect(day, selectedDate, modifiers, e);
       }
 
-      setDate(day);
+      setDate(selectedDate);
     },
     [onSelect],
   );

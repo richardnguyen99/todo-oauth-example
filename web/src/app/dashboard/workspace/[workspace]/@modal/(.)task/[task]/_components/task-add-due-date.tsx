@@ -5,12 +5,12 @@ import { Calendar } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 
-import TaskDatePicker from "../../../../_components/task-date-picker";
-import { Button } from "@/components/ui/button";
-import { useTaskWithIdStore } from "../../../../task/_providers/task";
 import api from "@/lib/axios";
-import { TaskResponse } from "../../../../_types/task";
-import { useTaskStore } from "../../../../_providers/task";
+import { Button } from "@/components/ui/button";
+import TaskDatePicker from "@/app/dashboard/workspace/[workspace]/_components/task-date-picker";
+import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
+import { type TaskResponse } from "@/app/dashboard/workspace/[workspace]/_types/task";
+import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
 
 export default function TaskAddDueDate(): JSX.Element {
   const queryClient = useQueryClient();
@@ -56,16 +56,16 @@ export default function TaskAddDueDate(): JSX.Element {
   const handleSelect = React.useCallback<
     NonNullable<React.ComponentProps<typeof TaskDatePicker>["onSelect"]>
   >(
-    (day, selectedDay, _activeModifiers, _e) => {
+    (day, _selectedDay, _activeModifiers, _e) => {
       mutate(day, {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: ["fetch-task", task._id],
+            queryKey: ["task-preview", task._id, task.workspaceId],
           });
         },
       });
     },
-    [mutate, queryClient, task._id],
+    [mutate, queryClient, task._id, task.workspaceId],
   );
 
   return (
