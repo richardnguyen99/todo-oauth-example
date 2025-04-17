@@ -25,7 +25,7 @@ export default function InteractiveMarkdown({ children }: Props): JSX.Element {
   if (!editing) {
     return (
       <div
-        className="hover:bg-accent -mx-4 cursor-pointer rounded-md p-2"
+        className="hover:bg-accent/50 -mx-4 cursor-pointer rounded-md p-2"
         onClick={() => setEditing(true)}
       >
         <MarkdownPreview
