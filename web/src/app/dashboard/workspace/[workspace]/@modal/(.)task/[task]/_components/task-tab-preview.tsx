@@ -29,7 +29,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TaskWithIdStoreProvider } from "../../../../task/_providers/task";
-import TaskAddDueDate from "./task-add-due-date";
+import TaskDueDate from "./task-due-date";
 
 type Props = Readonly<{
   params: TaskParams;
@@ -114,12 +114,8 @@ export default function TaskPreview({ params }: Props): JSX.Element | null {
                   </div>
 
                   <div className="mt-2 w-full pl-5 md:pl-14">
-                    <div className="flex w-full flex-wrap items-center gap-2 pr-4">
-                      <p className="text-muted-foreground">
-                        {data.data.dueDate
-                          ? new Date(data.data.dueDate).toLocaleDateString()
-                          : "(No due date)"}
-                      </p>
+                    <div className="flex w-fit flex-wrap items-center gap-2 pr-4">
+                      <TaskDueDate align="start" />
                     </div>
                   </div>
                 </div>
@@ -183,7 +179,7 @@ export default function TaskPreview({ params }: Props): JSX.Element | null {
           <div className="flex h-full w-full flex-col gap-2 border-t px-5 py-3 sm:flex-row md:w-1/4 md:flex-col md:border-l md:px-3">
             <div className="flex w-full flex-col gap-2 sm:w-1/2 md:w-full">
               <h2 className="text-primary font-bold">Metadata</h2>
-              <TaskAddDueDate />
+              <TaskDueDate disableClose />
 
               <Button
                 variant="outline"
