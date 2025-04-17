@@ -1,7 +1,7 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { OnSelectHandler } from "react-day-picker";
+import { SelectSingleEventHandler } from "react-day-picker";
 
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -12,8 +12,8 @@ import {
 
 type Props = Readonly<{
   children: React.ReactNode;
-  initialDate: Date;
-  onSelect?: OnSelectHandler<Date>;
+  initialDate: Date | null;
+  onSelect?: SelectSingleEventHandler;
 }>;
 
 export default function TaskDatePicker({
@@ -21,15 +21,17 @@ export default function TaskDatePicker({
   initialDate,
   onSelect,
 }: Props): JSX.Element {
-  const [date, setDate] = React.useState<Date>(initialDate);
+  const [date, setDate] = React.useState<Date | undefined>(
+    initialDate ?? undefined,
+  );
 
-  const handleSelect = React.useCallback<OnSelectHandler<Date>>(
-    (selected, triggerDate, modifiers, e) => {
+  const handleSelect = React.useCallback<SelectSingleEventHandler>(
+    (day, selectedDate, modifiers, e) => {
       if (onSelect) {
-        onSelect(selected, triggerDate, modifiers, e);
+        onSelect(day, selectedDate, modifiers, e);
       }
 
-      setDate(selected);
+      setDate(selectedDate);
     },
     [onSelect],
   );

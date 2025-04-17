@@ -29,7 +29,10 @@ export const TaskWithIdStoreProvider = ({
   const storeRef = useRef<taskWithIdStoreApi | null>(null);
   if (storeRef.current === null) {
     storeRef.current = createTaskWithIdStore({
-      task: initialState,
+      task: {
+        ...initialState,
+        dueDate: initialState.dueDate ? new Date(initialState.dueDate) : null,
+      },
       status: "success",
       error: null,
     });
