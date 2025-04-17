@@ -31,7 +31,7 @@ export default function TaskDatePicker({
         onSelect(day, selectedDate, modifiers, e);
       }
 
-      setDate(selectedDate);
+      setDate(day);
     },
     [onSelect],
   );
@@ -42,7 +42,6 @@ export default function TaskDatePicker({
 
       <PopoverContent className="w-auto p-0" align="end">
         <Calendar
-          required
           mode="single"
           selected={date}
           onSelect={handleSelect}

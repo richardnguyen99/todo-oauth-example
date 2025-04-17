@@ -5,6 +5,29 @@ import { isObjectId } from "src/utils/object-id";
 
 export const noRefineUpdateTaskDtoSchema = noRefineCreateTaskDtoSchema
   .extend({
+    dueDate: z
+      .string({
+        invalid_type_error:
+          "Due date must be a string in ISO format (YYYY-MM-DD)",
+      })
+      .optional()
+      .nullable()
+      .refine(
+        (dateString) => {
+          if (typeof dateString !== "string") {
+            return true;
+          }
+
+          const date = new Date(dateString);
+
+          return isNaN(date.getTime()) === false;
+        },
+        {
+          message:
+            "Due date must be a valid date in ISO format. Example: YYYY-MM-DD or YYYY-MM-DDTHH:mm:ssZ",
+        },
+      ),
+
     updateItems: z
       .object({
         id: z

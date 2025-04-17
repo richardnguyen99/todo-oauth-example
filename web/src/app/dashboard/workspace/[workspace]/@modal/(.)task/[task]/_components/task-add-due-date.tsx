@@ -19,11 +19,11 @@ export default function TaskAddDueDate(): JSX.Element {
 
   const { mutate } = useMutation({
     mutationKey: ["update-due-date", task._id, task.workspaceId],
-    mutationFn: async (value: Date) => {
+    mutationFn: async (value: Date | undefined) => {
       const response = await api.put<TaskResponse>(
         `/tasks/${task._id}/update?workspace_id=${task.workspaceId}`,
         {
-          dueDate: value,
+          dueDate: value || null, // Set dueDate to `null` to explicitly remove it
         },
         {
           headers: {
@@ -56,8 +56,8 @@ export default function TaskAddDueDate(): JSX.Element {
   const handleSelect = React.useCallback<
     NonNullable<React.ComponentProps<typeof TaskDatePicker>["onSelect"]>
   >(
-    (_day, selectedDay, _activeModifiers, _e) => {
-      mutate(selectedDay, {
+    (day, selectedDay, _activeModifiers, _e) => {
+      mutate(day, {
         onSuccess: () => {
           queryClient.invalidateQueries({
             queryKey: ["fetch-task", task._id],
