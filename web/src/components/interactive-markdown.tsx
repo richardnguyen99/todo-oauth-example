@@ -2,17 +2,31 @@
 
 import React, { type JSX } from "react";
 import MarkdownPreview from "@uiw/react-markdown-preview";
-import MDEditor from "@uiw/react-md-editor";
+import dynamic from "next/dynamic";
+
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
 
 import { Button } from "./ui/button";
 
+const MDEditor = dynamic(() => import("@uiw/react-md-editor"), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-muted h-48 w-full animate-pulse rounded-md" />
+  ),
+});
+
 type Props = Readonly<{
   children?: string;
+  defaultEmptyValue?: string;
   onSave?: (value: string) => void;
   onCancel?: () => void;
 }>;
 
-export default function InteractiveMarkdown({ children }: Props): JSX.Element {
+export default function InteractiveMarkdown({
+  children,
+  defaultEmptyValue,
+}: Props): JSX.Element {
   const [value, setValue] = React.useState(children);
   const [editing, setEditing] = React.useState(false);
 
@@ -29,7 +43,7 @@ export default function InteractiveMarkdown({ children }: Props): JSX.Element {
         onClick={() => setEditing(true)}
       >
         <MarkdownPreview
-          source={value}
+          source={value && value.length > 0 ? value : defaultEmptyValue}
           rehypeRewrite={(node, index, parent) => {
             console.log("node: ", node);
             if (
@@ -55,6 +69,7 @@ export default function InteractiveMarkdown({ children }: Props): JSX.Element {
         height={200}
         value={value}
         onChange={handleChange}
+        highlightEnable
         preview="edit"
         commandsFilter={(command) => {
           if (command.name === "live") {

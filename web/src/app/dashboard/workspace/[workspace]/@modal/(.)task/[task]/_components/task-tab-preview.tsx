@@ -130,8 +130,8 @@ export default function TaskPreview({ params }: Props): JSX.Element | null {
 
                 <div className="mt-2 pl-5 md:pl-14">
                   <div className="pr-4">
-                    <InteractiveMarkdown>
-                      {data.data.description || "_No description provided._"}
+                    <InteractiveMarkdown defaultEmptyValue="_No description provided._">
+                      {data.data.description || ""}
                     </InteractiveMarkdown>
                   </div>
                 </div>
