@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TaskWithIdStoreProvider } from "../../../../task/_providers/task";
 import TaskDueDate from "./task-due-date";
-import InteractiveMarkdown from "@/components/interactive-markdown";
+import TaskDescription from "./task-description";
 
 type Props = Readonly<{
   params: TaskParams;
@@ -130,9 +130,7 @@ export default function TaskPreview({ params }: Props): JSX.Element | null {
 
                 <div className="mt-2 pl-5 md:pl-14">
                   <div className="pr-4">
-                    <InteractiveMarkdown defaultEmptyValue="_No description provided._">
-                      {data.data.description || ""}
-                    </InteractiveMarkdown>
+                    <TaskDescription />
                   </div>
                 </div>
               </div>

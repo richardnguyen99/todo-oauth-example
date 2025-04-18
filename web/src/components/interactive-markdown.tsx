@@ -8,6 +8,7 @@ import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 
 import { Button } from "./ui/button";
+import { Loader2 } from "lucide-react";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), {
   ssr: false,
@@ -19,14 +20,16 @@ const MDEditor = dynamic(() => import("@uiw/react-md-editor"), {
 type Props = Readonly<{
   children?: string;
   defaultEmptyValue?: string;
-  onSave?: (value: string) => void;
+  onSave?: (value: string | undefined | null) => Promise<void>;
   onCancel?: () => void;
 }>;
 
 export default function InteractiveMarkdown({
   children,
   defaultEmptyValue,
+  onSave,
 }: Props): JSX.Element {
+  const [loading, setLoading] = React.useState(false);
   const [value, setValue] = React.useState(children);
   const [editing, setEditing] = React.useState(false);
 
@@ -36,16 +39,25 @@ export default function InteractiveMarkdown({
     setValue(newValue);
   }, []);
 
+  const handleSave = React.useCallback(async () => {
+    setLoading(true);
+    if (typeof onSave !== "undefined") {
+      await onSave(value || null);
+    }
+
+    setLoading(false);
+    setEditing(false);
+  }, [onSave, value]);
+
   if (!editing) {
     return (
       <div
-        className="hover:bg-accent/50 -mx-4 cursor-pointer rounded-md p-2"
+        className="hover:bg-accent/50 -mx-4 cursor-pointer rounded-md p-2 px-4"
         onClick={() => setEditing(true)}
       >
         <MarkdownPreview
           source={value && value.length > 0 ? value : defaultEmptyValue}
           rehypeRewrite={(node, index, parent) => {
-            console.log("node: ", node);
             if (
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-expect-error
@@ -84,7 +96,10 @@ export default function InteractiveMarkdown({
         <Button variant="outline" size="sm" onClick={() => setEditing(false)}>
           Cancel
         </Button>
-        <Button size="sm">Save</Button>
+        <Button size="sm" onClick={handleSave} disabled={loading}>
+          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Save
+        </Button>
       </div>
     </div>
   );
