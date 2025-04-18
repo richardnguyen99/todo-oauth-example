@@ -55,9 +55,9 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
       </div>
 
       <div className="flex px-3">
-        <div className="text-muted-foreground mx-9 mt-1 line-clamp-3 w-full">
+        <div className="text-muted-foreground mx-9 mt-1 w-full">
           <MarkdownPreview
-            className="!prose-sm prose-headings:!text-sm w-full"
+            className="!prose-sm prose-headings:!text-sm !line-clamp-3 w-full [&_code]:!line-clamp-1"
             disableCopy
             source={
               task.description && task.description.length > 0

@@ -82,7 +82,13 @@ export const TaskTabActionDropdownContent = React.forwardRef<
   ref,
 ): JSX.Element {
   return (
-    <DropdownMenuContent ref={ref} {...props} className="w-56">
+    <DropdownMenuContent
+      ref={ref}
+      {...props}
+      className="w-56"
+      side="bottom"
+      align="end"
+    >
       <DropdownMenuLabel>Action List</DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
