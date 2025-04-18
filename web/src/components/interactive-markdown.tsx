@@ -8,7 +8,7 @@ import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 
 import { Button } from "./ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Pencil } from "lucide-react";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), {
   ssr: false,
@@ -51,10 +51,18 @@ export default function InteractiveMarkdown({
 
   if (!editing) {
     return (
-      <div
-        className="hover:bg-accent/50 -mx-4 cursor-pointer rounded-md p-2 px-4"
-        onClick={() => setEditing(true)}
-      >
+      <div className="group hover:bg-accent/30 relative -ml-4 rounded-md p-2 px-4">
+        <div className="absolute top-2 right-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <Button
+            variant="secondary"
+            size="sm"
+            type="button"
+            onClick={() => setEditing(true)}
+          >
+            <Pencil className="h-2 w-2" />
+            Edit
+          </Button>
+        </div>
         <MarkdownPreview
           source={value && value.length > 0 ? value : defaultEmptyValue}
           rehypeRewrite={(node, index, parent) => {

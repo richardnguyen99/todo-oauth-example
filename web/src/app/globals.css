@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@plugin "@tailwindcss/typography";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -137,7 +139,14 @@
 
   .w-md-editor-text-pre > code,
   .w-md-editor-text-input {
-    @apply !text-sm;
-    @apply !font-mono;
+    @apply !font-[monospace] !text-[14px] !leading-[22px];
+  }
+
+  .wmde-markdown ul li {
+    @apply list-disc pl-2;
+  }
+
+  .wmde-markdown ol li {
+    @apply list-decimal pl-2;
   }
 }
