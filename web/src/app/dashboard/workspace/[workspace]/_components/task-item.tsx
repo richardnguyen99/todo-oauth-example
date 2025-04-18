@@ -1,6 +1,7 @@
 "use client";
 
 import React, { type JSX } from "react";
+import MarkdownPreview from "@uiw/react-markdown-preview";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -22,15 +23,15 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
   return (
     <Link
       {...rest}
-      className={cn(`z-0 cursor-pointer rounded-md transition-colors`, {
-        "bg-muted/50 text-muted-foreground": task.completed,
-        "hover:bg-accent/30": !task.completed,
-      })}
-      tabIndex={-1}
+      className={cn(
+        "bg-accent/30 hover:bg-accent/70 hover: flex cursor-pointer flex-col rounded-md p-3",
+        {
+          "text-muted-foreground": task.completed,
+        },
+      )}
       href={`/dashboard/workspace/${task.workspaceId}/task/${task._id}`}
-      passHref
     >
-      <div className="flex items-start gap-3 p-3 pb-0">
+      <div className="flex items-start gap-3">
         <div className="flex flex-shrink-0">
           <TaskCheckbox task={task} />
         </div>
@@ -54,8 +55,29 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
       </div>
 
       <div className="flex px-3">
-        <div className="text-muted-foreground mx-9 mt-1 line-clamp-2 text-sm">
-          {task.description}
+        <div className="text-muted-foreground mx-9 mt-1 line-clamp-3 w-full">
+          <MarkdownPreview
+            className="!prose-sm prose-headings:!text-sm w-full"
+            disableCopy
+            source={
+              task.description && task.description.length > 0
+                ? task.description
+                : undefined
+            }
+            rehypeRewrite={(node, index, parent) => {
+              if (
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
+                node.tagName === "a" &&
+                parent &&
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
+                /^h(1|2|3|4|5|6)/.test(parent.tagName)
+              ) {
+                parent.children = parent.children.slice(1);
+              }
+            }}
+          />
         </div>
       </div>
 

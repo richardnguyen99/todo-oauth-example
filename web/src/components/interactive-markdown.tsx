@@ -7,8 +7,10 @@ import dynamic from "next/dynamic";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { Loader2, Pencil } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { cn } from "@/lib/utils";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), {
   ssr: false,
@@ -51,18 +53,28 @@ export default function InteractiveMarkdown({
 
   if (!editing) {
     return (
-      <div className="group hover:bg-accent/30 relative -ml-4 rounded-md p-2 px-4">
-        <div className="absolute top-2 right-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-          <Button
-            variant="secondary"
-            size="sm"
-            type="button"
-            onClick={() => setEditing(true)}
-          >
-            <Pencil className="h-2 w-2" />
-            Edit
-          </Button>
+      <div className="group relative -ml-4 rounded-md p-2 px-4">
+        <div className="absolute top-2 -left-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className={cn(
+                  buttonVariants({
+                    size: "icon",
+                    variant: "secondary",
+                    className: "size-fit !p-2",
+                  }),
+                )}
+                onClick={() => setEditing(true)}
+              >
+                <Pencil className="size-4" />
+              </Button>
+            </TooltipTrigger>
+
+            <TooltipContent side="right">Edit description</TooltipContent>
+          </Tooltip>
         </div>
+
         <MarkdownPreview
           source={value && value.length > 0 ? value : defaultEmptyValue}
           rehypeRewrite={(node, index, parent) => {
