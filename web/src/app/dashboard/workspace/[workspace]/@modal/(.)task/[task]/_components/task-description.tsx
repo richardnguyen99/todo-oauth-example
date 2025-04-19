@@ -2,14 +2,17 @@
 
 import React, { type JSX } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 import InteractiveMarkdown from "@/components/interactive-markdown";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
 import api from "@/lib/axios";
 import { TaskResponse } from "../../../../_types/task";
+import { ErrorApiResponse } from "@/app/_types/response";
 
 export default function TaskDescription(): JSX.Element {
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const queryClient = useQueryClient();
   const { task, setTask } = useTaskWithIdStore((s) => s);
   const { tasks, setTasks } = useTaskStore((s) => s);
@@ -50,8 +53,13 @@ export default function TaskDescription(): JSX.Element {
       console.log("add description settled: ", data, error);
     },
 
-    onError: (error) => {
+    onError: (error: AxiosError<ErrorApiResponse>) => {
       console.log("add description error: ", error);
+      if (error.response?.data) {
+        setErrorMessage(error.response.data.message);
+      } else {
+        setErrorMessage("An unexpected error occurred.");
+      }
     },
   });
 
@@ -72,6 +80,7 @@ export default function TaskDescription(): JSX.Element {
     <InteractiveMarkdown
       defaultEmptyValue="_No description provided._"
       onSave={handleSave}
+      errorMessage={errorMessage ?? undefined}
     >
       {task.description || ""}
     </InteractiveMarkdown>

@@ -22,6 +22,7 @@ const MDEditor = dynamic(() => import("@uiw/react-md-editor"), {
 type Props = Readonly<{
   children?: string;
   defaultEmptyValue?: string;
+  errorMessage?: string;
   onSave?: (value: string | undefined | null) => Promise<void>;
   onCancel?: () => void;
 }>;
@@ -29,7 +30,9 @@ type Props = Readonly<{
 export default function InteractiveMarkdown({
   children,
   defaultEmptyValue,
+  errorMessage = "",
   onSave,
+  onCancel,
 }: Props): JSX.Element {
   const [loading, setLoading] = React.useState(false);
   const [value, setValue] = React.useState(children);
@@ -41,14 +44,25 @@ export default function InteractiveMarkdown({
     setValue(newValue);
   }, []);
 
+  const handleCancel = React.useCallback(() => {
+    setEditing(false);
+    setValue(children || defaultEmptyValue || "");
+
+    if (typeof onCancel !== "undefined") {
+      onCancel();
+    }
+  }, [children, defaultEmptyValue, onCancel]);
+
   const handleSave = React.useCallback(async () => {
     setLoading(true);
     if (typeof onSave !== "undefined") {
-      await onSave(value || null);
+      try {
+        await onSave(value || null);
+        setEditing(false);
+      } finally {
+        setLoading(false);
+      }
     }
-
-    setLoading(false);
-    setEditing(false);
   }, [onSave, value]);
 
   if (!editing) {
@@ -112,14 +126,17 @@ export default function InteractiveMarkdown({
         }}
       />
 
-      <div className="mt-2 flex justify-end gap-2">
-        <Button variant="outline" size="sm" onClick={() => setEditing(false)}>
-          Cancel
-        </Button>
-        <Button size="sm" onClick={handleSave} disabled={loading}>
-          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Save
-        </Button>
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <div className="text-sm text-red-500">{errorMessage}</div>
+        <div className="mt-2 flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button size="sm" onClick={handleSave} disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Save
+          </Button>
+        </div>
       </div>
     </div>
   );
