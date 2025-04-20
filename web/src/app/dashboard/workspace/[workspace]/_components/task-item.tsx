@@ -31,8 +31,8 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
       )}
       href={`/dashboard/workspace/${task.workspaceId}/task/${task._id}`}
     >
-      <div className="flex items-start gap-3">
-        <div className="flex flex-shrink-0">
+      <div className="flex items-start gap-4">
+        <div className="ml-2 flex flex-shrink-0">
           <TaskCheckbox task={task} />
         </div>
 
@@ -57,7 +57,7 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
       <div className="flex px-3">
         <div className="text-muted-foreground mx-9 mt-1 w-full">
           <MarkdownPreview
-            className="!prose-sm prose-headings:!text-sm !line-clamp-3 w-full [&_code]:!line-clamp-1"
+            className="!prose-sm prose-headings:!text-sm !line-clamp-1 w-full [&_code]:!line-clamp-1 [&_code]:!p-0 [&>*]:!m-0 [&>*]:!border-b-0 [&>*]:!p-0 [&>:not(:first-child)]:hidden [&>pre]:!m-0 [&>pre]:!bg-transparent [&>pre]:!p-0"
             disableCopy
             source={
               task.description && task.description.length > 0
@@ -75,6 +75,17 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
                 /^h(1|2|3|4|5|6)/.test(parent.tagName)
               ) {
                 parent.children = parent.children.slice(1);
+              } else if (node.type === "element" && node.tagName === "table") {
+                node.tagName = "p";
+                node.properties = {
+                  className: "text-muted-foreground italic",
+                };
+                node.children = [
+                  {
+                    type: "text",
+                    value: "Table is disabled in preview.",
+                  },
+                ];
               }
             }}
           />
