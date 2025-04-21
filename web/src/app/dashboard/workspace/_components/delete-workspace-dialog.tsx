@@ -83,7 +83,12 @@ export default function DeleteWorkspaceDialog({
     <AlertDialog open={show} onOpenChange={setShow}>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
 
-      <AlertDialogContent>
+      <AlertDialogContent
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+          document.body.style.pointerEvents = "";
+        }}
+      >
         <AlertDialogHeader>
           <AlertDialogTitle>Delete workspace</AlertDialogTitle>
           <AlertDialogDescription asChild>

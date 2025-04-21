@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TaskWithIdStoreProvider } from "../../../../task/_providers/task";
 import TaskDueDate from "./task-due-date";
+import TaskDescription from "./task-description";
 
 type Props = Readonly<{
   params: TaskParams;
@@ -129,15 +130,7 @@ export default function TaskPreview({ params }: Props): JSX.Element | null {
 
                 <div className="mt-2 pl-5 md:pl-14">
                   <div className="pr-4">
-                    {data.data.description ? (
-                      <p className="text-muted-foreground pr-4">
-                        {data.data.description}
-                      </p>
-                    ) : (
-                      <p className="text-muted-foreground pr-4 italic">
-                        (No description provided.)
-                      </p>
-                    )}
+                    <TaskDescription />
                   </div>
                 </div>
               </div>

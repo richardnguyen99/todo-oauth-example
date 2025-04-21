@@ -73,7 +73,12 @@ export default function TaskTabDeleteDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+          document.body.style.pointerEvents = "";
+        }}
+      >
         <AlertDialogHeader>
           <AlertDialogTitle>
             Are you sure want to delete this task?
@@ -86,8 +91,11 @@ export default function TaskTabDeleteDialog({
           <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction asChild onClick={handleDelete}>
-            <Button className="bg-red-400 hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-600">
+          <AlertDialogAction asChild>
+            <Button
+              className="bg-red-400 hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-600"
+              onClick={handleDelete}
+            >
               Delete
             </Button>
           </AlertDialogAction>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { type JSX } from "react";
+import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -10,27 +11,37 @@ import TaskAvatar from "./task-avatar";
 import TaskActionDropdown from "./task-action-dropdown";
 import TaskCheckbox from "./task-checkbox";
 import TaskDueDate from "./task-due-date";
-import Link from "next/link";
+import TaskDescriptionPreview from "./task-description-preview";
 
 type Props = Readonly<
   {
     task: Task;
-  } & React.HTMLAttributes<HTMLAnchorElement>
+  } & React.HTMLAttributes<HTMLDivElement>
 >;
 
 export default function TaskItem({ task, ...rest }: Props): JSX.Element {
+  const router = useRouter();
+
+  const handleClick = React.useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      router.push(`/dashboard/workspace/${task.workspaceId}/task/${task._id}`);
+    },
+    [router, task._id, task.workspaceId],
+  );
+
   return (
-    <Link
+    <div
       {...rest}
-      className={cn(`z-0 cursor-pointer rounded-md transition-colors`, {
-        "bg-muted/50 text-muted-foreground": task.completed,
-        "hover:bg-accent/30": !task.completed,
-      })}
-      tabIndex={-1}
-      href={`/dashboard/workspace/${task.workspaceId}/task/${task._id}`}
-      passHref
+      className={cn(
+        "bg-accent/30 hover:bg-accent/70 hover: flex cursor-pointer flex-col rounded-md p-2",
+        {
+          "text-muted-foreground": task.completed,
+        },
+      )}
+      onClick={handleClick}
     >
-      <div className="flex items-start gap-3 p-3 pb-0">
+      <div className="flex items-start gap-2">
         <div className="flex flex-shrink-0">
           <TaskCheckbox task={task} />
         </div>
@@ -54,13 +65,13 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
       </div>
 
       <div className="flex px-3">
-        <div className="text-muted-foreground mx-9 mt-1 line-clamp-2 text-sm">
-          {task.description}
+        <div className="text-muted-foreground mx-5 mt-1 w-full">
+          <TaskDescriptionPreview task={task} />
         </div>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-2 p-3 pt-0">
-        <div className="flex items-center gap-2 pl-9">
+      <div className="mt-2 flex flex-wrap items-center gap-2 px-3">
+        <div className="flex items-center gap-2 pl-5">
           {task.dueDate && (
             <TaskDueDate completed={task.completed} dueDate={task.dueDate} />
           )}
@@ -90,6 +101,6 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
           </TaskAvatar>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

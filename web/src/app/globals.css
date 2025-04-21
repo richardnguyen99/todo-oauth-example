@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@plugin "@tailwindcss/typography";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -118,5 +120,33 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .wmde-markdown {
+    @apply !bg-card !text-muted-foreground !text-sm;
+  }
+
+  .wmde-markdown:not(.w-md-editor-preview > *) {
+    @apply !bg-transparent;
+  }
+
+  .w-md-editor,
+  .w-md-editor-toolbar {
+    @apply !bg-card !text-card-foreground;
+  }
+
+  .w-md-editor-text-pre > code,
+  .w-md-editor-text-input {
+    @apply !font-[monospace] !text-[14px] !leading-[22px];
+  }
+
+  .wmde-markdown ul li {
+    @apply list-disc pl-2;
+  }
+
+  .wmde-markdown ol li {
+    @apply list-decimal pl-2;
   }
 }
