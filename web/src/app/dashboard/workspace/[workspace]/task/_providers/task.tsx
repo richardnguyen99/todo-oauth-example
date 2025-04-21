@@ -9,7 +9,7 @@ import React, {
 import { useStore } from "zustand";
 
 import { type TaskWithIdStore, createTaskWithIdStore } from "../_stores/task";
-import { Task } from "../../_types/task";
+import { type TaskResponse } from "../../_types/task";
 
 export type taskWithIdStoreApi = ReturnType<typeof createTaskWithIdStore>;
 
@@ -19,7 +19,7 @@ export const TaskWithIdStoreContext = createContext<
 
 export type TaskWithIdStoreProviderProps = Readonly<{
   children: ReactNode;
-  initialState: Task;
+  initialState: TaskResponse["data"];
 }>;
 
 export const TaskWithIdStoreProvider = ({

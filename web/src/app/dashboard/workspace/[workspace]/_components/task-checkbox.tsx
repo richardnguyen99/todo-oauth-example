@@ -31,13 +31,13 @@ export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
     },
 
     onSuccess: async (response) => {
-      const updatedTask = response.data;
+      const updatedTask = {
+        ...response.data,
+        dueDate: response.data.dueDate ? new Date(response.data.dueDate) : null,
+      };
       const updatedTasks = tasks.map((t) => {
         if (t._id === updatedTask._id) {
-          return {
-            ...t,
-            completed: updatedTask.completed,
-          };
+          return updatedTask;
         }
         return t;
       });

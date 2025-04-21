@@ -93,7 +93,11 @@ export function TaskCreator({ className, ...rest }: Props): JSX.Element {
     },
 
     onSuccess: (response) => {
-      setTasks([...tasks, response.data]);
+      const newTask = {
+        ...response.data,
+        dueDate: response.data.dueDate ? new Date(response.data.dueDate) : null,
+      };
+      setTasks([...tasks, newTask]);
     },
 
     onSettled: () => {

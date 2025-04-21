@@ -199,23 +199,16 @@ export class TasksService {
       }
     }
 
-    // Handle the dueDate conversion
-    let dueDate: Date | null = null;
-    if (updateTaskDto.dueDate) {
-      dueDate = new Date(updateTaskDto.dueDate);
-      if (isNaN(dueDate.getTime())) {
-        throw new BadRequestException(
-          `Invalid \`dueDate=${updateTaskDto.dueDate}\` provided. It should be a valid date.`,
-        );
-      }
-    }
-
     const updateQuery: mongoose.UpdateQuery<TaskDocument> = {
       $set: {
         ...updateTaskDto,
-        dueDate,
       },
     };
+
+    // Handle the dueDate conversion
+    if (updateTaskDto.dueDate) {
+      updateQuery.$set.dueDate = new Date(updateTaskDto.dueDate);
+    }
 
     // Only modify `completedBy` when `completed` is explicitly defined the dto
     // either true or false. Otherwise, don't do anything

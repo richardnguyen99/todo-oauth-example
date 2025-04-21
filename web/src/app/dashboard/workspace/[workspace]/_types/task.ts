@@ -61,7 +61,9 @@ export type TasksResponse = {
 export type TaskResponse = {
   statusCode: number;
   message: string;
-  data: Task;
+  data: Omit<Task, "dueDate"> & {
+    dueDate: string | null;
+  };
 };
 
 export type TaskParams = WorkspaceParams & {
