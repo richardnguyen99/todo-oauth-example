@@ -8,7 +8,7 @@ import InteractiveMarkdown from "@/components/interactive-markdown";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
 import api from "@/lib/axios";
-import { TaskResponse } from "../../../../_types/task";
+import { TaskResponse } from "@/app/dashboard/workspace/[workspace]/_types/task";
 import { ErrorApiResponse } from "@/app/_types/response";
 
 export default function TaskDescription(): JSX.Element {
@@ -54,7 +54,6 @@ export default function TaskDescription(): JSX.Element {
     },
 
     onError: (error: AxiosError<ErrorApiResponse>) => {
-      console.log("add description error: ", error);
       if (error.response?.data) {
         setErrorMessage(error.response.data.message);
       } else {

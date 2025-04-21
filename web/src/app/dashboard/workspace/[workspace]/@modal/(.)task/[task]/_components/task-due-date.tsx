@@ -49,7 +49,6 @@ export default function TaskDueDate({
     },
 
     onSuccess: (data) => {
-      console.log("add due date success: ", data);
       const newTask = {
         ...data.data,
         dueDate: data.data.dueDate ? new Date(data.data.dueDate) : null,
