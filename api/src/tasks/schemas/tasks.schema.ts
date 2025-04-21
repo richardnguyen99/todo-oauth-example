@@ -2,6 +2,55 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 
 @Schema({
+  collection: "tags",
+  timestamps: true,
+  toJSON: {
+    virtuals: true,
+  },
+  toObject: {
+    virtuals: true,
+  },
+})
+export class Tag {
+  @Prop({
+    type: mongoose.Schema.Types.String,
+    required: true,
+  })
+  name: string;
+
+  @Prop({
+    type: mongoose.Schema.Types.String,
+    required: false,
+    default: null,
+  })
+  color?: string;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Member",
+    required: true,
+  })
+  createdBy: mongoose.Types.ObjectId;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Workspace",
+    required: true,
+  })
+  workspaceId: mongoose.Types.ObjectId;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Task",
+    required: true,
+  })
+  taskId: mongoose.Types.ObjectId;
+}
+
+export type TagDocument = HydratedDocument<Tag>;
+export const TagSchema = SchemaFactory.createForClass(Tag);
+
+@Schema({
   collection: "tasks",
   timestamps: true,
   toJSON: {
@@ -58,10 +107,11 @@ export class Task {
 
   @Prop({
     type: mongoose.Schema.Types.Array,
-    of: mongoose.Schema.Types.String,
+    of: mongoose.Schema.Types.ObjectId,
+    ref: "Tag",
     default: [],
   })
-  tags: string[];
+  tags: mongoose.Types.ObjectId[];
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
