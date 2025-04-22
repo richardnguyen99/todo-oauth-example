@@ -76,15 +76,16 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
             <TaskDueDate completed={task.completed} dueDate={task.dueDate} />
           )}
 
-          {task.tags.map((tag) => (
-            <Badge
-              key={tag}
-              variant="outline"
-              className="bg-accent h-4 px-1.5 py-1 text-xs"
-            >
-              {tag}
-            </Badge>
-          ))}
+          {task.tagList &&
+            task.tagList.map((tag) => (
+              <Badge
+                key={tag._id}
+                variant="outline"
+                className="bg-accent h-4 px-1.5 py-1 text-xs"
+              >
+                {tag.name}
+              </Badge>
+            ))}
         </div>
 
         <div className="text-muted-foreground ml-auto inline-flex text-xs">

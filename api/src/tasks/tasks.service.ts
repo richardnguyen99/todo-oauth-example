@@ -50,6 +50,7 @@ export class TasksService {
         workspaceId: workspace._id, // Filter by workspaceId
       })
       .populate("createdByUser")
+      .populate("tagList")
       .exec();
 
     return tasks;

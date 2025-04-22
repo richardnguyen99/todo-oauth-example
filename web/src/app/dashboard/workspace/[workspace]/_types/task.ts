@@ -32,6 +32,17 @@ export type Item = {
 
 export type Priority = "low" | "medium" | "high";
 
+export type Tag = {
+  _id: string;
+  name: string;
+  color: string;
+  createdBy: string;
+  workspaceId: string;
+  taskId: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type Task = {
   _id: string;
   title: string;
@@ -50,6 +61,7 @@ export type Task = {
   workspace?: Workspace;
   createdByUser?: User;
   completedByUser?: User;
+  tagList?: Tag[];
 };
 
 export type TasksResponse = {
