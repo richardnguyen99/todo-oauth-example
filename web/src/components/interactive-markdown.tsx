@@ -68,7 +68,7 @@ export default function InteractiveMarkdown({
   if (!editing) {
     return (
       <div className="group relative -ml-4 rounded-md p-2 px-4">
-        <div className="absolute top-2 -left-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        <div className="bg-muted hover:bg-accent absolute rounded-md opacity-0 transition-opacity duration-200 group-hover:opacity-100 md:top-2 md:-left-6">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
