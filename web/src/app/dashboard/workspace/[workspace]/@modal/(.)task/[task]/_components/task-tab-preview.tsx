@@ -6,9 +6,9 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Loader2 } from "lucide-react";
 
 import TaskDialog from "./task-tab-dialog";
-import { TaskParams, TaskResponse } from "../../../../_types/task";
 import api from "@/lib/axios";
 import { DialogTitle } from "@/components/ui/dialog";
+import { TaskParams, TaskResponse } from "../../../../_types/task";
 import { TaskWithIdStoreProvider } from "../../../../task/_providers/task";
 
 type Props = Readonly<{

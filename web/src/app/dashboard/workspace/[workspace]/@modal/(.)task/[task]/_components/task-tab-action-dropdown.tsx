@@ -15,7 +15,7 @@ import {
   TaskTabActionDropdownTrigger,
 } from "@/app/dashboard/workspace/[workspace]/_components/task-action-dropdown";
 import { type Task } from "@/app/dashboard/workspace/[workspace]/_types/task";
-import { useTaskDialogContext } from "../../../../_providers/task-dialog";
+import { useTaskDialogContext } from "../_providers/task-dialog";
 
 export default function TaskTabActionDropdown(): JSX.Element {
   const [openDropdown, setOpenDropdown] = React.useState(false);

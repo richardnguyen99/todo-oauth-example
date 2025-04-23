@@ -11,7 +11,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
+import TaskAddLabelItem from "./task-add-label-item";
 
 export default function TaskAddLabel(): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
@@ -27,7 +29,7 @@ export default function TaskAddLabel(): JSX.Element {
   }, []);
 
   return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
+    <Popover open={open} onOpenChange={handleOpenChange} modal>
       <PopoverTrigger asChild>
         <Button variant="outline" className="w-full justify-start text-xs">
           <Tags className="h-4 w-4" />
@@ -64,20 +66,11 @@ export default function TaskAddLabel(): JSX.Element {
                   </Button>
                 </div>
               ) : (
-                <ul className="py-1">
+                <ScrollArea className="h-72">
                   {activeWorkspace?.tags.map((tag) => (
-                    <li
-                      key={tag.id}
-                      className="hover:bg-muted/50 tags-center flex px-3 py-2"
-                    >
-                      <div
-                        className="mr-2 h-4 w-4 rounded-full"
-                        style={{ backgroundColor: tag.color }}
-                      />
-                      <span>{tag.name}</span>
-                    </li>
+                    <TaskAddLabelItem key={tag.id} tag={tag} />
                   ))}
-                </ul>
+                </ScrollArea>
               )}
             </div>
           </div>

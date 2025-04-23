@@ -1,6 +1,6 @@
 import React, { type JSX } from "react";
 
-import TaskDialogProvider from "../../_providers/task-dialog";
+import TaskDialogProvider from "./[task]/_providers/task-dialog";
 
 type Props = Readonly<{
   children: React.ReactNode;
