@@ -90,7 +90,8 @@ export class TasksService {
         path: "completedByUser",
       },
       {
-        path: "tagList",
+        path: "tags",
+        select: "name color createdBy",
       },
     ]);
 

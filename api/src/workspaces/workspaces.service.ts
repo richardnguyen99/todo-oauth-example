@@ -38,7 +38,10 @@ export class WorkspacesService {
   ) {}
 
   async findWorkspaceById(workspaceId: string): Promise<WorkspaceDocument> {
-    const workspace = await this.workspaceModel.findById(workspaceId);
+    const workspace = await this.workspaceModel
+      .findById(workspaceId)
+      .populate(["tags", "owner"])
+      .exec();
 
     if (!workspace) {
       throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
@@ -52,7 +55,7 @@ export class WorkspacesService {
       .find({
         owner: userId,
       })
-      .populate("owner")
+      .populate(["owner", "tags"])
       .exec();
 
     return workspaces;

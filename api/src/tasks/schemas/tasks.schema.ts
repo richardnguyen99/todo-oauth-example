@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+
 import mongoose, { HydratedDocument } from "mongoose";
 
+// Serve no purpose except for migration script
 @Schema({
   collection: "tags",
   timestamps: true,
@@ -111,7 +113,7 @@ export class Task {
     ref: "Tag",
     default: [],
   })
-  tags: mongoose.Types.ObjectId[];
+  tags: Array<mongoose.Types.ObjectId | TagDocument>;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,

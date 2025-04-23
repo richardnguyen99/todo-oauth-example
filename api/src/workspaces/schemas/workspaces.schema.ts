@@ -4,6 +4,53 @@ import mongoose, { HydratedDocument } from "mongoose";
 import { User } from "src/users/schemas/user.schema";
 
 @Schema({
+  collection: "tags",
+  timestamps: true,
+  toJSON: {
+    virtuals: true,
+    transform: (_doc, ret) => {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+      return ret;
+    },
+  },
+  toObject: {
+    virtuals: true,
+  },
+})
+export class Tag {
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "Workspace",
+  })
+  workspaceId: mongoose.Types.ObjectId | Workspace;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  })
+  createdBy: mongoose.Types.ObjectId | User;
+
+  @Prop({
+    type: mongoose.Schema.Types.String,
+    required: false,
+    default: "dark",
+  })
+  color: mongoose.Types.ObjectId;
+
+  @Prop({
+    type: mongoose.Schema.Types.String,
+    required: true,
+  })
+  text: mongoose.Types.ObjectId;
+}
+
+export type TagDocument = HydratedDocument<Tag>;
+export const TagSchema = SchemaFactory.createForClass(Tag);
+
+@Schema({
   collection: "members",
   timestamps: true,
   toJSON: {
@@ -74,6 +121,13 @@ export class Workspace {
     default: [],
   })
   members: Array<mongoose.Types.ObjectId | Member>;
+
+  @Prop({
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Tag",
+    default: [],
+  })
+  tags: Array<mongoose.Types.ObjectId | Tag>;
 }
 
 export type WorkspaceDocument = HydratedDocument<Workspace>;
