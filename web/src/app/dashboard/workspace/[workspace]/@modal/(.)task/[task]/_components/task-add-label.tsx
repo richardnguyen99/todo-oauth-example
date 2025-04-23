@@ -11,10 +11,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
+import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 
 export default function TaskAddLabel(): JSX.Element {
-  const { task } = useTaskWithIdStore((s) => s);
+  const { activeWorkspace } = useWorkspaceStore((s) => s);
   const [open, setOpen] = React.useState(false);
   const [view, setView] = React.useState<"list" | "add">("list");
 
@@ -34,7 +34,7 @@ export default function TaskAddLabel(): JSX.Element {
           Add Labels
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="min-h-96 w-80 p-0 text-xs" align="end">
+      <PopoverContent className="w-80 p-0 text-xs" align="end">
         {view === "list" ? (
           <div className="flex flex-col">
             <div className="flex items-center justify-between border-b p-2">
@@ -50,7 +50,7 @@ export default function TaskAddLabel(): JSX.Element {
               </Button>
             </div>
             <div className="max-h-80 overflow-y-auto">
-              {task.tagList && task.tagList.length === 0 ? (
+              {activeWorkspace?.tags.length === 0 ? (
                 <div className="text-muted-foreground flex flex-col items-center justify-center p-6 text-center">
                   <p>No items yet</p>
                   <Button
@@ -65,19 +65,18 @@ export default function TaskAddLabel(): JSX.Element {
                 </div>
               ) : (
                 <ul className="py-1">
-                  {task.tagList &&
-                    task.tagList.map((tag) => (
-                      <li
-                        key={tag._id}
-                        className="hover:bg-muted/50 tags-center flex px-3 py-2"
-                      >
-                        <div
-                          className="mr-2 h-4 w-4 rounded-full"
-                          style={{ backgroundColor: tag.color }}
-                        />
-                        <span>{tag.name}</span>
-                      </li>
-                    ))}
+                  {activeWorkspace?.tags.map((tag) => (
+                    <li
+                      key={tag.id}
+                      className="hover:bg-muted/50 tags-center flex px-3 py-2"
+                    >
+                      <div
+                        className="mr-2 h-4 w-4 rounded-full"
+                        style={{ backgroundColor: tag.color }}
+                      />
+                      <span>{tag.name}</span>
+                    </li>
+                  ))}
                 </ul>
               )}
             </div>

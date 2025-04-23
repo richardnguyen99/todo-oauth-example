@@ -31,6 +31,17 @@ export type WorkspaceParams = {
   workspace: string;
 };
 
+export type Tag = {
+  id: string;
+  name: string;
+  color: string;
+  createdBy: string;
+
+  workspaceId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
 export type Workspace = {
   _id: string;
   title: string;
@@ -40,6 +51,7 @@ export type Workspace = {
   updatedAt: Date;
   owner: User;
   members: string[];
+  tags: Tag[];
 };
 
 export type WorkspaceResponse = {

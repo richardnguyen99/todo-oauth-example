@@ -40,7 +40,13 @@ export class WorkspacesService {
   async findWorkspaceById(workspaceId: string): Promise<WorkspaceDocument> {
     const workspace = await this.workspaceModel
       .findById(workspaceId)
-      .populate(["tags", "owner"])
+      .populate([
+        "owner",
+        {
+          path: "tags",
+          select: "name color createdBy",
+        },
+      ])
       .exec();
 
     if (!workspace) {

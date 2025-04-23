@@ -7,6 +7,8 @@ import { notFound, useParams } from "next/navigation";
 import { Workspace, WorkspaceParams } from "../_types/workspace";
 import TaskMenuBar from "./_components/task-menubar";
 import { useWorkspaceStore } from "../../_providers/workspace";
+import { TaskStoreProvider } from "./_providers/task";
+import TaskInitializer from "./_components/task-initializer";
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -53,8 +55,11 @@ export default function WorkspacePageLayout({
     <div className="mx-auto max-w-4xl">
       <TaskMenuBar />
 
-      {children}
-      {modal}
+      <TaskStoreProvider>
+        <TaskInitializer />
+        {children}
+        {modal}
+      </TaskStoreProvider>
     </div>
   );
 }

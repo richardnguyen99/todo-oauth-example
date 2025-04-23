@@ -2,10 +2,9 @@
 
 import React, { type JSX } from "react";
 
-import { TaskStoreProvider, useTaskStore } from "./_providers/task";
+import { useTaskStore } from "./_providers/task";
 import TaskSkeletonItem from "./_components/task-skeleton-item";
 import TaskList from "./_components/task-list";
-import TaskInitializer from "./_components/task-initializer";
 
 export default function WorkspacePage(): JSX.Element | never {
   const { status } = useTaskStore((s) => s);
@@ -20,10 +19,5 @@ export default function WorkspacePage(): JSX.Element | never {
     );
   }
 
-  return (
-    <TaskStoreProvider>
-      <TaskInitializer />
-      <TaskList />
-    </TaskStoreProvider>
-  );
+  return <TaskList />;
 }

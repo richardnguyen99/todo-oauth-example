@@ -49,7 +49,13 @@ export class TasksService {
       .find({
         workspaceId: workspace._id, // Filter by workspaceId
       })
-      .populate(["createdByUser", "tagList"])
+      .populate([
+        "createdByUser",
+        {
+          path: "tags",
+          select: "name color createdBy",
+        },
+      ])
       .exec();
 
     return tasks;

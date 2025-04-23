@@ -134,7 +134,7 @@ export default function TaskDialog(): JSX.Element {
       <div className="flex h-full w-full flex-col gap-2 overflow-auto text-sm md:flex-row md:overflow-hidden">
         <ScrollArea className="w-full md:w-3/4 [&>div>div]:!block">
           <div className="flex flex-col gap-8 pt-3">
-            {task.tagList && task.tagList.length > 0 && (
+            {task.tags.length > 0 && (
               <div className="min-h-[64px] w-full">
                 <div className="flex items-center gap-3 pl-5 text-lg leading-none font-semibold">
                   <Tags className="h-6 w-6" />
@@ -143,7 +143,7 @@ export default function TaskDialog(): JSX.Element {
 
                 <div className="mt-2 w-full pl-5 md:pl-14">
                   <div className="flex w-full flex-wrap items-center gap-2 pr-4">
-                    {task.tagList.map((tag, index) => (
+                    {task.tags.map((tag, index) => (
                       <Badge
                         key={`${tag}-${index}`}
                         className="bg-secondary text-secondary-foreground border-border line-clamp-1 flex items-center gap-1 px-1.5 py-1 text-sm leading-3 whitespace-break-spaces"
