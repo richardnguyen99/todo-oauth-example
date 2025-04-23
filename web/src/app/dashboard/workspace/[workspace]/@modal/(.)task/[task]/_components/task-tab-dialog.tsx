@@ -39,6 +39,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import TaskDueDate from "./task-due-date";
 import TaskDescription from "./task-description";
+import TaskAddLabel from "./task-add-label";
 
 export default function TaskDialog(): JSX.Element {
   const { tasks } = useTaskStore((s) => s);
@@ -225,10 +226,7 @@ export default function TaskDialog(): JSX.Element {
             <h2 className="text-primary font-bold">Metadata</h2>
             <TaskDueDate disableClose />
 
-            <Button variant="outline" className="w-full justify-start text-xs">
-              <Tags className="h-4 w-4" />
-              Add Labels
-            </Button>
+            <TaskAddLabel />
 
             <Button variant="outline" className="w-full justify-start text-xs">
               <SquareCheckBig className="h-4 w-4" />
