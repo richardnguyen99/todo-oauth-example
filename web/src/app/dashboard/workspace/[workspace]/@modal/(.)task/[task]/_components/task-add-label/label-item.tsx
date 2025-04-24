@@ -1,9 +1,9 @@
 "use client";
 
 import React, { type JSX } from "react";
+import { Pen, Square } from "lucide-react";
 
 import { Tag } from "@/app/dashboard/workspace/_types/workspace";
-import { Pen, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
