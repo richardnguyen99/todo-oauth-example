@@ -17,7 +17,11 @@ import { AuthGuard } from "@nestjs/passport";
 
 import { WorkspacesService } from "./workspaces.service";
 import { ResponsePayloadDto } from "src/dto/response.dto";
-import { MemberDocument, WorkspaceDocument } from "./schemas/workspaces.schema";
+import {
+  MemberDocument,
+  TagDocument,
+  WorkspaceDocument,
+} from "./schemas/workspaces.schema";
 import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
 import { ZodValidationPipe } from "src/zod-validation/zod-validation.pipe";
 import {
@@ -36,6 +40,7 @@ import {
   UpdateMemberDto,
   updateMemberDtoSchema,
 } from "./dto/update-member.dto";
+import { AddNewTagDto, addNewTagDtoSchema } from "./dto/add-new-tag.dto";
 
 @Controller("workspaces")
 export class WorkspacesController {
@@ -299,6 +304,37 @@ export class WorkspacesController {
       statusCode: HttpStatus.OK,
       message: "OK",
       data: null,
+    } satisfies ResponsePayloadDto);
+  }
+
+  @UseGuards(AuthGuard("jwt"))
+  @Post("/:id/add_tag")
+  @UsePipes(new ZodValidationPipe(addNewTagDtoSchema))
+  async addTagToWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("id") workspaceId: string,
+    @JwtUser() user: JwtUserPayload,
+    @Body() body: AddNewTagDto,
+  ) {
+    let tagDocument: TagDocument;
+
+    try {
+      tagDocument = await this.workspaceService.addTagToWorkspace(
+        user.userId as string,
+        workspaceId as string,
+        body,
+      );
+    } catch (e) {
+      respondWithError(e, res);
+      return;
+    }
+
+    res.status(HttpStatus.CREATED).json({
+      statusCode: HttpStatus.CREATED,
+      message: "OK",
+      data: {
+        ...tagDocument,
+      },
     } satisfies ResponsePayloadDto);
   }
 }

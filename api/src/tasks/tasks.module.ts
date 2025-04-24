@@ -8,7 +8,7 @@ import {
   Workspace,
   WorkspaceSchema,
 } from "src/workspaces/schemas/workspaces.schema";
-import { Task, TaskSchema } from "./schemas/tasks.schema";
+import { Tag, TagSchema, Task, TaskSchema } from "./schemas/tasks.schema";
 import { TasksController } from "./tasks.controller";
 import { TasksService } from "./tasks.service";
 import { JwtStrategy } from "src/auth/strategies/jwt.strategy";
@@ -67,6 +67,13 @@ import { User, UserSchema } from "src/users/schemas/user.schema";
             justOne: true,
           });
 
+          return schema;
+        },
+      },
+      {
+        name: Tag.name,
+        useFactory: () => {
+          const schema = TagSchema;
           return schema;
         },
       },

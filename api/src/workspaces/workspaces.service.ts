@@ -5,12 +5,14 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Error, Model } from "mongoose";
 
 import { User } from "src/users/schemas/user.schema";
 import {
   Member,
   MemberDocument,
+  Tag,
+  TagDocument,
   Workspace,
   WorkspaceDocument,
 } from "src/workspaces/schemas/workspaces.schema";
@@ -20,6 +22,7 @@ import { UpdateMemberDto } from "./dto/update-member.dto";
 import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
 import { Task } from "src/tasks/schemas/tasks.schema";
 import { UpdateWorkspaceDto } from "./dto/update-workspace.dto";
+import { AddNewTagDto } from "./dto/add-new-tag.dto";
 
 @Injectable()
 export class WorkspacesService {
@@ -33,6 +36,9 @@ export class WorkspacesService {
     @InjectModel(Member.name)
     private memberModel: Model<Member>,
 
+    @InjectModel(Tag.name)
+    private tagModel: Model<Tag>,
+
     @InjectModel(Task.name)
     private taskModel: Model<Task>,
   ) {}
@@ -42,6 +48,7 @@ export class WorkspacesService {
       .findById(workspaceId)
       .populate([
         "owner",
+        "members",
         {
           path: "tags",
           select: "name color createdBy",
@@ -342,6 +349,58 @@ export class WorkspacesService {
       memberDeleteCount: memberResult.deletedCount,
       workspaceDeleteCount: workspaceResult.deletedCount,
     };
+  }
+
+  async addTagToWorkspace(
+    userId: string,
+    workspaceId: string,
+    body: AddNewTagDto,
+  ): Promise<TagDocument> {
+    const workspace = await this.findWorkspaceById(workspaceId);
+
+    if (!workspace) {
+      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
+    }
+
+    if (
+      workspace.members.filter(
+        (member) => (member as Member).userId.toString() === userId,
+      ).length === 0
+    ) {
+      throw new ForbiddenException(
+        `User with ID ${userId} is not a member of this workspace.`,
+      );
+    }
+
+    const existingTag = await this.tagModel.countDocuments({
+      color: body.color,
+    });
+
+    if (existingTag > 0) {
+      throw new BadRequestException(
+        `Tag with color "${body.color}" already exists in this workspace.`,
+      );
+    }
+
+    try {
+      const newTag = new this.tagModel({
+        text: body.text,
+        color: body.color,
+        createdBy: userId,
+        workspaceId: workspace._id,
+      });
+
+      const result = await newTag.save();
+
+      workspace.tags.push(result._id);
+      await workspace.save();
+
+      return await result.populate("createdBy");
+    } catch (error) {
+      throw new BadRequestException(
+        `Error creating tag: ${(error as Error).message}`,
+      );
+    }
   }
 
   async checkIfUserIsMember(
