@@ -17,13 +17,22 @@ export default function TaskAddLabel(): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
   const [open, setOpen] = React.useState(false);
   const [view, setView] = React.useState<"list" | "add">("list");
+  const timeoutId = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleOpenChange = React.useCallback((newOpen: boolean) => {
     if (!newOpen) {
-      setView("list");
+      timeoutId.current = setTimeout(() => setView("list"), 100);
     }
 
     setOpen(newOpen);
+  }, []);
+
+  React.useEffect(() => {
+    return () => {
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
+      }
+    };
   }, []);
 
   return (

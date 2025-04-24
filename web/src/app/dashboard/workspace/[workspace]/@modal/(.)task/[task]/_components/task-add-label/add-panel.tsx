@@ -43,6 +43,7 @@ export default function AddPanel({ setView }: Props): JSX.Element {
           <ArrowLeft className="h-4 w-4" />
           <span className="sr-only">Back</span>
         </Button>
+
         <h3 className="font-medium">Add New Item</h3>
       </div>
 
@@ -70,10 +71,12 @@ export default function AddPanel({ setView }: Props): JSX.Element {
             onChange={(e) => setValue(e.target.value)}
           />
         </div>
+
         <div className="space-y-2">
           <Label htmlFor="item-color">Color</Label>
           <ColorSelector onSelect={handleColorSelect} />
         </div>
+
         <Button className="w-full">
           <Check className="mr-1 h-4 w-4" />
           Add Item
