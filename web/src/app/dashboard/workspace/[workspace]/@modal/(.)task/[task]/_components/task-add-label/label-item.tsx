@@ -3,7 +3,7 @@
 import React, { type JSX } from "react";
 import { Pen, Square, SquareCheck } from "lucide-react";
 
-import { Tag } from "@/app/dashboard/workspace/_types/workspace";
+import { Tag } from "@/app/dashboard/workspace/_types/tag";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,

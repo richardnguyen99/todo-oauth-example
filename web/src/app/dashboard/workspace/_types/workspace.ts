@@ -1,5 +1,6 @@
 import { User } from "@/_types/user";
 import { ApiResponse } from "@/app/_types/response";
+import { Tag } from "./tag";
 
 export type Color =
   | "red"
@@ -29,17 +30,6 @@ export type ColorMap = Record<Color, string>;
 
 export type WorkspaceParams = {
   workspace: string;
-};
-
-export type Tag = {
-  id: string;
-  text: string;
-  color: string;
-  createdBy: string;
-
-  workspaceId?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
 };
 
 export type Workspace = {

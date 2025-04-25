@@ -1,7 +1,9 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { ArrowLeft, Check, X } from "lucide-react";
+import { ArrowLeft, Check, Loader2, X } from "lucide-react";
+import { AxiosError } from "axios";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +11,10 @@ import { Label } from "@/components/ui/label";
 import ColorSelector from "./color-selector";
 import { colorOptions } from "./constants";
 import { isLightColor } from "@/lib/utils";
+import api from "@/lib/axios";
+import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
+import { TagResponse } from "@/app/dashboard/workspace/_types/tag";
+import { ErrorApiResponse } from "@/app/_types/response";
 
 type Props = Readonly<{
   setView: React.Dispatch<React.SetStateAction<"list" | "add">>;
@@ -16,6 +22,58 @@ type Props = Readonly<{
 }>;
 
 export default function AddPanel({ setView, setOpen }: Props): JSX.Element {
+  const { activeWorkspace, workspaces, setWorkspaces, setActiveWorkspace } =
+    useWorkspaceStore((s) => s);
+
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { mutate } = useMutation({
+    mutationKey: ["add-label"],
+    mutationFn: async (data: { text: string; color: string }) => {
+      setLoading(true);
+
+      const res = await api.post<TagResponse>(
+        `/workspaces/${activeWorkspace!._id}/add_tag`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      return res.data;
+    },
+
+    onSuccess: (data) => {
+      console.log("Label added successfully", data.data);
+
+      const updatedWorkspace = {
+        ...activeWorkspace!,
+        tags: [...activeWorkspace!.tags, data.data],
+      };
+
+      const updatedWorkspaces = workspaces.map((workspace) => {
+        if (workspace._id === activeWorkspace!._id) {
+          return updatedWorkspace;
+        }
+        return workspace;
+      });
+
+      setWorkspaces(updatedWorkspaces);
+      setActiveWorkspace(updatedWorkspace);
+    },
+
+    onError: (error: AxiosError<ErrorApiResponse>) => {
+      setError(error.response?.data.message || "An error occurred");
+    },
+
+    onSettled: () => {
+      setLoading(false);
+    },
+  });
+
   const [value, setValue] = React.useState<string>("");
   const [color, setColor] = React.useState({
     hex: colorOptions[2].value["bold"],
@@ -31,6 +89,24 @@ export default function AddPanel({ setView, setOpen }: Props): JSX.Element {
     },
     [],
   );
+
+  const handleSubmit = React.useCallback(() => {
+    mutate(
+      {
+        text: value,
+        color: color.name,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["fetch-workspace"],
+          });
+
+          setView("list");
+        },
+      },
+    );
+  }, [color.name, mutate, queryClient, setView, value]);
 
   return (
     <div className="flex flex-col">
@@ -72,6 +148,8 @@ export default function AddPanel({ setView, setOpen }: Props): JSX.Element {
               {value.length > 0 ? value : ""}
             </span>
           </div>
+
+          {error && <p className="text-red-500">{error}</p>}
         </div>
 
         <div className="space-y-2">
@@ -88,8 +166,12 @@ export default function AddPanel({ setView, setOpen }: Props): JSX.Element {
           <ColorSelector onSelect={handleColorSelect} />
         </div>
 
-        <Button className="w-full">
-          <Check className="mr-1 h-4 w-4" />
+        <Button className="w-full" onClick={handleSubmit} disabled={loading}>
+          {loading ? (
+            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+          ) : (
+            <Check className="mr-1 h-4 w-4" />
+          )}
           Add Item
         </Button>
       </div>
