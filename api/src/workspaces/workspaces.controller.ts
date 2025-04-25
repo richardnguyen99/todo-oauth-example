@@ -332,9 +332,7 @@ export class WorkspacesController {
     res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
       message: "OK",
-      data: {
-        ...tagDocument,
-      },
+      data: tagDocument,
     } satisfies ResponsePayloadDto);
   }
 }

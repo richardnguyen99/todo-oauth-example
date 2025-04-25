@@ -48,9 +48,10 @@ export default function TaskAddLabel(): JSX.Element {
           <TaskAddLabelListView
             activeWorkspace={activeWorkspace!}
             setView={setView}
+            setOpen={setOpen}
           />
         ) : (
-          <AddPanel setView={setView} />
+          <AddPanel setView={setView} setOpen={setOpen} />
         )}
       </PopoverContent>
     </Popover>

@@ -53,7 +53,7 @@ export class TasksService {
         "createdByUser",
         {
           path: "tags",
-          select: "name color createdBy",
+          select: "text color createdBy",
         },
       ])
       .exec();
@@ -83,8 +83,6 @@ export class TasksService {
       throw new NotFoundException(`Task with ID ${taskId} not found`); // You can customize this error handling
     }
 
-    console.log(`task id = ${taskId}. task version = ${task.__v}`);
-
     const populatedTask = await task.populate([
       {
         path: "workspace",
@@ -97,7 +95,7 @@ export class TasksService {
       },
       {
         path: "tags",
-        select: "name color createdBy",
+        select: "text color createdBy",
       },
     ]);
 

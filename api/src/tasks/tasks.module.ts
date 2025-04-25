@@ -7,8 +7,10 @@ import {
   MemberSchema,
   Workspace,
   WorkspaceSchema,
+  Tag,
+  TagSchema,
 } from "src/workspaces/schemas/workspaces.schema";
-import { Tag, TagSchema, Task, TaskSchema } from "./schemas/tasks.schema";
+import { Task, TaskSchema } from "./schemas/tasks.schema";
 import { TasksController } from "./tasks.controller";
 import { TasksService } from "./tasks.service";
 import { JwtStrategy } from "src/auth/strategies/jwt.strategy";

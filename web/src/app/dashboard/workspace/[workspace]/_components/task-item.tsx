@@ -82,7 +82,7 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
               variant="outline"
               className="bg-accent h-4 px-1.5 py-1 text-xs"
             >
-              {tag.name}
+              {tag.text}
             </Badge>
           ))}
         </div>

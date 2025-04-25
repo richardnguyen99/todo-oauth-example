@@ -33,7 +33,7 @@ export type WorkspaceParams = {
 
 export type Tag = {
   id: string;
-  name: string;
+  text: string;
   color: string;
   createdBy: string;
 

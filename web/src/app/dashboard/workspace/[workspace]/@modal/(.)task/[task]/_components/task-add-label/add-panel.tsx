@@ -1,7 +1,7 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,9 +12,10 @@ import { isLightColor } from "@/lib/utils";
 
 type Props = Readonly<{
   setView: React.Dispatch<React.SetStateAction<"list" | "add">>;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }>;
 
-export default function AddPanel({ setView }: Props): JSX.Element {
+export default function AddPanel({ setView, setOpen }: Props): JSX.Element {
   const [value, setValue] = React.useState<string>("");
   const [color, setColor] = React.useState({
     hex: colorOptions[2].value["bold"],
@@ -33,7 +34,7 @@ export default function AddPanel({ setView }: Props): JSX.Element {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center border-b p-3">
+      <div className="flex items-center border-b p-2">
         <Button
           variant="ghost"
           size="sm"
@@ -45,6 +46,16 @@ export default function AddPanel({ setView }: Props): JSX.Element {
         </Button>
 
         <h3 className="font-medium">Add New Item</h3>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setOpen(false)}
+          className="ml-auto"
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </Button>
       </div>
 
       <div className="space-y-4 p-4">
