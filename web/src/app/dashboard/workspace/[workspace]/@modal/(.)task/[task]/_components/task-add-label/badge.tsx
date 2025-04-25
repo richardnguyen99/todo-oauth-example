@@ -1,79 +1,70 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Tag } from "@/app/dashboard/workspace/_types/tag";
-import { colorOptions } from "./constants";
-import { ColorOption } from "./types";
-import { cn, isLightColor } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import TaskBadge from "@/app/dashboard/workspace/[workspace]/_components/task-badge";
+import useTagMutation from "./use-tag-mutation";
 
 type Props = Readonly<
   {
     tag: Tag;
-    disableClose?: boolean;
-    disableTooltip?: boolean;
   } & React.ComponentProps<typeof Badge>
 >;
 
-export default function TaskBadge({
-  tag,
-  disableClose,
-  disableTooltip,
-  ...rest
-}: Props): JSX.Element {
-  const [color, tone] = tag.color.split("-");
-  const hexColor = (
-    colorOptions.filter((c) => c.name === color)[0] as ColorOption
-  ).value[tone as keyof ColorOption["value"]];
+export default function TaskDialogBadge({ tag, ...rest }: Props): JSX.Element {
+  const [mutate, loading] = useTagMutation(tag);
+
+  const handleClose = React.useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      mutate("REMOVE");
+    },
+    [mutate],
+  );
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Badge
-          variant="outline"
-          className={cn(
-            "bg-accent inline-flex h-6 max-w-64 cursor-default items-center truncate py-1 pl-1.5 text-xs",
-            disableClose && "pr-1.5",
-            !disableClose && "pr-0.5",
-          )}
-          style={{
-            backgroundColor: hexColor,
-            color: isLightColor(hexColor) ? "black" : "white",
-          }}
-          {...rest}
-        >
-          {tag.text}
-
-          {!disableClose && (
-            <Button
-              size="icon"
-              variant="ghost"
-              className="hover:bg-accent/10 size-5 cursor-pointer p-1"
-              title="Remove label"
-            >
-              <X className="size-4" />
-            </Button>
-          )}
-        </Badge>
-      </TooltipTrigger>
-
-      {!disableTooltip && (
-        <TooltipContent>
-          <div className="text-[10px] sm:text-xs">
-            <p>
-              color: {tag.color};text: {tag.text}
-            </p>
-          </div>
-        </TooltipContent>
-      )}
-    </Tooltip>
+    <TaskBadge
+      {...rest}
+      tag={tag}
+      disableClose={false}
+      disableTooltip={false}
+      renderIcon={({ isLight }) => {
+        return loading ? (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="hover:bg-accent/10 size-5 cursor-pointer p-1"
+            title="Removing label..."
+            disabled
+          >
+            <Loader2
+              className="size-4 animate-spin"
+              style={{
+                stroke: isLight ? "black" : "white",
+              }}
+            />
+          </Button>
+        ) : (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="hover:bg-accent/10 size-5 cursor-pointer p-1"
+            title="Remove label"
+            onClick={handleClose}
+          >
+            <X
+              className="size-4"
+              style={{
+                stroke: isLight ? "black" : "white",
+              }}
+            />
+          </Button>
+        );
+      }}
+    />
   );
 }

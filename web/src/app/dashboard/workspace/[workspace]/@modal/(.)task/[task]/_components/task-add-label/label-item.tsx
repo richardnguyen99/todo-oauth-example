@@ -3,7 +3,6 @@
 import React, { type JSX } from "react";
 import { Loader2, Pen } from "lucide-react";
 import { type CheckedState } from "@radix-ui/react-checkbox";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { Tag } from "@/app/dashboard/workspace/_types/tag";
 import { Button } from "@/components/ui/button";
@@ -12,15 +11,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { colorOptions } from "./constants";
-import { ColorOption } from "./types";
 import { cn, isLightColor } from "@/lib/utils";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useMutation } from "@tanstack/react-query";
-import api from "@/lib/axios";
-import { TaskResponse } from "@/app/dashboard/workspace/[workspace]/_types/task";
-import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
+import useTagMutation from "./use-tag-mutation";
+import { ColorOption } from "@/app/dashboard/workspace/_types/color";
+import { colorOptions } from "@/app/dashboard/workspace/_constants/colors";
 
 type Props = Readonly<
   {
@@ -34,62 +30,13 @@ export default function TaskAddLabelItem({ tag, ...rest }: Props): JSX.Element {
     colorOptions.filter((c) => c.name === color)[0] as ColorOption
   ).value[tone as keyof ColorOption["value"]];
 
-  const { task, setTask } = useTaskWithIdStore((s) => s);
-  const { tasks, setTasks } = useTaskStore((s) => s);
-  const queryClient = useQueryClient();
+  const { task } = useTaskWithIdStore((s) => s);
 
-  const [loading, setLoading] = React.useState(false);
   const isLabelSelected = React.useMemo(() => {
     return task.tags.some((t) => t.id === tag.id);
   }, [task, tag]);
 
-  const { mutate } = useMutation({
-    mutationKey: ["task", "update"],
-    mutationFn: async (action: "ADD" | "REMOVE") => {
-      setLoading(true);
-      const response = await api.put<TaskResponse>(
-        `/tasks/${task._id}/update?workspace_id=${task.workspaceId}`,
-        {
-          tag: {
-            action: action.toUpperCase(),
-            tagId: tag.id,
-          },
-        },
-      );
-
-      return response.data;
-    },
-
-    onSuccess: (data) => {
-      const updatedTask = {
-        ...data.data,
-        dueDate: data.data.dueDate ? new Date(data.data.dueDate) : null,
-      };
-
-      const updatedTasks = tasks.map((t) => {
-        if (t._id === updatedTask._id) {
-          return updatedTask;
-        }
-        return t;
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["task-preview", task._id, task.workspaceId],
-      });
-
-      queryClient.setQueryData(
-        ["task-preview", task._id, task.workspaceId],
-        () => data,
-      );
-
-      setTask(updatedTask);
-      setTasks(updatedTasks);
-    },
-
-    onSettled: () => {
-      setLoading(false);
-    },
-  });
+  const [mutate, loading] = useTagMutation(tag);
 
   const handleLabelSelect = React.useCallback(
     (checkState: CheckedState) => {

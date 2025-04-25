@@ -12,7 +12,7 @@ import TaskActionDropdown from "./task-action-dropdown";
 import TaskCheckbox from "./task-checkbox";
 import TaskDueDate from "./task-due-date";
 import TaskDescriptionPreview from "./task-description-preview";
-import TaskBadge from "../@modal/(.)task/[task]/_components/task-add-label/badge";
+import TaskBadge from "./task-badge";
 
 type Props = Readonly<
   {
