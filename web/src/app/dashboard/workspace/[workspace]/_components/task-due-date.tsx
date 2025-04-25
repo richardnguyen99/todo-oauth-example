@@ -16,7 +16,7 @@ export default function TaskDueDate({
   return (
     <div
       className={cn(
-        "text-muted-foreground flex items-center gap-1 rounded-md border px-1 py-0.5 text-xs transition-colors duration-200",
+        "text-muted-foreground flex items-center gap-1 rounded-md border px-1.5 py-1 text-xs whitespace-nowrap transition-colors duration-200",
         {
           "bg-lime-400 text-black dark:bg-lime-400": completed,
           "dark:bg-muted/50 bg-muted/50 text-muted-foreground": !completed,

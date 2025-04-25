@@ -12,6 +12,7 @@ import TaskActionDropdown from "./task-action-dropdown";
 import TaskCheckbox from "./task-checkbox";
 import TaskDueDate from "./task-due-date";
 import TaskDescriptionPreview from "./task-description-preview";
+import TaskBadge from "../@modal/(.)task/[task]/_components/task-add-label/badge";
 
 type Props = Readonly<
   {
@@ -70,28 +71,31 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
         </div>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-2 px-3">
-        <div className="flex items-center gap-2 pl-5">
+      <div className="mt-2 flex flex-nowrap items-center gap-2 px-3">
+        <div className="flex shrink basis-auto items-center gap-2 overflow-hidden pl-5">
           {task.dueDate && (
             <TaskDueDate completed={task.completed} dueDate={task.dueDate} />
           )}
 
-          {task.tags.map((tag) => (
-            <Badge
-              key={tag.id}
-              variant="outline"
-              className="bg-accent h-4 px-1.5 py-1 text-xs"
-            >
-              {tag.text}
-            </Badge>
+          {task.tags.slice(0, 3).map((tag) => (
+            <TaskBadge disableClose disableTooltip key={tag.id} tag={tag} />
           ))}
+
+          {task.tags.length > 3 && (
+            <Badge
+              variant="outline"
+              className="bg-accent inline-flex h-6 max-w-64 items-center truncate px-1.5 py-1 text-xs"
+            >
+              +{task.tags.length - 3} more
+            </Badge>
+          )}
         </div>
 
-        <div className="text-muted-foreground ml-auto inline-flex text-xs">
+        <div className="text-muted-foreground ml-auto inline-flex w-6 text-xs">
           <TaskAvatar
             content={`Created by ${task.createdByUser?.username || "username"}`}
           >
-            <Avatar className="bg-accent h-6 w-6">
+            <Avatar className="bg-accent ml-auto h-6 w-6">
               <AvatarImage
                 src={task.createdByUser?.avatar}
                 alt={task.createdByUser?.username}

@@ -15,7 +15,6 @@ import {
   Text,
   Trash2,
   Users,
-  X,
 } from "lucide-react";
 
 import {
@@ -36,10 +35,10 @@ import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import TaskDueDate from "./task-due-date";
 import TaskDescription from "./task-description";
 import TaskAddLabel from "./task-add-label";
+import TaskBadge from "./task-add-label/badge";
 
 export default function TaskDialog(): JSX.Element {
   const { tasks } = useTaskStore((s) => s);
@@ -143,16 +142,8 @@ export default function TaskDialog(): JSX.Element {
 
                 <div className="mt-2 w-full pl-5 md:pl-14">
                   <div className="flex w-full flex-wrap items-center gap-2 pr-4">
-                    {task.tags.map((tag, index) => (
-                      <Badge
-                        key={`${tag}-${index}`}
-                        className="bg-secondary text-secondary-foreground border-border line-clamp-1 flex items-center gap-1 px-1.5 py-1 text-sm leading-3 whitespace-break-spaces"
-                      >
-                        {tag.text}
-                        <Button variant="ghost" size="icon" className="h-3 w-3">
-                          <X className="size-3 h-3 w-3" />
-                        </Button>
-                      </Badge>
+                    {task.tags.map((tag) => (
+                      <TaskBadge key={tag.id} tag={tag} />
                     ))}
                   </div>
                 </div>
