@@ -99,6 +99,24 @@ export const noRefineUpdateTaskDtoSchema = noRefineCreateTaskDtoSchema
 
         return validItemIds;
       }),
+
+    addTag: z
+      .string({
+        required_error: "Tag ID is required",
+        invalid_type_error: "Tag ID must be a string",
+      })
+      .refine((value) => isObjectId(value), {
+        message: "Tag ID must be a valid ObjectId",
+      }),
+
+    removeTag: z
+      .string({
+        required_error: "Tag ID is required",
+        invalid_type_error: "Tag ID must be a string",
+      })
+      .refine((value) => isObjectId(value), {
+        message: "Tag ID must be a valid ObjectId",
+      }),
   })
   .partial();
 

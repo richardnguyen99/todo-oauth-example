@@ -35,13 +35,16 @@ export default function TaskAddLabelItem({ tag, ...rest }: Props): JSX.Element {
     return task.tags.some((t) => t.id === tag.id);
   }, [task, tag]);
 
-  const handleLabelSelect = React.useCallback((checkState: CheckedState) => {
-    if (checkState === "indeterminate") {
-      return;
-    }
+  const handleLabelSelect = React.useCallback(
+    (checkState: CheckedState) => {
+      if (checkState === "indeterminate") {
+        return;
+      }
 
-    console.log("checkState", checkState);
-  }, []);
+      console.log(`label ${tag.id}: checkState=${checkState}`);
+    },
+    [tag.id],
+  );
 
   return (
     <div {...rest} className="flex items-center gap-1 pr-2.5 pl-1">

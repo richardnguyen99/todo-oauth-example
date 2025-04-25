@@ -296,6 +296,20 @@ export class TasksService {
       await this.taskModel.bulkWrite(bulkOps);
     }
 
+    if (updateTaskDto.addTag) {
+      // Add a tag to the task
+      updateQuery.$addToSet = {
+        tags: new mongoose.Types.ObjectId(updateTaskDto.addTag),
+      };
+    }
+
+    if (updateTaskDto.removeTag) {
+      // Remove a tag from the task
+      updateQuery.$pull = {
+        tags: new mongoose.Types.ObjectId(updateTaskDto.removeTag),
+      };
+    }
+
     let task: TaskDocument | null;
 
     if (Object.keys(updateQuery).length === 0) {
