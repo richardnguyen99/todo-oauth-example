@@ -1,7 +1,8 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { Pen, Square, SquareCheck } from "lucide-react";
+import { Pen } from "lucide-react";
+import { type CheckedState } from "@radix-ui/react-checkbox";
 
 import { Tag } from "@/app/dashboard/workspace/_types/tag";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { colorOptions } from "./constants";
 import { ColorOption } from "./types";
 import { isLightColor } from "@/lib/utils";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Props = Readonly<
   {
@@ -32,15 +34,24 @@ export default function TaskAddLabelItem({ tag, ...rest }: Props): JSX.Element {
   const isLabelSelected = React.useMemo(() => {
     return task.tags.some((t) => t.id === tag.id);
   }, [task, tag]);
+
+  const handleLabelSelect = React.useCallback((checkState: CheckedState) => {
+    if (checkState === "indeterminate") {
+      return;
+    }
+
+    console.log("checkState", checkState);
+  }, []);
+
   return (
-    <div {...rest} className="flex items-center gap-1 px-1">
-      <Button variant="ghost" size="icon">
-        {isLabelSelected ? (
-          <SquareCheck className="size-5" />
-        ) : (
-          <Square className="size-5" />
-        )}
-      </Button>
+    <div {...rest} className="flex items-center gap-1 pr-2.5 pl-1">
+      <div className="p-1">
+        <Checkbox
+          checked={isLabelSelected}
+          className="size-5"
+          onCheckedChange={handleLabelSelect}
+        />
+      </div>
 
       <Tooltip>
         <TooltipTrigger asChild>
@@ -63,6 +74,7 @@ export default function TaskAddLabelItem({ tag, ...rest }: Props): JSX.Element {
           </div>
         </TooltipContent>
       </Tooltip>
+
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="ghost" size="icon">

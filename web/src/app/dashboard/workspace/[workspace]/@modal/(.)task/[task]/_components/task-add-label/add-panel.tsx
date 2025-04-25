@@ -47,8 +47,6 @@ export default function AddPanel({ setView, setOpen }: Props): JSX.Element {
     },
 
     onSuccess: (data) => {
-      console.log("Label added successfully", data.data);
-
       const updatedWorkspace = {
         ...activeWorkspace!,
         tags: [...activeWorkspace!.tags, data.data],
