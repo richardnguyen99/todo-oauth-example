@@ -296,18 +296,19 @@ export class TasksService {
       await this.taskModel.bulkWrite(bulkOps);
     }
 
-    if (updateTaskDto.addTag) {
-      // Add a tag to the task
-      updateQuery.$addToSet = {
-        tags: new mongoose.Types.ObjectId(updateTaskDto.addTag),
-      };
-    }
+    if (updateTaskDto.tag) {
+      const { action, tagId } = updateTaskDto.tag;
+      const tagObjectId = new mongoose.Types.ObjectId(tagId);
 
-    if (updateTaskDto.removeTag) {
-      // Remove a tag from the task
-      updateQuery.$pull = {
-        tags: new mongoose.Types.ObjectId(updateTaskDto.removeTag),
-      };
+      if (action === "ADD") {
+        updateQuery.$addToSet = {
+          tags: tagObjectId,
+        };
+      } else if (action === "REMOVE") {
+        updateQuery.$pull = {
+          tags: tagObjectId,
+        };
+      }
     }
 
     let task: TaskDocument | null;
@@ -337,6 +338,7 @@ export class TasksService {
       "workspace",
       "createdByUser",
       "completedByUser",
+      "tags",
     ]);
 
     return populatedTask;
