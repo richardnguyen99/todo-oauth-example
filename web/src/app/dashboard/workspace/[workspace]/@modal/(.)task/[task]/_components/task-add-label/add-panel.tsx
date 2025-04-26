@@ -15,18 +15,18 @@ import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { TagResponse } from "@/app/dashboard/workspace/_types/tag";
 import { ErrorApiResponse } from "@/app/_types/response";
 import { colorOptions } from "@/app/dashboard/workspace/_constants/colors";
+import { useTaskAddLabelContext } from "./provider";
 
-type Props = Readonly<{
-  setView: React.Dispatch<React.SetStateAction<"list" | "add">>;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}>;
+type Props = Readonly<{}>;
 
-export default function AddPanel({ setView, setOpen }: Props): JSX.Element {
+export default function AddPanel({}: Props): JSX.Element {
   const { activeWorkspace, workspaces, setWorkspaces, setActiveWorkspace } =
     useWorkspaceStore((s) => s);
 
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const { setView, setOpen } = useTaskAddLabelContext();
+
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationKey: ["add-label"],

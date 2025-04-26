@@ -1,0 +1,73 @@
+"use client";
+
+import React, { type JSX } from "react";
+
+import { Tag } from "@/app/dashboard/workspace/_types/tag";
+
+type ContextType = {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+
+  view: "list" | "add";
+  setView: React.Dispatch<React.SetStateAction<"list" | "add">>;
+
+  editTag: Tag | null;
+  setEditTag: React.Dispatch<React.SetStateAction<Tag | null>>;
+};
+
+export const TaskAddLabelContext = React.createContext<ContextType>(
+  {} as ContextType,
+);
+
+export const useTaskAddLabelContext = (): ContextType => {
+  const context = React.useContext(TaskAddLabelContext);
+
+  if (!context) {
+    throw new Error(
+      "useTaskAddLabelContext must be used within a TaskAddLabelProvider",
+    );
+  }
+
+  return context;
+};
+
+type Props = Readonly<{
+  children: JSX.Element;
+
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+
+  view: "list" | "add";
+  setView: React.Dispatch<React.SetStateAction<"list" | "add">>;
+
+  editTag: Tag | null;
+  setEditTag: React.Dispatch<React.SetStateAction<Tag | null>>;
+}>;
+
+export default function TaskAddLabelProvider({
+  children,
+  open,
+  view,
+  editTag,
+  setOpen,
+  setView,
+  setEditTag,
+}: Props): JSX.Element {
+  const value = React.useMemo(
+    () => ({
+      open,
+      setOpen,
+      view,
+      setView,
+      editTag,
+      setEditTag,
+    }),
+    [open, view, editTag],
+  );
+
+  return (
+    <TaskAddLabelContext.Provider value={value}>
+      {children}
+    </TaskAddLabelContext.Provider>
+  );
+}

@@ -7,18 +7,17 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Workspace } from "@/app/dashboard/workspace/_types/workspace";
 import TaskAddLabelItem from "./label-item";
+import { useTaskAddLabelContext } from "./provider";
 
 type Props = Readonly<{
   activeWorkspace: Workspace;
-  setView: React.Dispatch<React.SetStateAction<"list" | "add">>;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }>;
 
 export default function TaskAddLabelListView({
-  setView,
-  setOpen,
   activeWorkspace,
 }: Props): JSX.Element {
+  const { setOpen, setView } = useTaskAddLabelContext();
+
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between border-b p-2">
