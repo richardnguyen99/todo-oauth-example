@@ -9,12 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ColorSelector from "./color-selector";
-import { colorOptions } from "./constants";
 import { isLightColor } from "@/lib/utils";
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { TagResponse } from "@/app/dashboard/workspace/_types/tag";
 import { ErrorApiResponse } from "@/app/_types/response";
+import { colorOptions } from "@/app/dashboard/workspace/_constants/colors";
 
 type Props = Readonly<{
   setView: React.Dispatch<React.SetStateAction<"list" | "add">>;

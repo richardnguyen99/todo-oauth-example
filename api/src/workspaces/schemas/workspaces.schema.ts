@@ -30,7 +30,8 @@ export class Tag {
   @Prop({
     type: mongoose.Schema.Types.String,
     required: false,
-    default: "dark",
+    default: "zinc-bold",
+    unique: true,
   })
   color: mongoose.Types.ObjectId;
 

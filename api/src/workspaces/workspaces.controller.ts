@@ -41,6 +41,7 @@ import {
   updateMemberDtoSchema,
 } from "./dto/update-member.dto";
 import { AddNewTagDto, addNewTagDtoSchema } from "./dto/add-new-tag.dto";
+import { updateTagDtoSchema } from "./dto/update-tag.dto";
 
 @Controller("workspaces")
 export class WorkspacesController {
@@ -331,6 +332,37 @@ export class WorkspacesController {
 
     res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
+      message: "OK",
+      data: tagDocument,
+    } satisfies ResponsePayloadDto);
+  }
+
+  @UseGuards(AuthGuard("jwt"))
+  @Put("/:workspace_id/update_tag/:tag_id")
+  @UsePipes(new ZodValidationPipe(updateTagDtoSchema))
+  async updateTagInWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("workspace_id") workspaceId: string,
+    @Param("tag_id") tagId: string,
+    @JwtUser() user: JwtUserPayload,
+    @Body() body: AddNewTagDto,
+  ) {
+    let tagDocument: TagDocument;
+
+    try {
+      tagDocument = await this.workspaceService.updateTagInWorkspace(
+        user.userId,
+        workspaceId,
+        tagId,
+        body,
+      );
+    } catch (e) {
+      respondWithError(e, res);
+      return;
+    }
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
       message: "OK",
       data: tagDocument,
     } satisfies ResponsePayloadDto);

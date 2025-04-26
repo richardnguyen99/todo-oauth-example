@@ -2,10 +2,11 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Error, Model } from "mongoose";
+import mongoose, { Error, Model, MongooseError } from "mongoose";
 
 import { User } from "src/users/schemas/user.schema";
 import {
@@ -23,6 +24,7 @@ import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
 import { Task } from "src/tasks/schemas/tasks.schema";
 import { UpdateWorkspaceDto } from "./dto/update-workspace.dto";
 import { AddNewTagDto } from "./dto/add-new-tag.dto";
+import { UpdateTagDto } from "./dto/update-tag.dto";
 
 @Injectable()
 export class WorkspacesService {
@@ -372,16 +374,6 @@ export class WorkspacesService {
       );
     }
 
-    const existingTag = await this.tagModel.countDocuments({
-      color: body.color,
-    });
-
-    if (existingTag > 0) {
-      throw new BadRequestException(
-        `Tag with color "${body.color}" already exists in this workspace.`,
-      );
-    }
-
     try {
       const newTag = new this.tagModel({
         text: body.text,
@@ -399,6 +391,76 @@ export class WorkspacesService {
     } catch (error) {
       throw new BadRequestException(
         `Error creating tag: ${(error as Error).message}`,
+      );
+    }
+  }
+
+  async updateTagInWorkspace(
+    userId: string,
+    workspaceId: string,
+    tagId: string,
+    body: UpdateTagDto,
+  ): Promise<TagDocument> {
+    const workspace = await this.findWorkspaceById(workspaceId);
+
+    if (!workspace) {
+      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
+    }
+
+    if (
+      workspace.members.filter(
+        (member) => (member as Member).userId.toString() === userId,
+      ).length === 0
+    ) {
+      throw new ForbiddenException(
+        `User with ID ${userId} is not a member of this workspace.`,
+      );
+    }
+
+    const tagUpdateQuery = {};
+
+    if (body.text) {
+      tagUpdateQuery["text"] = body.text;
+    }
+
+    if (body.color) {
+      tagUpdateQuery["color"] = body.color;
+    }
+
+    let tagResult: TagDocument | null;
+
+    try {
+      tagResult = await this.tagModel
+        .findOneAndUpdate(
+          {
+            _id: tagId,
+            workspaceId: workspace._id,
+          },
+          tagUpdateQuery,
+          {
+            new: true,
+          },
+        )
+        .exec();
+
+      if (!tagResult) {
+        throw new NotFoundException(`Tag with ID ${tagId} not found`);
+      }
+
+      const updatedTag = await tagResult.populate("createdBy");
+      return updatedTag;
+    } catch (e) {
+      if (e instanceof mongoose.mongo.MongoError) {
+        if (e.code === 11000) {
+          // Duplicate key error
+          throw new BadRequestException(
+            `Tag with color "${body.color}" already exists in this workspace.`,
+          );
+        }
+      }
+
+      throw new InternalServerErrorException(
+        `Unexpected error updating tag: ${(e as MongooseError).message}`,
       );
     }
   }

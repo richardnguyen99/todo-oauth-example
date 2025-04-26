@@ -9,7 +9,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { colorOptions, toneOrder } from "./constants";
+import {
+  colorOptions,
+  toneOrder,
+} from "@/app/dashboard/workspace/_constants/colors";
 
 type Props = Readonly<{
   initialColor?: {
