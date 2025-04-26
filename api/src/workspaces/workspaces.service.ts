@@ -465,6 +465,66 @@ export class WorkspacesService {
     }
   }
 
+  async deleteTagFromWorkspace(
+    userId: string,
+    workspaceId: string,
+    tagId: string,
+  ): Promise<TagDocument> {
+    const workspace = await this.findWorkspaceById(workspaceId);
+
+    if (!workspace) {
+      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
+    }
+
+    if (
+      workspace.members.filter(
+        (member) => (member as Member).userId.toString() === userId,
+      ).length === 0
+    ) {
+      throw new ForbiddenException(
+        `User with ID ${userId} is not a member of this workspace.`,
+      );
+    }
+
+    const tagResult = await this.tagModel.findOneAndDelete(
+      {
+        _id: tagId,
+        workspaceId: workspace._id,
+      },
+      {},
+    );
+
+    if (!tagResult) {
+      throw new NotFoundException(`Tag with ID ${tagId} not found`);
+    }
+
+    // Remove the tag from the workspace's tags array
+    workspace.tags = workspace.tags.filter(
+      (tagId) => tagId.toString() !== tagResult._id.toString(),
+    );
+
+    await workspace.save();
+
+    // Remove tag from tasks
+    await this.taskModel.findOneAndUpdate(
+      {
+        tags: {
+          $elemMatch: { $eq: tagResult._id },
+        },
+      },
+      {
+        $pull: {
+          tags: tagResult._id,
+        },
+      },
+      {
+        multi: true,
+      },
+    );
+
+    return tagResult;
+  }
+
   async checkIfUserIsMember(
     userId: string,
     workspaceId: string,

@@ -367,4 +367,30 @@ export class WorkspacesController {
       data: tagDocument,
     } satisfies ResponsePayloadDto);
   }
+
+  @UseGuards(AuthGuard("jwt"))
+  @Delete("/:id/remove_tag/:tag_id")
+  async removeTagFromWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("id") workspaceId: string,
+    @Param("tag_id") tagId: string,
+    @JwtUser() user: JwtUserPayload,
+  ) {
+    try {
+      await this.workspaceService.deleteTagFromWorkspace(
+        user.userId as string,
+        workspaceId as string,
+        tagId,
+      );
+    } catch (e) {
+      respondWithError(e, res);
+      return;
+    }
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "OK",
+      data: null,
+    } satisfies ResponsePayloadDto);
+  }
 }
