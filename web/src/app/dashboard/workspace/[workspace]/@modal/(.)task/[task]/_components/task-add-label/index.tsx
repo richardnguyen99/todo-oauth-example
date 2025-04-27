@@ -12,13 +12,14 @@ import { Button } from "@/components/ui/button";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import TaskAddLabelListView from "./list-view";
 import AddPanel from "./add-panel";
-import TaskAddLabelProvider from "./provider";
+import TaskAddLabelProvider, { ViewType } from "./provider";
 import { Tag } from "@/app/dashboard/workspace/_types/tag";
+import EditPanel from "./edit-panel";
 
 export default function TaskAddLabel(): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
   const [open, setOpen] = React.useState(false);
-  const [view, setView] = React.useState<"list" | "add">("list");
+  const [view, setView] = React.useState<ViewType>("list");
   const [editTag, setEditTag] = React.useState<Tag | null>(null);
   const timeoutId = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -28,6 +29,7 @@ export default function TaskAddLabel(): JSX.Element {
     }
 
     setOpen(newOpen);
+    setEditTag(null);
   }, []);
 
   React.useEffect(() => {
@@ -44,7 +46,7 @@ export default function TaskAddLabel(): JSX.Element {
       setOpen={setOpen}
       view={view}
       setView={setView}
-      editTag={null}
+      editTag={editTag}
       setEditTag={setEditTag}
     >
       <Popover open={open} onOpenChange={handleOpenChange} modal>
@@ -57,8 +59,10 @@ export default function TaskAddLabel(): JSX.Element {
         <PopoverContent className="w-80 p-0 text-xs" align="end">
           {view === "list" ? (
             <TaskAddLabelListView activeWorkspace={activeWorkspace!} />
-          ) : (
+          ) : view === "add" ? (
             <AddPanel />
+          ) : (
+            <EditPanel />
           )}
         </PopoverContent>
       </Popover>

@@ -401,6 +401,7 @@ export class WorkspacesService {
     tagId: string,
     body: UpdateTagDto,
   ): Promise<TagDocument> {
+    console.log("body", body);
     const workspace = await this.findWorkspaceById(workspaceId);
 
     if (!workspace) {

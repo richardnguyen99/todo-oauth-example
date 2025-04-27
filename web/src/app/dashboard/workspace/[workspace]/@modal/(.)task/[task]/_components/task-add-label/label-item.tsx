@@ -17,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import useTagMutation from "./use-tag-mutation";
 import { ColorOption } from "@/app/dashboard/workspace/_types/color";
 import { colorOptions } from "@/app/dashboard/workspace/_constants/colors";
+import { useTaskAddLabelContext } from "./provider";
 
 type Props = Readonly<
   {
@@ -31,6 +32,7 @@ export default function TaskAddLabelItem({ tag, ...rest }: Props): JSX.Element {
   ).value[tone as keyof ColorOption["value"]];
 
   const { task } = useTaskWithIdStore((s) => s);
+  const { editTag, setEditTag, setView } = useTaskAddLabelContext();
 
   const isLabelSelected = React.useMemo(() => {
     return task.tags.some((t) => t.id === tag.id);
@@ -49,6 +51,18 @@ export default function TaskAddLabelItem({ tag, ...rest }: Props): JSX.Element {
       mutate(action);
     },
     [mutate],
+  );
+
+  const handleEditClick = React.useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+
+      console.log("edit tag", tag);
+
+      setEditTag(tag);
+      setView("edit");
+    },
+    [],
   );
 
   return (
@@ -93,7 +107,7 @@ export default function TaskAddLabelItem({ tag, ...rest }: Props): JSX.Element {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={handleEditClick}>
             <Pen className="size-4" />
           </Button>
         </TooltipTrigger>

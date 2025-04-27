@@ -4,12 +4,14 @@ import React, { type JSX } from "react";
 
 import { Tag } from "@/app/dashboard/workspace/_types/tag";
 
+export type ViewType = "list" | "add" | "edit";
+
 type ContextType = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 
-  view: "list" | "add";
-  setView: React.Dispatch<React.SetStateAction<"list" | "add">>;
+  view: ViewType;
+  setView: React.Dispatch<React.SetStateAction<ViewType>>;
 
   editTag: Tag | null;
   setEditTag: React.Dispatch<React.SetStateAction<Tag | null>>;
@@ -37,8 +39,8 @@ type Props = Readonly<{
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 
-  view: "list" | "add";
-  setView: React.Dispatch<React.SetStateAction<"list" | "add">>;
+  view: ViewType;
+  setView: React.Dispatch<React.SetStateAction<ViewType>>;
 
   editTag: Tag | null;
   setEditTag: React.Dispatch<React.SetStateAction<Tag | null>>;
