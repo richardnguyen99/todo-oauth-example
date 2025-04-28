@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tag } from "@/app/dashboard/workspace/_types/tag";
 import { Button } from "@/components/ui/button";
 import TaskBadge from "@/app/dashboard/workspace/[workspace]/_components/task-badge";
-import useTagMutation from "./use-tag-mutation";
+import useTagMutation from "./use-task-tag-mutation";
+import { cn } from "@/lib/utils";
 
 type Props = Readonly<
   {
@@ -37,30 +38,33 @@ export default function TaskDialogBadge({ tag, ...rest }: Props): JSX.Element {
           <Button
             size="icon"
             variant="ghost"
-            className="hover:bg-accent/10 size-5 cursor-pointer p-1"
+            className={cn("size-5 cursor-pointer p-1")}
             title="Removing label..."
             disabled
           >
             <Loader2
-              className="size-4 animate-spin"
-              style={{
-                stroke: isLight ? "black" : "white",
-              }}
+              className={cn("size-4 animate-spin cursor-pointer p-1", {
+                "stroke-black": isLight,
+                "stroke-white": !isLight,
+              })}
             />
           </Button>
         ) : (
           <Button
             size="icon"
             variant="ghost"
-            className="hover:bg-accent/10 size-5 cursor-pointer p-1"
+            className={cn("size-5 cursor-pointer p-1", {
+              "hover:bg-primary/10": isLight,
+              "hover:bg-accent/10": !isLight,
+            })}
             title="Remove label"
             onClick={handleClose}
           >
             <X
-              className="size-4"
-              style={{
-                stroke: isLight ? "black" : "white",
-              }}
+              className={cn("size-4 cursor-pointer", {
+                "stroke-black": isLight,
+                "stroke-white": !isLight,
+              })}
             />
           </Button>
         );

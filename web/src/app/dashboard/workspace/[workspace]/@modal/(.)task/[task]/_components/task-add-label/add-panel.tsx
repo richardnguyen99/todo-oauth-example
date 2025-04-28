@@ -17,9 +17,7 @@ import { ErrorApiResponse } from "@/app/_types/response";
 import { colorOptions } from "@/app/dashboard/workspace/_constants/colors";
 import { useTaskAddLabelContext } from "./provider";
 
-type Props = Readonly<{}>;
-
-export default function AddPanel({}: Props): JSX.Element {
+export default function AddPanel(): JSX.Element {
   const { activeWorkspace, workspaces, setWorkspaces, setActiveWorkspace } =
     useWorkspaceStore((s) => s);
 

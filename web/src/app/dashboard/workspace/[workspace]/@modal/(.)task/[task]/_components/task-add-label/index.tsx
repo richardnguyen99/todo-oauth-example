@@ -25,11 +25,13 @@ export default function TaskAddLabel(): JSX.Element {
 
   const handleOpenChange = React.useCallback((newOpen: boolean) => {
     if (!newOpen) {
-      timeoutId.current = setTimeout(() => setView("list"), 100);
+      timeoutId.current = setTimeout(() => {
+        setView("list");
+        setEditTag(null);
+      }, 100);
     }
 
     setOpen(newOpen);
-    setEditTag(null);
   }, []);
 
   React.useEffect(() => {

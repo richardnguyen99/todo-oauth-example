@@ -14,7 +14,7 @@ import {
 import { cn, isLightColor } from "@/lib/utils";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
 import { Checkbox } from "@/components/ui/checkbox";
-import useTagMutation from "./use-tag-mutation";
+import useTagMutation from "./use-task-tag-mutation";
 import { ColorOption } from "@/app/dashboard/workspace/_types/color";
 import { colorOptions } from "@/app/dashboard/workspace/_constants/colors";
 import { useTaskAddLabelContext } from "./provider";
@@ -32,7 +32,7 @@ export default function TaskAddLabelItem({ tag, ...rest }: Props): JSX.Element {
   ).value[tone as keyof ColorOption["value"]];
 
   const { task } = useTaskWithIdStore((s) => s);
-  const { editTag, setEditTag, setView } = useTaskAddLabelContext();
+  const { setEditTag, setView } = useTaskAddLabelContext();
 
   const isLabelSelected = React.useMemo(() => {
     return task.tags.some((t) => t.id === tag.id);
@@ -62,7 +62,7 @@ export default function TaskAddLabelItem({ tag, ...rest }: Props): JSX.Element {
       setEditTag(tag);
       setView("edit");
     },
-    [],
+    [setEditTag, setView, tag],
   );
 
   return (

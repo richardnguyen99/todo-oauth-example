@@ -64,7 +64,7 @@ export default function TaskAddLabelProvider({
       editTag,
       setEditTag,
     }),
-    [open, view, editTag],
+    [open, setOpen, view, setView, editTag, setEditTag],
   );
 
   return (
