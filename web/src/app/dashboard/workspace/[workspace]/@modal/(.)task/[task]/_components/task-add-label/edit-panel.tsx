@@ -12,6 +12,7 @@ import { colorOptions } from "@/app/dashboard/workspace/_constants/colors";
 import { useTaskAddLabelContext } from "./provider";
 import { ColorOption } from "@/app/dashboard/workspace/_types/color";
 import UpdateLabelButton from "./update-label-button";
+import DeleteLabelButton from "./delete-label-button";
 
 export default function EditPanel(): JSX.Element {
   const { setView, setOpen, editTag, setEditTag } = useTaskAddLabelContext();
@@ -120,6 +121,8 @@ export default function EditPanel(): JSX.Element {
           colorOption={colorOption}
           setErrorMessage={setError}
         />
+
+        <DeleteLabelButton setErrorMessage={setError} />
       </div>
     </div>
   );

@@ -57,8 +57,6 @@ export default function TaskAddLabelItem({ tag, ...rest }: Props): JSX.Element {
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
 
-      console.log("edit tag", tag);
-
       setEditTag(tag);
       setView("edit");
     },

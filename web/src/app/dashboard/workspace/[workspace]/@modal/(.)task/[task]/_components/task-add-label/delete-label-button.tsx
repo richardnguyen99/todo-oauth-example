@@ -1,32 +1,25 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { Loader2, Pen } from "lucide-react";
+import { Loader2, Trash } from "lucide-react";
 import { AxiosError } from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
-import { TagResponse } from "@/app/dashboard/workspace/_types/tag";
 import { ErrorApiResponse } from "@/app/_types/response";
 import { useTaskAddLabelContext } from "./provider";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
 import { TaskResponse } from "@/app/dashboard/workspace/[workspace]/_types/task";
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
+import { UpdateWorkspaceResponse } from "@/app/dashboard/workspace/_types/workspace";
 
 type Props = Readonly<{
-  text: string;
-  colorOption: {
-    hex: string;
-    name: string;
-  };
   setErrorMessage: (error: string | null) => void;
 }>;
 
-export default function UpdateLabelButton({
-  text,
-  colorOption,
+export default function DeleteLabelButton({
   setErrorMessage,
 }: Props): JSX.Element {
   const { setView, editTag, setEditTag } = useTaskAddLabelContext();
@@ -44,12 +37,11 @@ export default function UpdateLabelButton({
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationKey: ["edit-label"],
-    mutationFn: async (data: { text?: string; color?: string }) => {
+    mutationFn: async () => {
       setLoading(true);
 
-      const res = await api.put<TagResponse>(
-        `/workspaces/${activeWorkspace!._id}/update_tag/${editTag.id}`,
-        data,
+      const res = await api.delete<UpdateWorkspaceResponse>(
+        `/workspaces/${activeWorkspace!._id}/remove_tag/${editTag.id}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -62,17 +54,8 @@ export default function UpdateLabelButton({
 
     onSuccess: (data) => {
       const updatedWorkspace = {
-        ...activeWorkspace!,
-        tags: activeWorkspace!.tags.map((tag) => {
-          if (tag.id === editTag.id) {
-            return {
-              ...tag,
-              text: data.data.text,
-              color: data.data.color,
-            };
-          }
-          return tag;
-        }),
+        ...data.data,
+        tags: activeWorkspace!.tags.filter((tag) => tag.id !== editTag.id),
       };
 
       const updatedWorkspaces = workspaces.map((workspace) => {
@@ -87,54 +70,45 @@ export default function UpdateLabelButton({
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["task-preview", task._id, task.workspaceId],
+        queryKey: ["task-preview"],
       });
 
       queryClient.invalidateQueries({
         queryKey: ["fetch-task", task.workspaceId],
       });
 
-      queryClient.setQueryData(
-        ["task-preview", task.workspaceId, task._id],
+      queryClient.setQueriesData(
+        {
+          queryKey: ["task-preview"],
+        },
         (oldData: TaskResponse) => {
-          console.log("oldData", oldData);
           if (!oldData) {
             return oldData;
           }
 
-          const updatedTags = oldData.data.tags.map((tag) => {
-            if (tag.id === editTag.id) {
-              return {
-                ...tag,
-                text: data.data.text,
-                color: data.data.color,
-              };
-            }
-            return tag;
-          });
+          const updatedTags = oldData.data.tags.filter(
+            (tag) => tag.id !== editTag.id,
+          );
 
-          return {
+          const updatedTask = {
             ...oldData,
             data: {
               ...oldData.data,
               tags: updatedTags,
+              workspace: {
+                ...data.data,
+              },
             },
           };
+
+          return updatedTask;
         },
       );
 
       const updatedTask = {
         ...task,
-        tags: task.tags.map((tag) => {
-          if (tag.id === editTag.id) {
-            return {
-              ...tag,
-              text: data.data.text,
-              color: data.data.color,
-            };
-          }
-          return tag;
-        }),
+        tags: task.tags.filter((tag) => tag.id !== editTag.id),
+        workspace: updatedWorkspace,
       };
 
       const updatedTasks = tasks.map((t) => {
@@ -164,20 +138,21 @@ export default function UpdateLabelButton({
   });
 
   const handleSubmit = React.useCallback(() => {
-    mutate({
-      text: text,
-      color: colorOption.name,
-    });
-  }, [mutate, text, colorOption.name]);
+    mutate();
+  }, [mutate]);
 
   return (
-    <Button className="w-full" onClick={handleSubmit} disabled={loading}>
+    <Button
+      className="w-full bg-red-400 hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-600"
+      onClick={handleSubmit}
+      disabled={loading}
+    >
       {loading ? (
         <Loader2 className="mr-1 h-4 w-4 animate-spin" />
       ) : (
-        <Pen className="mr-1 h-4 w-4" />
+        <Trash className="mr-1 h-4 w-4" />
       )}
-      Update Item
+      Delete Label
     </Button>
   );
 }
