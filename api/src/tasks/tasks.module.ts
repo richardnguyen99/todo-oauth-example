@@ -7,6 +7,8 @@ import {
   MemberSchema,
   Workspace,
   WorkspaceSchema,
+  Tag,
+  TagSchema,
 } from "src/workspaces/schemas/workspaces.schema";
 import { Task, TaskSchema } from "./schemas/tasks.schema";
 import { TasksController } from "./tasks.controller";
@@ -67,6 +69,13 @@ import { User, UserSchema } from "src/users/schemas/user.schema";
             justOne: true,
           });
 
+          return schema;
+        },
+      },
+      {
+        name: Tag.name,
+        useFactory: () => {
+          const schema = TagSchema;
           return schema;
         },
       },

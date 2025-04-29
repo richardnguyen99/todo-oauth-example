@@ -49,7 +49,13 @@ export class TasksService {
       .find({
         workspaceId: workspace._id, // Filter by workspaceId
       })
-      .populate("createdByUser")
+      .populate([
+        "createdByUser",
+        {
+          path: "tags",
+          select: "text color createdBy",
+        },
+      ])
       .exec();
 
     return tasks;
@@ -86,6 +92,10 @@ export class TasksService {
       },
       {
         path: "completedByUser",
+      },
+      {
+        path: "tags",
+        select: "text color createdBy",
       },
     ]);
 
@@ -286,6 +296,21 @@ export class TasksService {
       await this.taskModel.bulkWrite(bulkOps);
     }
 
+    if (updateTaskDto.tag) {
+      const { action, tagId } = updateTaskDto.tag;
+      const tagObjectId = new mongoose.Types.ObjectId(tagId);
+
+      if (action === "ADD") {
+        updateQuery.$addToSet = {
+          tags: tagObjectId,
+        };
+      } else if (action === "REMOVE") {
+        updateQuery.$pull = {
+          tags: tagObjectId,
+        };
+      }
+    }
+
     let task: TaskDocument | null;
 
     if (Object.keys(updateQuery).length === 0) {
@@ -313,6 +338,7 @@ export class TasksService {
       "workspace",
       "createdByUser",
       "completedByUser",
+      "tags",
     ]);
 
     return populatedTask;

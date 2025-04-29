@@ -1,7 +1,7 @@
 import { AxiosError } from "axios";
 
 import { User } from "@/_types/user";
-import { Workspace, WorkspaceParams } from "../../_types/workspace";
+import { Tag, Workspace, WorkspaceParams } from "../../_types/workspace";
 
 export type TaskStatus =
   | "success"
@@ -40,7 +40,7 @@ export type Task = {
   completed: boolean;
   dueDate: Date | null;
   priority: Priority;
-  tags: string[];
+  tags: Tag[];
   createdBy: string;
   completedBy: string | null;
   workspaceId: string;
@@ -50,6 +50,7 @@ export type Task = {
   workspace?: Workspace;
   createdByUser?: User;
   completedByUser?: User;
+  tagList?: Tag[];
 };
 
 export type TasksResponse = {

@@ -58,7 +58,6 @@ export default function WorkspacePageLayout({
       <TaskStoreProvider>
         <TaskInitializer />
         {children}
-
         {modal}
       </TaskStoreProvider>
     </div>

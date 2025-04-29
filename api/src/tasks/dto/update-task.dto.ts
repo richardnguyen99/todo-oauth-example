@@ -99,6 +99,19 @@ export const noRefineUpdateTaskDtoSchema = noRefineCreateTaskDtoSchema
 
         return validItemIds;
       }),
+
+    tag: z.object({
+      action: z.enum(["ADD", "REMOVE"], {
+        required_error: "Action is required",
+        invalid_type_error: "Action must be either 'ADD' or 'REMOVE'",
+      }),
+      tagId: z
+        .string({
+          required_error: "Tag ID is required",
+          invalid_type_error: "Tag ID must be a string",
+        })
+        .refine((value) => isObjectId(value)),
+    }),
   })
   .partial();
 

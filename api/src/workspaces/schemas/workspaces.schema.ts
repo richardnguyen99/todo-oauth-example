@@ -4,6 +4,48 @@ import mongoose, { HydratedDocument } from "mongoose";
 import { User } from "src/users/schemas/user.schema";
 
 @Schema({
+  collection: "tags",
+  timestamps: true,
+  toJSON: {
+    virtuals: true,
+  },
+  toObject: {
+    virtuals: true,
+  },
+})
+export class Tag {
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "Workspace",
+  })
+  workspaceId: mongoose.Types.ObjectId | Workspace;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  })
+  createdBy: mongoose.Types.ObjectId | User;
+
+  @Prop({
+    type: mongoose.Schema.Types.String,
+    required: false,
+    default: "zinc-bold",
+    unique: true,
+  })
+  color: mongoose.Types.ObjectId;
+
+  @Prop({
+    type: mongoose.Schema.Types.String,
+    required: true,
+  })
+  text: mongoose.Types.ObjectId;
+}
+
+export type TagDocument = HydratedDocument<Tag>;
+export const TagSchema = SchemaFactory.createForClass(Tag);
+
+@Schema({
   collection: "members",
   timestamps: true,
   toJSON: {
@@ -44,6 +86,9 @@ export const MemberSchema = SchemaFactory.createForClass(Member);
 @Schema({
   collection: "workspaces",
   timestamps: true,
+  toJSON: {
+    versionKey: false,
+  },
 })
 export class Workspace {
   @Prop({ type: mongoose.Schema.Types.String, required: true })
@@ -74,6 +119,13 @@ export class Workspace {
     default: [],
   })
   members: Array<mongoose.Types.ObjectId | Member>;
+
+  @Prop({
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Tag",
+    default: [],
+  })
+  tags: Array<mongoose.Types.ObjectId | Tag>;
 }
 
 export type WorkspaceDocument = HydratedDocument<Workspace>;

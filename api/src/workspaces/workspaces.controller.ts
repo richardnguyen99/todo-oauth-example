@@ -17,7 +17,11 @@ import { AuthGuard } from "@nestjs/passport";
 
 import { WorkspacesService } from "./workspaces.service";
 import { ResponsePayloadDto } from "src/dto/response.dto";
-import { MemberDocument, WorkspaceDocument } from "./schemas/workspaces.schema";
+import {
+  MemberDocument,
+  TagDocument,
+  WorkspaceDocument,
+} from "./schemas/workspaces.schema";
 import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
 import { ZodValidationPipe } from "src/zod-validation/zod-validation.pipe";
 import {
@@ -36,6 +40,8 @@ import {
   UpdateMemberDto,
   updateMemberDtoSchema,
 } from "./dto/update-member.dto";
+import { AddNewTagDto, addNewTagDtoSchema } from "./dto/add-new-tag.dto";
+import { updateTagDtoSchema } from "./dto/update-tag.dto";
 
 @Controller("workspaces")
 export class WorkspacesController {
@@ -299,6 +305,94 @@ export class WorkspacesController {
       statusCode: HttpStatus.OK,
       message: "OK",
       data: null,
+    } satisfies ResponsePayloadDto);
+  }
+
+  @UseGuards(AuthGuard("jwt"))
+  @Post("/:id/add_tag")
+  @UsePipes(new ZodValidationPipe(addNewTagDtoSchema))
+  async addTagToWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("id") workspaceId: string,
+    @JwtUser() user: JwtUserPayload,
+    @Body() body: AddNewTagDto,
+  ) {
+    let workspaceDocument: WorkspaceDocument;
+
+    try {
+      workspaceDocument = await this.workspaceService.addTagToWorkspace(
+        user.userId as string,
+        workspaceId as string,
+        body,
+      );
+    } catch (e) {
+      respondWithError(e, res);
+      return;
+    }
+
+    res.status(HttpStatus.CREATED).json({
+      statusCode: HttpStatus.CREATED,
+      message: "OK",
+      data: workspaceDocument,
+    } satisfies ResponsePayloadDto);
+  }
+
+  @UseGuards(AuthGuard("jwt"))
+  @Put("/:workspace_id/update_tag/:tag_id")
+  @UsePipes(new ZodValidationPipe(updateTagDtoSchema))
+  async updateTagInWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("workspace_id") workspaceId: string,
+    @Param("tag_id") tagId: string,
+    @JwtUser() user: JwtUserPayload,
+    @Body() body: AddNewTagDto,
+  ) {
+    let tagDocument: TagDocument;
+
+    try {
+      tagDocument = await this.workspaceService.updateTagInWorkspace(
+        user.userId,
+        workspaceId,
+        tagId,
+        body,
+      );
+    } catch (e) {
+      respondWithError(e, res);
+      return;
+    }
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "OK",
+      data: tagDocument,
+    } satisfies ResponsePayloadDto);
+  }
+
+  @UseGuards(AuthGuard("jwt"))
+  @Delete("/:id/remove_tag/:tag_id")
+  async removeTagFromWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("id") workspaceId: string,
+    @Param("tag_id") tagId: string,
+    @JwtUser() user: JwtUserPayload,
+  ) {
+    let workspace: WorkspaceDocument;
+
+    try {
+      workspace = await this.workspaceService.deleteTagFromWorkspace(
+        user.userId as string,
+        workspaceId as string,
+        tagId,
+      );
+    } catch (e) {
+      respondWithError(e, res);
+      return;
+    }
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "OK",
+      data: workspace,
     } satisfies ResponsePayloadDto);
   }
 }

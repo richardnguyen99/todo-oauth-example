@@ -50,7 +50,7 @@ export default function TaskDialogProvider({ children }: Props): JSX.Element {
     <TaskDialogContext.Provider value={{ dialogShow, setDialogShow }}>
       <Dialog open={dialogShow} onOpenChange={handleChange}>
         <DialogContent
-          className="flex h-[calc(100vh-4rem)] flex-col gap-0 p-0 focus:ring-0 focus-visible:border-0 focus-visible:ring-0 focus-visible:outline-none sm:max-w-xl md:max-w-2xl lg:max-w-4xl [&>button:last-child]:hidden"
+          className="focus-visible:border-border flex h-[calc(100vh-4rem)] flex-col gap-0 p-0 focus:ring-0 focus-visible:ring-0 focus-visible:outline-none sm:max-w-xl md:max-w-2xl lg:max-w-4xl [&>button:last-child]:hidden"
           aria-describedby={undefined}
         >
           {children}

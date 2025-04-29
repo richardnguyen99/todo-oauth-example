@@ -2,15 +2,18 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import mongoose, { Error, Model, MongooseError } from "mongoose";
 
 import { User } from "src/users/schemas/user.schema";
 import {
   Member,
   MemberDocument,
+  Tag,
+  TagDocument,
   Workspace,
   WorkspaceDocument,
 } from "src/workspaces/schemas/workspaces.schema";
@@ -20,6 +23,8 @@ import { UpdateMemberDto } from "./dto/update-member.dto";
 import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
 import { Task } from "src/tasks/schemas/tasks.schema";
 import { UpdateWorkspaceDto } from "./dto/update-workspace.dto";
+import { AddNewTagDto } from "./dto/add-new-tag.dto";
+import { UpdateTagDto } from "./dto/update-tag.dto";
 
 @Injectable()
 export class WorkspacesService {
@@ -33,12 +38,25 @@ export class WorkspacesService {
     @InjectModel(Member.name)
     private memberModel: Model<Member>,
 
+    @InjectModel(Tag.name)
+    private tagModel: Model<Tag>,
+
     @InjectModel(Task.name)
     private taskModel: Model<Task>,
   ) {}
 
   async findWorkspaceById(workspaceId: string): Promise<WorkspaceDocument> {
-    const workspace = await this.workspaceModel.findById(workspaceId);
+    const workspace = await this.workspaceModel
+      .findById(workspaceId)
+      .populate([
+        "owner",
+        "members",
+        {
+          path: "tags",
+          select: "name color createdBy",
+        },
+      ])
+      .exec();
 
     if (!workspace) {
       throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
@@ -52,7 +70,7 @@ export class WorkspacesService {
       .find({
         owner: userId,
       })
-      .populate("owner")
+      .populate(["owner", "tags"])
       .exec();
 
     return workspaces;
@@ -333,6 +351,186 @@ export class WorkspacesService {
       memberDeleteCount: memberResult.deletedCount,
       workspaceDeleteCount: workspaceResult.deletedCount,
     };
+  }
+
+  async addTagToWorkspace(
+    userId: string,
+    workspaceId: string,
+    body: AddNewTagDto,
+  ): Promise<WorkspaceDocument> {
+    const workspace = await this.findWorkspaceById(workspaceId);
+
+    if (!workspace) {
+      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
+    }
+
+    if (
+      workspace.members.filter(
+        (member) => (member as Member).userId.toString() === userId,
+      ).length === 0
+    ) {
+      throw new ForbiddenException(
+        `User with ID ${userId} is not a member of this workspace.`,
+      );
+    }
+
+    try {
+      let newTag = await this.tagModel.create({
+        text: body.text,
+        color: body.color,
+        createdBy: userId,
+        workspaceId: workspace._id,
+      });
+
+      workspace.tags.push(newTag._id);
+      let savedWorkspace = await workspace.save();
+      savedWorkspace = await savedWorkspace.populate(["tags"]);
+
+      return savedWorkspace;
+    } catch (error) {
+      throw new BadRequestException(
+        `Error creating tag: ${(error as Error).message}`,
+      );
+    }
+  }
+
+  async updateTagInWorkspace(
+    userId: string,
+    workspaceId: string,
+    tagId: string,
+    body: UpdateTagDto,
+  ): Promise<TagDocument> {
+    console.log("body", body);
+    const workspace = await this.findWorkspaceById(workspaceId);
+
+    if (!workspace) {
+      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
+    }
+
+    if (
+      workspace.members.filter(
+        (member) => (member as Member).userId.toString() === userId,
+      ).length === 0
+    ) {
+      throw new ForbiddenException(
+        `User with ID ${userId} is not a member of this workspace.`,
+      );
+    }
+
+    const tagUpdateQuery = {};
+
+    if (body.text) {
+      tagUpdateQuery["text"] = body.text;
+    }
+
+    if (body.color) {
+      tagUpdateQuery["color"] = body.color;
+    }
+
+    let tagResult: TagDocument | null;
+
+    try {
+      tagResult = await this.tagModel
+        .findOneAndUpdate(
+          {
+            _id: tagId,
+            workspaceId: workspace._id,
+          },
+          tagUpdateQuery,
+          {
+            new: true,
+          },
+        )
+        .exec();
+
+      if (!tagResult) {
+        throw new NotFoundException(`Tag with ID ${tagId} not found`);
+      }
+
+      const updatedTag = await tagResult.populate("createdBy");
+      return updatedTag;
+    } catch (e) {
+      if (e instanceof mongoose.mongo.MongoError) {
+        if (e.code === 11000) {
+          // Duplicate key error
+          throw new BadRequestException(
+            `Tag with color "${body.color}" already exists in this workspace.`,
+          );
+        }
+      }
+
+      throw new InternalServerErrorException(
+        `Unexpected error updating tag: ${(e as MongooseError).message}`,
+      );
+    }
+  }
+
+  async deleteTagFromWorkspace(
+    userId: string,
+    workspaceId: string,
+    tagId: string,
+  ): Promise<WorkspaceDocument> {
+    // Find member to check if the user is a member of the workspace
+    const member = await this.memberModel.findOne({
+      userId,
+      workspaceId,
+    });
+
+    if (!member) {
+      throw new ForbiddenException(
+        `User with ID ${userId} is not a member of this workspace.`,
+      );
+    }
+
+    // Remove the tag from the workspace's tags array
+    const updatedWorkspace = await this.workspaceModel.findOneAndUpdate(
+      {
+        _id: workspaceId,
+      },
+      {
+        $pull: { tags: tagId }, // Remove the tag from the tags array
+      },
+      {
+        new: true,
+      },
+    );
+
+    if (!updatedWorkspace) {
+      throw new NotFoundException(
+        `Workspace with ID ${workspaceId} not found or user is not a member.`,
+      );
+    }
+
+    const tagResult = await this.tagModel.findOneAndDelete(
+      {
+        _id: tagId,
+        workspaceId: updatedWorkspace._id,
+      },
+      {},
+    );
+
+    if (!tagResult) {
+      throw new NotFoundException(`Tag with ID ${tagId} not found`);
+    }
+
+    // Remove tag from tasks
+    await this.taskModel.findOneAndUpdate(
+      {
+        tags: {
+          $elemMatch: { $eq: tagResult._id },
+        },
+      },
+      {
+        $pull: {
+          tags: tagResult._id,
+        },
+      },
+      {
+        multi: true,
+      },
+    );
+
+    return updatedWorkspace;
   }
 
   async checkIfUserIsMember(
