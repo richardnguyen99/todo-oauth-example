@@ -55,7 +55,13 @@ export default function DeleteLabelButton({
     onSuccess: (data) => {
       const updatedWorkspace = {
         ...data.data,
-        tags: activeWorkspace!.tags.filter((tag) => tag.id !== editTag.id),
+        tags: activeWorkspace!.tags.filter((tag) => {
+          if (typeof tag === "string") {
+            return tag !== editTag.id;
+          }
+
+          return tag.id !== editTag.id;
+        }),
       };
 
       const updatedWorkspaces = workspaces.map((workspace) => {

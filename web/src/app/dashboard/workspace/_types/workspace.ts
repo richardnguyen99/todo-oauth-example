@@ -41,7 +41,7 @@ export type Workspace = {
   updatedAt: Date;
   owner: User;
   members: string[];
-  tags: Tag[];
+  tags: (Tag | string)[];
 };
 
 export type WorkspaceResponse = {

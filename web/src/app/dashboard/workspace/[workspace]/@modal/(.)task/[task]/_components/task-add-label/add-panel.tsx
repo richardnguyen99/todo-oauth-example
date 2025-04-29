@@ -12,18 +12,24 @@ import ColorSelector from "./color-selector";
 import { isLightColor } from "@/lib/utils";
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
-import { TagResponse } from "@/app/dashboard/workspace/_types/tag";
 import { ErrorApiResponse } from "@/app/_types/response";
 import { colorOptions } from "@/app/dashboard/workspace/_constants/colors";
 import { useTaskAddLabelContext } from "./provider";
+import { UpdateWorkspaceResponse } from "@/app/dashboard/workspace/_types/workspace";
+import { TaskResponse } from "@/app/dashboard/workspace/[workspace]/_types/task";
+import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
+import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
+import { Member } from "@/app/dashboard/workspace/_types/member";
 
 export default function AddPanel(): JSX.Element {
-  const { activeWorkspace, workspaces, setWorkspaces, setActiveWorkspace } =
-    useWorkspaceStore((s) => s);
-
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
   const { setView, setOpen } = useTaskAddLabelContext();
+  const { activeWorkspace, workspaces, setWorkspaces, setActiveWorkspace } =
+    useWorkspaceStore((s) => s);
+  const { task, setTask } = useTaskWithIdStore((s) => s);
+  const { tasks, setTasks } = useTaskStore((s) => s);
 
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
@@ -31,7 +37,7 @@ export default function AddPanel(): JSX.Element {
     mutationFn: async (data: { text: string; color: string }) => {
       setLoading(true);
 
-      const res = await api.post<TagResponse>(
+      const res = await api.post<UpdateWorkspaceResponse>(
         `/workspaces/${activeWorkspace!._id}/add_tag`,
         data,
         {
@@ -46,8 +52,7 @@ export default function AddPanel(): JSX.Element {
 
     onSuccess: (data) => {
       const updatedWorkspace = {
-        ...activeWorkspace!,
-        tags: [...activeWorkspace!.tags, data.data],
+        ...data.data,
       };
 
       const updatedWorkspaces = workspaces.map((workspace) => {
@@ -57,8 +62,75 @@ export default function AddPanel(): JSX.Element {
         return workspace;
       });
 
+      queryClient.invalidateQueries({
+        queryKey: ["fetch-workspace"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["task-preview"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["fetch-task", data.data._id],
+      });
+
+      queryClient.setQueriesData(
+        {
+          queryKey: ["task-preview"],
+        },
+        (oldData: TaskResponse) => {
+          if (!oldData) {
+            return oldData;
+          }
+
+          const updatedTask = {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              workspace: {
+                ...data.data,
+                owner: data.data.owner._id,
+                members: data.data.members.map(
+                  (member) => (member as unknown as Member)._id,
+                ),
+                tags: data.data.tags.map((tag) => {
+                  if (typeof tag === "string") {
+                    return tag;
+                  }
+                  return tag.id;
+                }),
+              },
+            },
+          };
+
+          return updatedTask;
+        },
+      );
+
+      const updatedTask = {
+        ...task,
+        workspace: {
+          ...data.data,
+          tags: data.data.tags.map((tag) => {
+            if (typeof tag === "string") {
+              return tag;
+            }
+            return tag.id;
+          }),
+        },
+      };
+
+      const updatedTasks = tasks.map((t) => {
+        if (t._id === updatedTask._id) {
+          return updatedTask;
+        }
+        return t;
+      });
+
       setWorkspaces(updatedWorkspaces);
       setActiveWorkspace(updatedWorkspace);
+      setTask(updatedTask);
+      setTasks(updatedTasks);
     },
 
     onError: (error: AxiosError<ErrorApiResponse>) => {
@@ -67,6 +139,7 @@ export default function AddPanel(): JSX.Element {
 
     onSettled: () => {
       setLoading(false);
+      setView("list");
     },
   });
 
@@ -87,22 +160,11 @@ export default function AddPanel(): JSX.Element {
   );
 
   const handleSubmit = React.useCallback(() => {
-    mutate(
-      {
-        text: value,
-        color: color.name,
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: ["fetch-workspace"],
-          });
-
-          setView("list");
-        },
-      },
-    );
-  }, [color.name, mutate, queryClient, setView, value]);
+    mutate({
+      text: value,
+      color: color.name,
+    });
+  }, [color.name, mutate, value]);
 
   return (
     <div className="flex flex-col">

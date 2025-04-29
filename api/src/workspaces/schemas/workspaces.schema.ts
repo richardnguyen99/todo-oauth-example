@@ -86,6 +86,9 @@ export const MemberSchema = SchemaFactory.createForClass(Member);
 @Schema({
   collection: "workspaces",
   timestamps: true,
+  toJSON: {
+    versionKey: false,
+  },
 })
 export class Workspace {
   @Prop({ type: mongoose.Schema.Types.String, required: true })

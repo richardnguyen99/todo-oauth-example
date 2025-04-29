@@ -317,10 +317,10 @@ export class WorkspacesController {
     @JwtUser() user: JwtUserPayload,
     @Body() body: AddNewTagDto,
   ) {
-    let tagDocument: TagDocument;
+    let workspaceDocument: WorkspaceDocument;
 
     try {
-      tagDocument = await this.workspaceService.addTagToWorkspace(
+      workspaceDocument = await this.workspaceService.addTagToWorkspace(
         user.userId as string,
         workspaceId as string,
         body,
@@ -333,7 +333,7 @@ export class WorkspacesController {
     res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
       message: "OK",
-      data: tagDocument,
+      data: workspaceDocument,
     } satisfies ResponsePayloadDto);
   }
 

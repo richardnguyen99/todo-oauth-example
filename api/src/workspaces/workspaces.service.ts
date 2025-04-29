@@ -357,7 +357,7 @@ export class WorkspacesService {
     userId: string,
     workspaceId: string,
     body: AddNewTagDto,
-  ): Promise<TagDocument> {
+  ): Promise<WorkspaceDocument> {
     const workspace = await this.findWorkspaceById(workspaceId);
 
     if (!workspace) {
@@ -375,19 +375,18 @@ export class WorkspacesService {
     }
 
     try {
-      const newTag = new this.tagModel({
+      let newTag = await this.tagModel.create({
         text: body.text,
         color: body.color,
         createdBy: userId,
         workspaceId: workspace._id,
       });
 
-      const result = await newTag.save();
+      workspace.tags.push(newTag._id);
+      let savedWorkspace = await workspace.save();
+      savedWorkspace = await savedWorkspace.populate(["tags"]);
 
-      workspace.tags.push(result._id);
-      await workspace.save();
-
-      return await result.populate("createdBy");
+      return savedWorkspace;
     } catch (error) {
       throw new BadRequestException(
         `Error creating tag: ${(error as Error).message}`,
