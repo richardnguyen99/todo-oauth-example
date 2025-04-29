@@ -376,8 +376,10 @@ export class WorkspacesController {
     @Param("tag_id") tagId: string,
     @JwtUser() user: JwtUserPayload,
   ) {
+    let workspace: WorkspaceDocument;
+
     try {
-      await this.workspaceService.deleteTagFromWorkspace(
+      workspace = await this.workspaceService.deleteTagFromWorkspace(
         user.userId as string,
         workspaceId as string,
         tagId,
@@ -390,7 +392,7 @@ export class WorkspacesController {
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       message: "OK",
-      data: null,
+      data: workspace,
     } satisfies ResponsePayloadDto);
   }
 }
