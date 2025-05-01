@@ -27,6 +27,25 @@ import { Task, TaskSchema } from "src/tasks/schemas/tasks.schema";
         useFactory: () => {
           const schema = WorkspaceSchema;
 
+          schema.virtual("members", {
+            localField: "memberIds",
+            foreignField: "_id",
+            ref: Member.name,
+          });
+
+          schema.virtual("tags", {
+            localField: "tagIds",
+            foreignField: "_id",
+            ref: Tag.name,
+          });
+
+          schema.virtual("owner", {
+            localField: "ownerId",
+            foreignField: "_id",
+            ref: User.name,
+            justOne: true,
+          });
+
           return schema;
         },
       },

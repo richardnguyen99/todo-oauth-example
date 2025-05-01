@@ -88,6 +88,11 @@ export const MemberSchema = SchemaFactory.createForClass(Member);
   timestamps: true,
   toJSON: {
     versionKey: false,
+    virtuals: true,
+  },
+  toObject: {
+    versionKey: false,
+    virtuals: true,
   },
 })
 export class Workspace {
@@ -111,21 +116,21 @@ export class Workspace {
     ref: "User",
     required: true,
   })
-  owner: mongoose.Types.ObjectId | User;
+  ownerId: mongoose.Types.ObjectId;
 
   @Prop({
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Member",
     default: [],
   })
-  members: Array<mongoose.Types.ObjectId | Member>;
+  memberIds: Array<mongoose.Types.ObjectId>;
 
   @Prop({
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Tag",
     default: [],
   })
-  tags: Array<mongoose.Types.ObjectId | Tag>;
+  tagIds: Array<mongoose.Types.ObjectId>;
 }
 
 export type WorkspaceDocument = HydratedDocument<Workspace>;

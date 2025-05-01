@@ -27,3 +27,25 @@ export class ZodValidationPipe implements PipeTransform {
     }
   }
 }
+
+@Injectable()
+export class ZodQueryValidationPipe implements PipeTransform {
+  constructor(private schema: ZodSchema) {}
+
+  transform(value: unknown, metadata: ArgumentMetadata) {
+    if (metadata.type !== "query") {
+      return value;
+    }
+
+    try {
+      const parsedValue = this.schema.parse(value);
+      return parsedValue;
+    } catch (e) {
+      const zodError = e as ZodError;
+
+      throw new BadRequestException(
+        `Validation failed for following fields: ${JSON.stringify(zodError.flatten().fieldErrors)}`,
+      );
+    }
+  }
+}

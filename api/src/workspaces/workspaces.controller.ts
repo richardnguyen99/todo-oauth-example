@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Res,
   UseGuards,
   UsePipes,
@@ -23,7 +24,10 @@ import {
   WorkspaceDocument,
 } from "./schemas/workspaces.schema";
 import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
-import { ZodValidationPipe } from "src/zod-validation/zod-validation.pipe";
+import {
+  ZodQueryValidationPipe,
+  ZodValidationPipe,
+} from "src/zod-validation/zod-validation.pipe";
 import {
   CreateWorkspaceDto,
   createWorkspaceDtoSchema,
@@ -42,6 +46,10 @@ import {
 } from "./dto/update-member.dto";
 import { AddNewTagDto, addNewTagDtoSchema } from "./dto/add-new-tag.dto";
 import { updateTagDtoSchema } from "./dto/update-tag.dto";
+import {
+  GetWorkspacesQueryDto,
+  getWorkspacesQueryDtoSchema,
+} from "./dto/get-workspaces-query.dto";
 
 @Controller("workspaces")
 export class WorkspacesController {
@@ -50,9 +58,15 @@ export class WorkspacesController {
   @UseGuards(AuthGuard("jwt"))
   @Get("")
   @Header("Content-Type", "application/json")
-  async findAll(@Res() res: ExpressResponse, @JwtUser() user: JwtUserPayload) {
+  @UsePipes(new ZodQueryValidationPipe(getWorkspacesQueryDtoSchema))
+  async findAll(
+    @Res() res: ExpressResponse,
+    @JwtUser() user: JwtUserPayload,
+    @Query() query: GetWorkspacesQueryDto,
+  ) {
     const workspaces = await this.workspaceService.findWorkspacesByUserId(
       user.userId as string,
+      query,
     );
 
     res.status(HttpStatus.OK).json({
@@ -65,16 +79,21 @@ export class WorkspacesController {
   @UseGuards(AuthGuard("jwt"))
   @Get(":workspaceId")
   @Header("Content-Type", "application/json")
+  @UsePipes(new ZodQueryValidationPipe(getWorkspacesQueryDtoSchema))
   async findOne(
     @Res() res: ExpressResponse,
     @Param("workspaceId") workspaceId: string,
     @JwtUser() user: JwtUserPayload,
+    @Query() query: GetWorkspacesQueryDto,
   ) {
     // Find the workspace by ID
     let workspace: WorkspaceDocument;
 
     try {
-      workspace = await this.workspaceService.findWorkspaceById(workspaceId);
+      workspace = await this.workspaceService.findWorkspaceById(
+        workspaceId,
+        query,
+      );
     } catch (error) {
       // If the workspace is not found, return a 404 error
       respondWithError(error, res);

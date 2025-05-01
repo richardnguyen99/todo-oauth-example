@@ -25,6 +25,7 @@ import { Task } from "src/tasks/schemas/tasks.schema";
 import { UpdateWorkspaceDto } from "./dto/update-workspace.dto";
 import { AddNewTagDto } from "./dto/add-new-tag.dto";
 import { UpdateTagDto } from "./dto/update-tag.dto";
+import { GetWorkspacesQueryDto } from "./dto/get-workspaces-query.dto";
 
 @Injectable()
 export class WorkspacesService {
@@ -45,18 +46,21 @@ export class WorkspacesService {
     private taskModel: Model<Task>,
   ) {}
 
-  async findWorkspaceById(workspaceId: string): Promise<WorkspaceDocument> {
-    const workspace = await this.workspaceModel
-      .findById(workspaceId)
-      .populate([
-        "owner",
-        "members",
-        {
-          path: "tags",
-          select: "name color createdBy",
-        },
-      ])
-      .exec();
+  async findWorkspaceById(
+    workspaceId: string,
+    query?: GetWorkspacesQueryDto,
+  ): Promise<WorkspaceDocument> {
+    let workspaceQuery = this.workspaceModel.findById(workspaceId);
+
+    if (query) {
+      if (query.includes) {
+        query.includes.forEach((include) => {
+          workspaceQuery = workspaceQuery.populate(include);
+        });
+      }
+    }
+
+    const workspace = await workspaceQuery.exec();
 
     if (!workspace) {
       throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
@@ -65,13 +69,28 @@ export class WorkspacesService {
     return workspace;
   }
 
-  async findWorkspacesByUserId(userId: string): Promise<WorkspaceDocument[]> {
-    const workspaces = await this.workspaceModel
-      .find({
-        owner: userId,
-      })
-      .populate(["owner", "tags"])
-      .exec();
+  async findWorkspacesByUserId(
+    userId: string,
+    query?: GetWorkspacesQueryDto,
+  ): Promise<WorkspaceDocument[]> {
+    let workspacesQuery = this.workspaceModel.find({
+      ownerId: userId,
+    });
+
+    if (query) {
+      if (query.includes) {
+        query.includes.forEach((include) => {
+          workspacesQuery = workspacesQuery.populate(include);
+        });
+      }
+    }
+
+    const workspaces = await workspacesQuery.exec();
+
+    // Check populated fields
+    for (const include of query!.includes) {
+      console.log(`${include} populated: ${workspaces[0][include]}`);
+    }
 
     return workspaces;
   }
@@ -115,7 +134,7 @@ export class WorkspacesService {
       isActive: true,
     });
 
-    newWorkspace.members = [newMember._id];
+    newWorkspace.memberIds = [newMember._id];
 
     await newWorkspace.save();
     await newMember.save();
@@ -144,17 +163,15 @@ export class WorkspacesService {
     }
 
     // Populate the members of the workspace
-    const workspaceWithMembers = await workspace.populate([
+    const workspaceWithMembers = await workspace.populate<{
+      members: MemberDocument[];
+    }>([
       {
         path: "members",
-        populate: {
-          path: "user",
-          model: "User",
-        },
       },
     ]);
 
-    return workspaceWithMembers.members as MemberDocument[];
+    return workspaceWithMembers.members;
   }
 
   async addMemberToWorkspace(
@@ -196,7 +213,7 @@ export class WorkspacesService {
       role,
       isActive: true,
     });
-    workspace.members.push(newMember._id);
+    workspace.memberIds.push(newMember._id);
 
     const savedMember = await newMember.save();
     await workspace.save();
@@ -274,7 +291,7 @@ export class WorkspacesService {
     // Remove the member from the workspace's members array
     await this.memberModel.deleteOne({ _id: existingMember._id });
 
-    workspace.members = workspace.members.filter(
+    workspace.memberIds = workspace.memberIds.filter(
       (memberId) => memberId.toString() !== existingMember._id.toString(),
     );
 
@@ -358,20 +375,22 @@ export class WorkspacesService {
     workspaceId: string,
     body: AddNewTagDto,
   ): Promise<WorkspaceDocument> {
+    // Check if the user is a member of the workspace
+    const isMember = await this.memberModel.findOne({
+      userId,
+      workspaceId,
+    });
+
+    if (!isMember) {
+      throw new ForbiddenException(
+        `User with ID ${userId} is not a member of this workspace.`,
+      );
+    }
+
     const workspace = await this.findWorkspaceById(workspaceId);
 
     if (!workspace) {
       throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
-    }
-
-    if (
-      workspace.members.filter(
-        (member) => (member as Member).userId.toString() === userId,
-      ).length === 0
-    ) {
-      throw new ForbiddenException(
-        `User with ID ${userId} is not a member of this workspace.`,
-      );
     }
 
     try {
@@ -382,7 +401,7 @@ export class WorkspacesService {
         workspaceId: workspace._id,
       });
 
-      workspace.tags.push(newTag._id);
+      workspace.tagIds.push(newTag._id);
       let savedWorkspace = await workspace.save();
       savedWorkspace = await savedWorkspace.populate(["tags"]);
 
@@ -400,21 +419,22 @@ export class WorkspacesService {
     tagId: string,
     body: UpdateTagDto,
   ): Promise<TagDocument> {
-    console.log("body", body);
+    // Check if the user is a member of the workspace
+    const isMember = await this.memberModel.findOne({
+      userId,
+      workspaceId,
+    });
+
+    if (!isMember) {
+      throw new ForbiddenException(
+        `User with ID ${userId} is not a member of this workspace.`,
+      );
+    }
+
     const workspace = await this.findWorkspaceById(workspaceId);
 
     if (!workspace) {
       throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
-    }
-
-    if (
-      workspace.members.filter(
-        (member) => (member as Member).userId.toString() === userId,
-      ).length === 0
-    ) {
-      throw new ForbiddenException(
-        `User with ID ${userId} is not a member of this workspace.`,
-      );
     }
 
     const tagUpdateQuery = {};
@@ -563,7 +583,7 @@ export class WorkspacesService {
     }
 
     // Check if the user is the owner of the workspace
-    if (workspace.owner.toString() !== ownerId) {
+    if (workspace.ownerId.toString() !== ownerId) {
       throw new ForbiddenException(
         `User with ID ${ownerId} is not the owner of this workspace.`,
       );
