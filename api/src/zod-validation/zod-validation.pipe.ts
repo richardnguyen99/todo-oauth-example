@@ -43,9 +43,12 @@ export class ZodQueryValidationPipe implements PipeTransform {
     } catch (e) {
       const zodError = e as ZodError;
 
-      throw new BadRequestException(
-        `Validation failed for following fields: ${JSON.stringify(zodError.flatten().fieldErrors)}`,
-      );
+      console.error(zodError.flatten());
+
+      throw new BadRequestException({
+        message: "Zod validation error",
+        error: zodError.flatten(),
+      });
     }
   }
 }

@@ -58,11 +58,21 @@ export class WorkspacesService {
         workspaceQuery = workspaceQuery.select(fields);
       }
 
-      if (query.includes) {
-        query.includes.forEach((include) => {
-          workspaceQuery = workspaceQuery.populate(include);
-        });
+      const includes = query.includes.map(
+        (include) =>
+          ({
+            path: include,
+          }) as mongoose.PopulateOptions,
+      );
+
+      if (query.tag_fields && query.tag_fields.length > 0) {
+        const tagFields = query.tag_fields.join(" ");
+        const tagInclude = includes.find((include) => include.path === "tags")!;
+
+        tagInclude.select = tagFields;
       }
+
+      workspaceQuery = workspaceQuery.populate(includes);
     }
 
     const workspace = await workspaceQuery.exec();

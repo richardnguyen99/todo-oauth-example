@@ -29,26 +29,37 @@ export const getWorkspacesQueryDtoSchema = z
         if (!value) return [];
         return value.split(",").map((item) => item.trim());
       }),
+
+    tag_fields: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (!value) return [];
+        return value.split(",").map((item) => item.trim());
+      }),
   })
+  .refine(
+    (data) =>
+      data.tag_fields.length === 0 ||
+      (data.tag_fields.length > 0 && data.includes.includes("tags")),
+    {
+      message: "tag_fields can only be used with tags in includes",
+    },
+  )
   .transform((data) => {
-    if (
-      data.includes.includes("members") &&
-      !data.fields.includes("memberIds")
-    ) {
+    const tagsIncluded = data.includes.includes("tags");
+    const membersIncluded = data.includes.includes("members");
+    const ownerIncluded = data.includes.includes("owner");
+
+    if (membersIncluded && !data.fields.includes("memberIds")) {
       data.fields.push("memberIds");
     }
 
-    if (
-      data.includes.includes("owner") &&
-      !data.fields.includes("ownerId") //
-    ) {
+    if (ownerIncluded && !data.fields.includes("ownerId")) {
       data.fields.push("ownerId");
     }
 
-    if (
-      data.includes.includes("tags") &&
-      !data.fields.includes("tagIds") //
-    ) {
+    if (tagsIncluded && !data.fields.includes("tagIds")) {
       data.fields.push("tagIds");
     }
 

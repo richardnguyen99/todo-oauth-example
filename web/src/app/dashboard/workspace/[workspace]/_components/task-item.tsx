@@ -78,7 +78,7 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
           )}
 
           {task.tags.slice(0, 3).map((tag) => (
-            <TaskBadge disableClose disableTooltip key={tag.id} tag={tag} />
+            <TaskBadge disableClose disableTooltip key={tag._id} tag={tag} />
           ))}
 
           {task.tags.length > 3 && (

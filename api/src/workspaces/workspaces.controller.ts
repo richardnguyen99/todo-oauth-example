@@ -14,7 +14,6 @@ import {
   UsePipes,
 } from "@nestjs/common";
 import { type Response as ExpressResponse } from "express";
-import { AuthGuard } from "@nestjs/passport";
 
 import { WorkspacesService } from "./workspaces.service";
 import { ResponsePayloadDto } from "src/dto/response.dto";
@@ -50,12 +49,13 @@ import {
   GetWorkspacesQueryDto,
   getWorkspacesQueryDtoSchema,
 } from "./dto/get-workspaces-query.dto";
+import { JwtAuthGuard } from "src/auth/guards/jwt.guard";
 
 @Controller("workspaces")
 export class WorkspacesController {
   constructor(private workspaceService: WorkspacesService) {}
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Get("")
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodQueryValidationPipe(getWorkspacesQueryDtoSchema))
@@ -76,7 +76,7 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Get(":workspaceId")
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodQueryValidationPipe(getWorkspacesQueryDtoSchema))
@@ -125,7 +125,7 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Post("new")
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodValidationPipe(createWorkspaceDtoSchema))
@@ -153,7 +153,7 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Get("/:id/members")
   @Header("Content-Type", "application/json")
   async getMembersInWorkspace(
@@ -179,7 +179,7 @@ export class WorkspacesController {
     }
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Put("/:id/update")
   @Header("Content-Type", "application/json")
   async updateWorkspace(
@@ -208,7 +208,7 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Delete("/:id/delete")
   @Header("Content-Type", "application/json")
   async deleteWorkspace(
@@ -235,7 +235,7 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Post("/:id/add_member")
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodValidationPipe(addNewMemberDtoSchema))
@@ -265,7 +265,7 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Put("/:workspace_id/update_member/:member_id")
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodValidationPipe(updateMemberDtoSchema))
@@ -301,7 +301,7 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Delete("/:id/remove_member/:member_id")
   async removeMemberFromWorkspace(
     @Res() res: ExpressResponse,
@@ -327,7 +327,7 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Post("/:id/add_tag")
   @UsePipes(new ZodValidationPipe(addNewTagDtoSchema))
   async addTagToWorkspace(
@@ -356,7 +356,7 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Put("/:workspace_id/update_tag/:tag_id")
   @UsePipes(new ZodValidationPipe(updateTagDtoSchema))
   async updateTagInWorkspace(
@@ -387,7 +387,7 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Delete("/:id/remove_tag/:tag_id")
   async removeTagFromWorkspace(
     @Res() res: ExpressResponse,

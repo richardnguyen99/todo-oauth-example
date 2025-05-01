@@ -22,7 +22,13 @@ export default function WorkspaceInitializer() {
   >({
     queryKey: ["fetch-workspace"],
     queryFn: async () => {
-      const response = await api.get("/workspaces");
+      const response = await api.get(
+        "\
+/workspaces\
+?fields=title,icon,color,private,createdAt,updatedAt,ownerId,memberIds\
+&tag_fields=text,color\
+&includes=tags",
+      );
 
       return response.data;
     },
