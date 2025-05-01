@@ -53,6 +53,11 @@ export class WorkspacesService {
     let workspaceQuery = this.workspaceModel.findById(workspaceId);
 
     if (query) {
+      if (query.fields && query.fields.length > 0) {
+        const fields = query.fields.join(" ");
+        workspaceQuery = workspaceQuery.select(fields);
+      }
+
       if (query.includes) {
         query.includes.forEach((include) => {
           workspaceQuery = workspaceQuery.populate(include);
@@ -78,6 +83,11 @@ export class WorkspacesService {
     });
 
     if (query) {
+      if (query.fields && query.fields.length > 0) {
+        const fields = query.fields.join(" ");
+        workspacesQuery = workspacesQuery.select(fields);
+      }
+
       if (query.includes) {
         query.includes.forEach((include) => {
           workspacesQuery = workspacesQuery.populate(include);
@@ -86,11 +96,6 @@ export class WorkspacesService {
     }
 
     const workspaces = await workspacesQuery.exec();
-
-    // Check populated fields
-    for (const include of query!.includes) {
-      console.log(`${include} populated: ${workspaces[0][include]}`);
-    }
 
     return workspaces;
   }

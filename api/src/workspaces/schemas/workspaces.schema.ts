@@ -4,6 +4,7 @@ import mongoose, { HydratedDocument } from "mongoose";
 import { User } from "src/users/schemas/user.schema";
 
 @Schema({
+  id: false,
   collection: "tags",
   timestamps: true,
   toJSON: {
@@ -86,6 +87,7 @@ export const MemberSchema = SchemaFactory.createForClass(Member);
 @Schema({
   collection: "workspaces",
   timestamps: true,
+  id: false,
   toJSON: {
     versionKey: false,
     virtuals: true,
