@@ -37,6 +37,22 @@ export const getWorkspacesQueryDtoSchema = z
         if (!value) return [];
         return value.split(",").map((item) => item.trim());
       }),
+
+    member_fields: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (!value) return [];
+        return value.split(",").map((item) => item.trim());
+      }),
+
+    owner_field: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (!value) return [];
+        return value.split(",").map((item) => item.trim());
+      }),
   })
   .refine(
     (data) =>
@@ -44,6 +60,22 @@ export const getWorkspacesQueryDtoSchema = z
       (data.tag_fields.length > 0 && data.includes.includes("tags")),
     {
       message: "tag_fields can only be used with tags in includes",
+    },
+  )
+  .refine(
+    (data) =>
+      data.member_fields.length === 0 ||
+      (data.member_fields.length > 0 && data.includes.includes("members")),
+    {
+      message: "member_field can only be used with members in includes",
+    },
+  )
+  .refine(
+    (data) =>
+      data.owner_field.length === 0 ||
+      (data.owner_field.length > 0 && data.includes.includes("owner")),
+    {
+      message: "owner_field can only be used with owners in includes",
     },
   )
   .transform((data) => {

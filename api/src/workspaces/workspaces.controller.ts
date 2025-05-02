@@ -126,7 +126,7 @@ export class WorkspacesController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post("new")
+  @Post("")
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodValidationPipe(createWorkspaceDtoSchema))
   async createWorkspace(
@@ -148,7 +148,7 @@ export class WorkspacesController {
 
     res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
-      message: "OK",
+      message: `New workspace created successfully (Workspace ID: ${newWorkspace._id})`,
       data: newWorkspace,
     } satisfies ResponsePayloadDto);
   }

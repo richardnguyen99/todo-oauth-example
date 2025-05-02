@@ -52,28 +52,10 @@ export class WorkspacesService {
   ): Promise<WorkspaceDocument> {
     let workspaceQuery = this.workspaceModel.findById(workspaceId);
 
-    if (query) {
-      if (query.fields && query.fields.length > 0) {
-        const fields = query.fields.join(" ");
-        workspaceQuery = workspaceQuery.select(fields);
-      }
-
-      const includes = query.includes.map(
-        (include) =>
-          ({
-            path: include,
-          }) as mongoose.PopulateOptions,
-      );
-
-      if (query.tag_fields && query.tag_fields.length > 0) {
-        const tagFields = query.tag_fields.join(" ");
-        const tagInclude = includes.find((include) => include.path === "tags")!;
-
-        tagInclude.select = tagFields;
-      }
-
-      workspaceQuery = workspaceQuery.populate(includes);
-    }
+    workspaceQuery = this._prepareQuery<WorkspaceDocument | null>(
+      workspaceQuery,
+      query,
+    );
 
     const workspace = await workspaceQuery.exec();
 
@@ -92,18 +74,10 @@ export class WorkspacesService {
       ownerId: userId,
     });
 
-    if (query) {
-      if (query.fields && query.fields.length > 0) {
-        const fields = query.fields.join(" ");
-        workspacesQuery = workspacesQuery.select(fields);
-      }
-
-      if (query.includes) {
-        query.includes.forEach((include) => {
-          workspacesQuery = workspacesQuery.populate(include);
-        });
-      }
-    }
+    workspacesQuery = this._prepareQuery<WorkspaceDocument[]>(
+      workspacesQuery,
+      query,
+    );
 
     const workspaces = await workspacesQuery.exec();
 
@@ -123,7 +97,7 @@ export class WorkspacesService {
 
     // check if the title is already taken by another workspace for the same owner
     const existingWorkspace = await this.workspaceModel.findOne({
-      owner: ownerId,
+      ownerId: ownerId,
       title: createWorkspaceDto.title,
     });
 
@@ -138,7 +112,7 @@ export class WorkspacesService {
       title: createWorkspaceDto.title,
       icon: createWorkspaceDto.icon,
       color: createWorkspaceDto.color,
-      owner: ownerId, // Set the owner to the user's ID
+      ownerId: ownerId, // Set the owner to the user's ID
     });
 
     // Create the default member (the owner)
@@ -605,5 +579,55 @@ export class WorkspacesService {
     }
 
     return workspace;
+  }
+
+  private _prepareQuery<QueryType>(
+    query: mongoose.Query<QueryType, WorkspaceDocument>,
+    params?: GetWorkspacesQueryDto,
+  ) {
+    if (params) {
+      if (params.fields && params.fields.length > 0) {
+        const fields = params.fields.join(" ");
+        query = query.select(fields);
+      }
+
+      const populateOptions = params.includes.map(
+        (include) =>
+          ({
+            path: include,
+          }) as mongoose.PopulateOptions,
+      );
+
+      if (params.tag_fields && params.tag_fields.length > 0) {
+        const tagFields = params.tag_fields.join(" ");
+        const tagsOption = populateOptions.find(
+          (option) => option.path === "tags",
+        )!;
+
+        tagsOption.select = tagFields;
+      }
+
+      if (params.member_fields && params.member_fields.length > 0) {
+        const memberFields = params.member_fields.join(" ");
+        const membersOption = populateOptions.find(
+          (option) => option.path === "members",
+        )!;
+
+        membersOption.select = memberFields;
+      }
+
+      if (params.owner_field && params.owner_field.length > 0) {
+        const ownerFields = params.owner_field.join(" ");
+        const ownerOption = populateOptions.find(
+          (option) => option.path === "owner",
+        )!;
+
+        ownerOption.select = ownerFields;
+      }
+
+      query = query.populate(populateOptions);
+    }
+
+    return query;
   }
 }

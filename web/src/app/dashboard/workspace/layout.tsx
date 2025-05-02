@@ -37,7 +37,9 @@ export default function WorkspaceLayout({
           "memberIds",
         ].join(","),
         tag_fields: ["text", "color"].join(","),
-        includes: "tags",
+        member_fields: ["_id", "userId", "role", "isActive"].join(","),
+        owner_field: ["username", "email", "emailVerified", "avatar"].join(","),
+        includes: ["tags", "members", "owner"].join(","),
       });
 
       const response = await api.get(`/workspaces?${searchParams.toString()}`);

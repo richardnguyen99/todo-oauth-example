@@ -48,6 +48,7 @@ export const TagSchema = SchemaFactory.createForClass(Tag);
 
 @Schema({
   collection: "members",
+  id: false,
   timestamps: true,
   toJSON: {
     virtuals: true,
