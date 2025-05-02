@@ -46,12 +46,30 @@ export const getWorkspacesQueryDtoSchema = z
         return value.split(",").map((item) => item.trim());
       }),
 
+    member_item_fields: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (!value) return [];
+        return value.split(",").map((item) => item.trim());
+      }),
+
     owner_field: z
       .string()
       .optional()
       .transform((value) => {
         if (!value) return [];
         return value.split(",").map((item) => item.trim());
+      }),
+
+    include_member_account: z
+      .string()
+      .optional()
+      .default("false")
+      .transform((value) => {
+        if (value === "true") return true;
+        if (value === "false") return false;
+        return false;
       }),
   })
   .refine(
@@ -76,6 +94,16 @@ export const getWorkspacesQueryDtoSchema = z
       (data.owner_field.length > 0 && data.includes.includes("owner")),
     {
       message: "owner_field can only be used with owners in includes",
+    },
+  )
+  .refine(
+    (data) =>
+      data.include_member_account === false ||
+      (data.include_member_account === true &&
+        data.includes.includes("members")),
+    {
+      message:
+        "include_member_account can only be used with members in includes",
     },
   )
   .transform((data) => {

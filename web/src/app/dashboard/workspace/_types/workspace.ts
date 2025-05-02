@@ -1,6 +1,7 @@
 import { User } from "@/_types/user";
 import { ApiResponse } from "@/app/_types/response";
 import { Tag } from "./tag";
+import { Member } from "./member";
 
 export type Color =
   | "red"
@@ -40,7 +41,7 @@ export type Workspace = {
   createdAt: Date;
   updatedAt: Date;
   owner: User;
-  members: string[];
+  members: Member[];
   tags: Tag[];
 };
 

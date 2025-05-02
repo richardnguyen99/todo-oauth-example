@@ -608,7 +608,10 @@ export class WorkspacesService {
       }
 
       if (params.member_fields && params.member_fields.length > 0) {
-        const memberFields = params.member_fields.join(" ");
+        const memberFields = params.member_fields
+          .filter((field) => !field.startsWith("user."))
+          .join(" ");
+
         const membersOption = populateOptions.find(
           (option) => option.path === "members",
         )!;
@@ -623,6 +626,27 @@ export class WorkspacesService {
         )!;
 
         ownerOption.select = ownerFields;
+      }
+
+      if (params.include_member_account) {
+        const membersOption = populateOptions.find(
+          (option) => option.path === "members",
+        )!;
+
+        const userFields = params.member_fields.filter((field) =>
+          field.startsWith("user."),
+        );
+
+        membersOption.populate = {
+          path: "user",
+          model: User.name,
+          select: userFields
+            .map((field) => field.replace("user.", ""))
+            .join(" "),
+        };
+
+        console.log("");
+        console.log("membersOption", membersOption);
       }
 
       query = query.populate(populateOptions);

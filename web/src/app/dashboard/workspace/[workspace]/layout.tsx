@@ -1,7 +1,6 @@
 "use client";
 
 import React, { type JSX } from "react";
-import * as LucideReact from "lucide-react";
 import { notFound, useParams } from "next/navigation";
 
 import { Workspace, WorkspaceParams } from "../_types/workspace";
@@ -20,38 +19,21 @@ export default function WorkspacePageLayout({
   modal,
 }: Props): JSX.Element | never {
   const { workspace } = useParams<WorkspaceParams>();
-  const { workspaces, status, setActiveWorkspace, setStatus } =
-    useWorkspaceStore((s) => s);
+  const { workspaces, setActiveWorkspace } = useWorkspaceStore((s) => s);
 
   React.useEffect(() => {
-    if (status === "loading") {
-      return;
-    }
-
-    const activeWorkspaceFromStore = workspaces.find(
-      (ws: Workspace) => ws._id === workspace,
+    const foundWorkspace = workspaces.find(
+      (w: Workspace) => w._id === workspace,
     );
 
-    if (activeWorkspaceFromStore) {
-      setActiveWorkspace(activeWorkspaceFromStore);
-
-      if (status === "redirecting") {
-        setStatus("success");
-      }
-    } else {
-      if (status !== "redirecting") {
-        setStatus("idle");
-        notFound();
-      }
+    if (!foundWorkspace) {
+      notFound();
     }
-  }, [setActiveWorkspace, setStatus, status, workspace, workspaces]);
 
-  return status === "loading" ? (
-    // Handle loading state
-    <div className="flex h-full items-center justify-center">
-      <LucideReact.LoaderCircle className="text-muted-foreground h-6 w-6 animate-spin" />
-    </div>
-  ) : (
+    setActiveWorkspace(foundWorkspace);
+  }, [setActiveWorkspace, workspace, workspaces]);
+
+  return (
     <div className="mx-auto max-w-4xl">
       <TaskMenuBar />
 
