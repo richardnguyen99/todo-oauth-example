@@ -4,6 +4,7 @@ import { type ReactNode, createContext, useRef, useContext } from "react";
 import { useStore } from "zustand";
 
 import {
+  WorkspaceState,
   type WorkspaceStore,
   createWorkspaceStore,
 } from "../_stores/workspace";
@@ -16,14 +17,17 @@ export const WorkspaceStoreContext = createContext<
 
 export interface WorkspaceStoreProviderProps {
   children: ReactNode;
+  initialState: WorkspaceState;
 }
 
 export const WorkspaceStoreProvider = ({
   children,
+  initialState,
 }: WorkspaceStoreProviderProps) => {
   const storeRef = useRef<WorkspaceStoreApi | null>(null);
+
   if (storeRef.current === null) {
-    storeRef.current = createWorkspaceStore();
+    storeRef.current = createWorkspaceStore(initialState);
   }
 
   return (

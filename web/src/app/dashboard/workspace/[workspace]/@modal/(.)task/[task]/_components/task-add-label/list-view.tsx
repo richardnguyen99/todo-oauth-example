@@ -35,7 +35,7 @@ export default function TaskAddLabelListView({
         ) : (
           <ScrollArea className="h-72">
             {activeWorkspace?.tags.map((tag) => (
-              <TaskAddLabelItem key={tag.id} tag={tag} />
+              <TaskAddLabelItem key={tag._id} tag={tag} />
             ))}
           </ScrollArea>
         )}

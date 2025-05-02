@@ -1,23 +1,93 @@
-import React, { type JSX } from "react";
+"use client";
 
+import React, { type JSX } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+
+import api from "@/lib/axios";
 import SideBar from "./_components/sidebar";
 import { WorkspaceStoreProvider } from "../_providers/workspace";
-import WorkspaceInitializer from "./_components/workspace-initializer";
+import { ResponseData } from "./_types/workspace";
+import { Loader2 } from "lucide-react";
 
 type Props = {
   children: React.ReactNode;
   params: Promise<{ workspace: string }>;
 };
 
-export default async function WorkspacePage({
+export default function WorkspaceLayout({
   children,
   params: _params,
-}: Props): Promise<JSX.Element | never> {
+}: Props): JSX.Element {
+  const { isLoading, isPending, data, error } = useQuery<
+    ResponseData,
+    AxiosError
+  >({
+    queryKey: ["fetch-workspace"],
+    queryFn: async () => {
+      const searchParams = new URLSearchParams({
+        fields: [
+          "title",
+          "icon",
+          "color",
+          "private",
+          "createdAt",
+          "updatedAt",
+          "ownerId",
+          "memberIds",
+        ].join(","),
+        tag_fields: ["text", "color"].join(","),
+        includes: "tags",
+      });
+
+      const response = await api.get(`/workspaces?${searchParams.toString()}`);
+
+      return response.data;
+    },
+  });
+
+  if (isLoading || isPending) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <div className="relative flex flex-1">
+          <Loader2 className="text-muted-foreground absolute top-1/2 left-1/2 h-10 w-10 animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <div className="relative flex flex-1">
+          <div className="bg-background absolute top-1/2 left-1/2 flex w-fit -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border p-6 text-center shadow-md">
+            <h3 className="text-lg font-medium text-red-500">Error</h3>
+            <p className="text-muted-foreground text-sm">{error.message}</p>
+
+            <pre className="bg-accent mt-3 w-full rounded-md border p-2 text-left text-sm whitespace-break-spaces">
+              <code>
+                {JSON.stringify(
+                  (error.response?.data as Record<string, unknown>).error,
+                  null,
+                  2,
+                )}
+              </code>
+            </pre>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <div className="relative flex flex-1">
-        <WorkspaceStoreProvider>
-          <WorkspaceInitializer />
+        <WorkspaceStoreProvider
+          initialState={{
+            workspaces: data.data,
+            activeWorkspace: null,
+          }}
+        >
           <SideBar />
 
           {/* Main Content */}
