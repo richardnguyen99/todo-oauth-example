@@ -46,14 +46,6 @@ export const getWorkspacesQueryDtoSchema = z
         return value.split(",").map((item) => item.trim());
       }),
 
-    member_item_fields: z
-      .string()
-      .optional()
-      .transform((value) => {
-        if (!value) return [];
-        return value.split(",").map((item) => item.trim());
-      }),
-
     owner_field: z
       .string()
       .optional()

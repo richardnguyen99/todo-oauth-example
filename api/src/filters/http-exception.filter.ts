@@ -29,7 +29,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       method: request.method,
       statusCode: status,
       message,
-      ...(exception.getResponse() as object),
+      error: (exceptionResponse as Record<string, unknown>).error,
       data: null,
     });
   }

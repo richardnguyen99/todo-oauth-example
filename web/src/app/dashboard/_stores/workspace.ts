@@ -1,6 +1,5 @@
+import { Workspace } from "@/_types/workspace";
 import { createStore } from "zustand/vanilla";
-
-import { Workspace } from "../workspace/_types/workspace";
 
 export type WorkspaceState = {
   workspaces: Workspace[];

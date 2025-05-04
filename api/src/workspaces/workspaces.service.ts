@@ -95,18 +95,6 @@ export class WorkspacesService {
       throw new BadRequestException(`User with ID ${ownerId} not found`);
     }
 
-    // check if the title is already taken by another workspace for the same owner
-    const existingWorkspace = await this.workspaceModel.findOne({
-      ownerId: ownerId,
-      title: createWorkspaceDto.title,
-    });
-
-    if (existingWorkspace) {
-      throw new BadRequestException(
-        `Workspace with title "${createWorkspaceDto.title}" already exists for this user.`,
-      );
-    }
-
     // Create a new workspace
     const newWorkspace = new this.workspaceModel({
       title: createWorkspaceDto.title,
@@ -125,10 +113,33 @@ export class WorkspacesService {
 
     newWorkspace.memberIds = [newMember._id];
 
-    await newWorkspace.save();
+    let workspace = await newWorkspace.save();
     await newMember.save();
 
-    return newWorkspace;
+    workspace = await workspace.populate([
+      {
+        path: "owner",
+        model: User.name,
+        select: "-accounts",
+      },
+      {
+        path: "tags",
+        model: Tag.name,
+        select: "_id color text",
+      },
+      {
+        path: "members",
+        model: Member.name,
+        select: "-updatedAt",
+        populate: {
+          path: "user",
+          model: User.name,
+          select: "-createdAt -updatedAt -accounts",
+        },
+      },
+    ]);
+
+    return workspace;
   }
 
   async getWorkspaceMembers(
@@ -167,9 +178,9 @@ export class WorkspacesService {
     userId: string,
     workspaceId: string,
     addNewMemberDto: AddNewMemberDto,
-  ): Promise<MemberDocument> {
+  ): Promise<WorkspaceDocument> {
     // Check if the workspace exists
-    const workspace = await this._getWorkspaceWithAdminAccess(
+    let workspace = await this._getWorkspaceWithAdminAccess(
       userId,
       workspaceId,
     );
@@ -204,15 +215,32 @@ export class WorkspacesService {
     });
     workspace.memberIds.push(newMember._id);
 
-    const savedMember = await newMember.save();
-    await workspace.save();
+    await newMember.save();
+    workspace = await workspace.save();
+    workspace = await workspace.populate([
+      {
+        path: "owner",
+        model: User.name,
+        select: "-accounts",
+      },
+      {
+        path: "tags",
+        model: Tag.name,
+        select: "_id color text",
+      },
+      {
+        path: "members",
+        model: Member.name,
+        select: "-updatedAt",
+        populate: {
+          path: "user",
+          model: User.name,
+          select: "-createdAt -updatedAt -accounts",
+        },
+      },
+    ]);
 
-    const returnedMember = await savedMember.populate({
-      path: "user",
-      model: "User",
-    });
-
-    return returnedMember;
+    return workspace;
   }
 
   async updateMemberInWorkspace(

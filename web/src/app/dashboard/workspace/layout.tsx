@@ -7,8 +7,8 @@ import { AxiosError } from "axios";
 import api from "@/lib/axios";
 import SideBar from "./_components/sidebar";
 import { WorkspaceStoreProvider } from "../_providers/workspace";
-import { ResponseData } from "./_types/workspace";
 import { Loader2 } from "lucide-react";
+import { WorkspacesResponse } from "@/_types/workspace";
 
 type Props = {
   children: React.ReactNode;
@@ -20,7 +20,7 @@ export default function WorkspaceLayout({
   params: _params,
 }: Props): JSX.Element {
   const { isLoading, isPending, data, error } = useQuery<
-    ResponseData,
+    WorkspacesResponse,
     AxiosError
   >({
     queryKey: ["fetch-workspace"],
@@ -33,8 +33,6 @@ export default function WorkspaceLayout({
           "private",
           "createdAt",
           "updatedAt",
-          "ownerId",
-          "memberIds",
         ].join(","),
         tag_fields: ["text", "color"].join(","),
         member_fields: [
@@ -95,12 +93,7 @@ export default function WorkspaceLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <div className="relative flex flex-1">
-        <WorkspaceStoreProvider
-          initialState={{
-            workspaces: data.data,
-            activeWorkspace: null,
-          }}
-        >
+        <WorkspaceStoreProvider initialState={data.data}>
           <SideBar />
 
           {/* Main Content */}

@@ -28,9 +28,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useMemberStore } from "../../_providers/member";
-import { AddMemberResponse } from "../_types/member";
 import { WorkspaceErrorResponse } from "../_types/workspace";
+import { useWorkspaceStore } from "../../_providers/workspace";
+import {
+  Workspace,
+  WorkspaceResponse,
+  WorkspacesResponse,
+} from "@/_types/workspace";
 
 // Define the available roles
 const roles = [
@@ -64,14 +68,16 @@ export default function ShareWorkspaceForm({
   workspaceTitle = "this workspace",
   workspaceId,
 }: Props): JSX.Element {
-  const queryClient = useQueryClient();
-  const { members, setMembers } = useMemberStore((s) => s);
+  const { workspaces, setWorkspaces, setActiveWorkspace } = useWorkspaceStore(
+    (s) => s,
+  );
 
+  const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationKey: ["inviteUser"],
     mutationFn: async (values: FormValues) => {
-      const response = await api.post<AddMemberResponse>(
-        `/workspaces/${workspaceId}/add_member`,
+      const response = await api.post<WorkspaceResponse>(
+        `/workspaces/${workspaceId}/members`,
         values,
         {
           headers: {
@@ -84,14 +90,40 @@ export default function ShareWorkspaceForm({
     },
 
     onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: ["workspaceMembers", workspaceId],
-      });
+      const updatedWorkspace = {
+        ...data.data,
+        updatedAt: new Date(data.data.updatedAt),
+        createdAt: new Date(data.data.createdAt),
+        members: data.data.members.map((member) => ({
+          ...member,
+          createdAt: new Date(member.createdAt),
+          user: {
+            ...member.user,
+          },
+        })),
+      } satisfies Workspace;
 
-      data.data.createdAt = new Date(data.data.createdAt);
-      data.data.updatedAt = new Date(data.data.updatedAt);
+      const updatedWorkspaces = workspaces.map((workspace) =>
+        workspace._id === updatedWorkspace._id ? updatedWorkspace : workspace,
+      );
 
-      setMembers([...members, data.data]);
+      setWorkspaces(updatedWorkspaces);
+      setActiveWorkspace(updatedWorkspace);
+
+      queryClient.invalidateQueries({ queryKey: ["fetch-workspace"] });
+      queryClient.setQueryData<WorkspacesResponse>(
+        ["fetch-workspace"],
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          const updatedData = {
+            ...oldData,
+            data: [...oldData.data, data.data],
+          };
+
+          return updatedData;
+        },
+      );
     },
 
     onError: (error: AxiosError<WorkspaceErrorResponse>) => {

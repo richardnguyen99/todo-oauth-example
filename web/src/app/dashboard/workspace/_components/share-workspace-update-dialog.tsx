@@ -23,7 +23,6 @@ import {
   UpdateMemberResponse,
 } from "../_types/member";
 import { WorkspaceErrorResponse, WorkspaceParams } from "../_types/workspace";
-import { useMemberStore } from "../../_providers/member";
 
 type Props = Readonly<{
   member: Member;
@@ -40,7 +39,6 @@ export default function ShareWorkspaceUpdateDialog({
   const [loading, setLoading] = React.useState(false);
   const { workspace } = useParams<WorkspaceParams>();
   const queryClient = useQueryClient();
-  const { members, setMembers } = useMemberStore((s) => s);
 
   const { mutate } = useMutation({
     mutationKey: ["updateMember", member.userId],
@@ -76,7 +74,6 @@ export default function ShareWorkspaceUpdateDialog({
       });
 
       setShow(false);
-      setMembers(updatedMembers);
     },
     onSettled: () => {
       setLoading(false);

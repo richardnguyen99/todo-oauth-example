@@ -99,7 +99,7 @@ export const MemberSchema = SchemaFactory.createForClass(Member);
   },
 })
 export class Workspace {
-  @Prop({ type: mongoose.Schema.Types.String, required: true })
+  @Prop({ type: mongoose.Schema.Types.String, required: true, unique: true })
   title: string;
 
   @Prop({ type: mongoose.Schema.Types.String, required: true })

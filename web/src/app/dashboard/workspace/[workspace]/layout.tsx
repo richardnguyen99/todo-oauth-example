@@ -3,7 +3,7 @@
 import React, { type JSX } from "react";
 import { notFound, useParams } from "next/navigation";
 
-import { Workspace, WorkspaceParams } from "../_types/workspace";
+import { WorkspaceParams } from "../_types/workspace";
 import TaskMenuBar from "./_components/task-menubar";
 import { useWorkspaceStore } from "../../_providers/workspace";
 import { TaskStoreProvider } from "./_providers/task";
@@ -22,9 +22,7 @@ export default function WorkspacePageLayout({
   const { workspaces, setActiveWorkspace } = useWorkspaceStore((s) => s);
 
   React.useEffect(() => {
-    const foundWorkspace = workspaces.find(
-      (w: Workspace) => w._id === workspace,
-    );
+    const foundWorkspace = workspaces.find((w) => w._id === workspace);
 
     if (!foundWorkspace) {
       notFound();

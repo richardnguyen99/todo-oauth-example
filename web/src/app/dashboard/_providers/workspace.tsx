@@ -8,6 +8,7 @@ import {
   type WorkspaceStore,
   createWorkspaceStore,
 } from "../_stores/workspace";
+import { FetchedWorkspace } from "@/_types/workspace";
 
 export type WorkspaceStoreApi = ReturnType<typeof createWorkspaceStore>;
 
@@ -17,7 +18,7 @@ export const WorkspaceStoreContext = createContext<
 
 export interface WorkspaceStoreProviderProps {
   children: ReactNode;
-  initialState: WorkspaceState;
+  initialState: FetchedWorkspace[];
 }
 
 export const WorkspaceStoreProvider = ({
@@ -27,7 +28,23 @@ export const WorkspaceStoreProvider = ({
   const storeRef = useRef<WorkspaceStoreApi | null>(null);
 
   if (storeRef.current === null) {
-    storeRef.current = createWorkspaceStore(initialState);
+    const state = {
+      workspaces: initialState
+        .map((workspace) => ({
+          ...workspace,
+          createdAt: new Date(workspace.createdAt),
+          updatedAt: new Date(workspace.updatedAt),
+
+          members: workspace.members.map((member) => ({
+            ...member,
+            createdAt: new Date(member.createdAt),
+          })),
+        }))
+        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()),
+      activeWorkspace: null,
+    } satisfies WorkspaceState;
+
+    storeRef.current = createWorkspaceStore(state);
   }
 
   return (

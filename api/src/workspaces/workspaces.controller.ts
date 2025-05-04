@@ -1,10 +1,12 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   Header,
   HttpStatus,
+  InternalServerErrorException,
   Param,
   Post,
   Put,
@@ -50,6 +52,7 @@ import {
   getWorkspacesQueryDtoSchema,
 } from "./dto/get-workspaces-query.dto";
 import { JwtAuthGuard } from "src/auth/guards/jwt.guard";
+import mongoose from "mongoose";
 
 @Controller("workspaces")
 export class WorkspacesController {
@@ -142,8 +145,29 @@ export class WorkspacesController {
         body,
       );
     } catch (error) {
-      respondWithError(error, res);
-      return;
+      if (error instanceof mongoose.mongo.MongoError) {
+        if (error.code === 11000) {
+          console.log(error.name);
+          throw new BadRequestException({
+            message: "Cannot create workspace",
+            error: {
+              name: "DuplicateKeyError",
+              message: `Workspace with title=${body.title} already exists`,
+            },
+          });
+        }
+      }
+
+      throw new InternalServerErrorException({
+        message: "An unknown error occurred",
+        error: {
+          name: "InternalServerError",
+          message:
+            "\
+An unknown error occurred while creating the workspace. This is not your fault \
+but due to an internal bug or misconfiguration.",
+        },
+      });
     }
 
     res.status(HttpStatus.CREATED).json({
@@ -236,19 +260,19 @@ export class WorkspacesController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post("/:id/add_member")
+  @Post("/:workspace_id/members")
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodValidationPipe(addNewMemberDtoSchema))
   async addNewMemberToWorkspace(
     @Res() res: ExpressResponse,
-    @Param("id") workspaceId: string,
+    @Param("workspace_id") workspaceId: string,
     @JwtUser() user: JwtUserPayload,
     @Body() body: AddNewMemberDto,
   ) {
-    let member: MemberDocument;
+    let workspace: WorkspaceDocument;
 
     try {
-      member = await this.workspaceService.addMemberToWorkspace(
+      workspace = await this.workspaceService.addMemberToWorkspace(
         user.userId as string,
         workspaceId as string,
         body,
@@ -261,12 +285,12 @@ export class WorkspacesController {
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       message: "OK",
-      data: member,
+      data: workspace,
     } satisfies ResponsePayloadDto);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put("/:workspace_id/update_member/:member_id")
+  @Put("/:workspace_id/members/:member_id")
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodValidationPipe(updateMemberDtoSchema))
   async updateMemberInWorkspace(
@@ -302,7 +326,7 @@ export class WorkspacesController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete("/:id/remove_member/:member_id")
+  @Delete("/:id/members/:member_id")
   async removeMemberFromWorkspace(
     @Res() res: ExpressResponse,
     @Param("id") workspaceId: string,

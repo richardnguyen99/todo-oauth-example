@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Member, RemoveMemberResponse } from "../_types/member";
 import { WorkspaceErrorResponse, WorkspaceParams } from "../_types/workspace";
-import { useMemberStore } from "../../_providers/member";
+import { useWorkspaceStore } from "../../_providers/workspace";
 
 type Props = Readonly<{
   member: Member;
@@ -32,11 +32,17 @@ export default function ShareWorkspaceDeleteDialog({
   show,
   setShow,
 }: Props): JSX.Element {
+  const { activeWorkspace, workspaces, setActiveWorkspace, setWorkspaces } =
+    useWorkspaceStore((s) => s);
+
+  if (!activeWorkspace) {
+    throw new Error("No active workspace found");
+  }
+
   const [_, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
   const { workspace } = useParams<WorkspaceParams>();
   const queryClient = useQueryClient();
-  const { members, setMembers } = useMemberStore((s) => s);
 
   const { mutate } = useMutation({
     mutationKey: ["removeMembers", member.userId],
@@ -56,13 +62,29 @@ export default function ShareWorkspaceDeleteDialog({
         queryKey: ["workspaceMembers", workspace, member.userId],
       });
 
-      const removedMembers = members.filter((m) => m.userId !== member.userId);
+      const removedMembers = activeWorkspace.members.filter(
+        (m) => m.userId !== member.userId,
+      );
 
-      setShow(false);
-      setMembers(removedMembers);
+      const updatedWorkspace = {
+        ...activeWorkspace,
+        members: removedMembers,
+      };
+
+      const updatedWorkspaces = workspaces.map((w) => {
+        if (w._id === activeWorkspace._id) {
+          return updatedWorkspace;
+        }
+
+        return w;
+      });
+
+      setWorkspaces(updatedWorkspaces);
+      setActiveWorkspace(updatedWorkspace);
     },
     onSettled: () => {
       setLoading(false);
+      setShow(false);
     },
 
     onError: (error: AxiosError<WorkspaceErrorResponse>) => {
