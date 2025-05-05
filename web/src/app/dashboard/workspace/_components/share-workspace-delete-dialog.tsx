@@ -20,6 +20,7 @@ import {
 import { Member } from "../_types/member";
 import { WorkspaceErrorResponse, WorkspaceParams } from "../_types/workspace";
 import { useWorkspaceStore } from "../../_providers/workspace";
+import { Workspace, WorkspacesResponse } from "@/_types/workspace";
 
 type Props = Readonly<{
   member: Member;
@@ -52,27 +53,39 @@ export default function ShareWorkspaceDeleteDialog({
       await api.delete(`/workspaces/${workspace}/members/${member.userId}`);
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      // Invalidate the query to refetch all the workspaces in the background
+      await queryClient.invalidateQueries({
         queryKey: ["fetch-workspace"],
       });
 
-      const removedMembers = activeWorkspace.members.filter(
-        (m) => m.userId !== member.userId,
-      );
+      // Get the updated workspaces from the cache
+      const data = queryClient.getQueryData<WorkspacesResponse>([
+        "fetch-workspace",
+      ])!;
+
+      const workspaceData = data.data.find(
+        (w) => w._id === activeWorkspace._id,
+      )!;
 
       const updatedWorkspace = {
         ...activeWorkspace,
-        members: removedMembers,
-      };
+        updatedAt: new Date(workspaceData.updatedAt),
+        members: workspaceData.members.map((m) => ({
+          ...m,
+          createdAt: new Date(m.createdAt),
+        })),
+      } satisfies Workspace;
 
-      const updatedWorkspaces = workspaces.map((w) => {
-        if (w._id === activeWorkspace._id) {
-          return updatedWorkspace;
-        }
+      const updatedWorkspaces = workspaces
+        .map((w) => {
+          if (w._id === activeWorkspace._id) {
+            return updatedWorkspace;
+          }
 
-        return w;
-      });
+          return w;
+        })
+        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
       setWorkspaces(updatedWorkspaces);
       setActiveWorkspace(updatedWorkspace);
