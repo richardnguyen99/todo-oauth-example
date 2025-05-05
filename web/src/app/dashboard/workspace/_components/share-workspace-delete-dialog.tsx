@@ -3,7 +3,7 @@
 import React, { type JSX } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { Loader2 } from "lucide-react";
 
 import api from "@/lib/axios";
@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Member, RemoveMemberResponse } from "../_types/member";
+import { Member } from "../_types/member";
 import { WorkspaceErrorResponse, WorkspaceParams } from "../_types/workspace";
 import { useWorkspaceStore } from "../../_providers/workspace";
 
@@ -45,21 +45,16 @@ export default function ShareWorkspaceDeleteDialog({
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
-    mutationKey: ["removeMembers", member.userId],
+    mutationKey: ["remove-member", member.userId],
     mutationFn: async () => {
       setLoading(true);
 
-      const response = await api.delete<
-        AxiosError,
-        AxiosResponse<RemoveMemberResponse>
-      >(`/workspaces/${workspace}/remove_member/${member.userId}`);
-
-      return response.data;
+      await api.delete(`/workspaces/${workspace}/members/${member.userId}`);
     },
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["workspaceMembers", workspace, member.userId],
+        queryKey: ["fetch-workspace"],
       });
 
       const removedMembers = activeWorkspace.members.filter(
@@ -88,8 +83,6 @@ export default function ShareWorkspaceDeleteDialog({
     },
 
     onError: (error: AxiosError<WorkspaceErrorResponse>) => {
-      console.error(error);
-
       setError(`${error.code}: ${error.response?.data.message}`);
     },
   });

@@ -34,8 +34,9 @@ export default function DeleteWorkspaceDialog({
   const [loading, setLoading] = React.useState(false);
   const { workspace } = useParams<WorkspaceParams>();
   const queryClient = useQueryClient();
-  const { workspaces, activeWorkspace, setWorkspaces, setStatus } =
-    useWorkspaceStore((s) => s);
+  const { workspaces, activeWorkspace, setWorkspaces } = useWorkspaceStore(
+    (s) => s,
+  );
   const { push } = useRouter();
 
   const { mutate } = useMutation({

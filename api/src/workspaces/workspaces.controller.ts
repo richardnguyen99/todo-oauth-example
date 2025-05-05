@@ -147,7 +147,6 @@ export class WorkspacesController {
     } catch (error) {
       if (error instanceof mongoose.mongo.MongoError) {
         if (error.code === 11000) {
-          console.log(error.name);
           throw new BadRequestException({
             message: "Cannot create workspace",
             error: {
@@ -175,32 +174,6 @@ but due to an internal bug or misconfiguration.",
       message: `New workspace created successfully (Workspace ID: ${newWorkspace._id})`,
       data: newWorkspace,
     } satisfies ResponsePayloadDto);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get("/:id/members")
-  @Header("Content-Type", "application/json")
-  async getMembersInWorkspace(
-    @Res() res: ExpressResponse,
-    @Param("id") workspaceId: string,
-    @JwtUser() user: JwtUserPayload,
-  ) {
-    let members: MemberDocument[];
-
-    try {
-      members = await this.workspaceService.getWorkspaceMembers(
-        user.userId,
-        workspaceId,
-      );
-
-      res.status(HttpStatus.OK).json({
-        statusCode: HttpStatus.OK,
-        message: "OK",
-        data: members,
-      } satisfies ResponsePayloadDto);
-    } catch (e) {
-      respondWithError(e, res);
-    }
   }
 
   @UseGuards(JwtAuthGuard)
@@ -257,6 +230,32 @@ but due to an internal bug or misconfiguration.",
       message: "Workspace deleted successfully",
       data: deleteResult,
     } satisfies ResponsePayloadDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("/:workspace_id/members")
+  @Header("Content-Type", "application/json")
+  async getMembersInWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("workspace_id") workspaceId: string,
+    @JwtUser() user: JwtUserPayload,
+  ) {
+    let members: MemberDocument[];
+
+    try {
+      members = await this.workspaceService.getWorkspaceMembers(
+        user.userId,
+        workspaceId,
+      );
+
+      res.status(HttpStatus.OK).json({
+        statusCode: HttpStatus.OK,
+        message: "OK",
+        data: members,
+      } satisfies ResponsePayloadDto);
+    } catch (e) {
+      respondWithError(e, res);
+    }
   }
 
   @UseGuards(JwtAuthGuard)
@@ -326,10 +325,10 @@ but due to an internal bug or misconfiguration.",
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete("/:id/members/:member_id")
+  @Delete("/:workspace_id/members/:member_id")
   async removeMemberFromWorkspace(
     @Res() res: ExpressResponse,
-    @Param("id") workspaceId: string,
+    @Param("workspace_id") workspaceId: string,
     @Param("member_id") memberId: string,
     @JwtUser() user: JwtUserPayload,
   ) {
@@ -344,19 +343,42 @@ but due to an internal bug or misconfiguration.",
       return;
     }
 
+    res.status(HttpStatus.NO_CONTENT).send();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("/:workspace_id/tags")
+  @Header("Content-Type", "application/json")
+  async getTagsInWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("workspace_id") workspaceId: string,
+    @JwtUser() user: JwtUserPayload,
+  ) {
+    let workspaceDoc: WorkspaceDocument;
+
+    try {
+      workspaceDoc = await this.workspaceService.getTagsInWorkspace(
+        user.userId as string,
+        workspaceId as string,
+      );
+    } catch (e) {
+      respondWithError(e, res);
+      return;
+    }
+
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       message: "OK",
-      data: null,
+      data: workspaceDoc,
     } satisfies ResponsePayloadDto);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post("/:id/add_tag")
+  @Post("/:workspace_id/tags")
   @UsePipes(new ZodValidationPipe(addNewTagDtoSchema))
   async addTagToWorkspace(
     @Res() res: ExpressResponse,
-    @Param("id") workspaceId: string,
+    @Param("workspace_id") workspaceId: string,
     @JwtUser() user: JwtUserPayload,
     @Body() body: AddNewTagDto,
   ) {
@@ -381,7 +403,7 @@ but due to an internal bug or misconfiguration.",
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put("/:workspace_id/update_tag/:tag_id")
+  @Put("/:workspace_id/tags/:tag_id")
   @UsePipes(new ZodValidationPipe(updateTagDtoSchema))
   async updateTagInWorkspace(
     @Res() res: ExpressResponse,
@@ -412,10 +434,10 @@ but due to an internal bug or misconfiguration.",
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete("/:id/remove_tag/:tag_id")
+  @Delete("/:workspace_id/tags/:tag_id")
   async removeTagFromWorkspace(
     @Res() res: ExpressResponse,
-    @Param("id") workspaceId: string,
+    @Param("workspace_id") workspaceId: string,
     @Param("tag_id") tagId: string,
     @JwtUser() user: JwtUserPayload,
   ) {

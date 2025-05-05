@@ -387,6 +387,58 @@ export class WorkspacesService {
     };
   }
 
+  async getTagsInWorkspace(
+    userId: string,
+    workspaceId: string,
+  ): Promise<WorkspaceDocument> {
+    // Find member to check if the user is a member of the workspace
+    const member = await this.memberModel.findOne({
+      userId,
+      workspaceId,
+    });
+
+    if (!member) {
+      throw new BadRequestException({
+        message: "Cannot query tags",
+        error: {
+          name: "BadRequestException",
+          message:
+            "\
+The current user is not allowed to access this workspace. Further actions are \
+forbidden.",
+        },
+      });
+    }
+
+    // Find the workspace
+    let workspaceQuery = this.workspaceModel
+      .findById(workspaceId)
+      .select("_id tagIds")
+      .populate<{ tags: TagDocument[] }>([
+        {
+          path: "tags",
+          model: Tag.name,
+          select: "-workspaceId",
+        },
+      ]);
+
+    const workspaceDoc = await workspaceQuery.exec();
+
+    if (!workspaceDoc) {
+      throw new NotFoundException({
+        message: "Cannot query tags",
+        error: {
+          name: "NotFoundException",
+          message: `Workspace with ID ${workspaceId} not found`,
+        },
+      });
+    }
+
+    workspaceDoc.set("tagIds", undefined);
+
+    return workspaceDoc;
+  }
+
   async addTagToWorkspace(
     userId: string,
     workspaceId: string,
@@ -672,9 +724,6 @@ export class WorkspacesService {
             .map((field) => field.replace("user.", ""))
             .join(" "),
         };
-
-        console.log("");
-        console.log("membersOption", membersOption);
       }
 
       query = query.populate(populateOptions);
