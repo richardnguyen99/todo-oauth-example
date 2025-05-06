@@ -104,7 +104,7 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
       return response.data;
     },
 
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       const newWorkspaces = [
         ...workspaces,
         {
@@ -128,19 +128,20 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
         } satisfies Workspace,
       ].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
-      queryClient.invalidateQueries({
-        queryKey: ["fetch-workspace"],
-      });
-
+      // Set the workspaces response in the query cache
       queryClient.setQueryData<WorkspacesResponse>(
         ["fetch-workspace"],
-        (oldData) => {
-          if (!oldData) return;
+        (oldResponse) => {
+          if (!oldResponse) return oldResponse;
 
-          return {
-            ...oldData,
-            data: [...oldData.data, data.data],
+          const newData = {
+            ...oldResponse,
+            data: [...oldResponse.data, data.data],
           };
+
+          console.log("new workspaces", newData);
+
+          return newData;
         },
       );
 

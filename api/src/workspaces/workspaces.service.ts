@@ -116,28 +116,34 @@ export class WorkspacesService {
     let workspace = await newWorkspace.save();
     await newMember.save();
 
-    workspace = await workspace.populate([
-      {
-        path: "owner",
-        model: User.name,
-        select: "-accounts",
-      },
-      {
-        path: "tags",
-        model: Tag.name,
-        select: "_id color text",
-      },
-      {
-        path: "members",
-        model: Member.name,
-        select: "-updatedAt",
-        populate: {
-          path: "user",
+    try {
+      workspace = await workspace.populate([
+        {
+          path: "owner",
           model: User.name,
-          select: "-createdAt -updatedAt -accounts",
+          select: "-accounts -createdAt -updatedAt -workspaces",
         },
-      },
-    ]);
+        {
+          path: "tags",
+          model: Tag.name,
+          select: "_id color text",
+        },
+        {
+          path: "members",
+          model: Member.name,
+          select: "userId",
+          populate: {
+            path: "user",
+            model: User.name,
+            select: "-createdAt -updatedAt -accounts -workspaces",
+          },
+        },
+      ]);
+    } catch (error) {
+      console.log("Error populating workspace:", error);
+    }
+
+    console.log("Created workspace:", workspace);
 
     return workspace;
   }
