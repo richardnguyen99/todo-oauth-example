@@ -3,14 +3,13 @@
 import React, { type JSX } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { Loader2, MoreHorizontal, Plus, Users } from "lucide-react";
 
 import api from "@/lib/axios";
 import SideBar from "./_components/sidebar";
 import { WorkspaceStoreProvider } from "../_providers/workspace";
-import { Loader2, MoreHorizontal, Plus, Users } from "lucide-react";
 import { WorkspacesResponse } from "@/_types/workspace";
 import { Button } from "@/components/ui/button";
-import TaskSkeletonItem from "./[workspace]/_components/task-skeleton-item";
 
 type Props = {
   children: React.ReactNode;
