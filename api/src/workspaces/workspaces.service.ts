@@ -126,16 +126,15 @@ export class WorkspacesService {
         {
           path: "tags",
           model: Tag.name,
-          select: "_id color text",
         },
         {
           path: "members",
           model: Member.name,
-          select: "userId",
+          select: "-updatedAt -workspaceId",
           populate: {
             path: "user",
             model: User.name,
-            select: "-createdAt -updatedAt -accounts -workspaces",
+            select: "-accounts -createdAt -updatedAt -workspaces",
           },
         },
       ]);

@@ -30,11 +30,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { WorkspaceErrorResponse } from "../_types/workspace";
 import { useWorkspaceStore } from "../../_providers/workspace";
-import {
-  Workspace,
-  WorkspaceResponse,
-  WorkspacesResponse,
-} from "@/_types/workspace";
+import { WorkspaceResponse, WorkspacesResponse } from "@/_types/workspace";
 
 // Define the available roles
 const roles = [
@@ -68,9 +64,7 @@ export default function ShareWorkspaceForm({
   workspaceTitle = "this workspace",
   workspaceId,
 }: Props): JSX.Element {
-  const { workspaces, setWorkspaces, setActiveWorkspace } = useWorkspaceStore(
-    (s) => s,
-  );
+  const { setWorkspaces, setActiveWorkspace } = useWorkspaceStore((s) => s);
 
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
@@ -90,40 +84,32 @@ export default function ShareWorkspaceForm({
     },
 
     onSuccess: (data) => {
-      const updatedWorkspace = {
-        ...data.data,
-        updatedAt: new Date(data.data.updatedAt),
-        createdAt: new Date(data.data.createdAt),
-        members: data.data.members.map((member) => ({
-          ...member,
-          createdAt: new Date(member.createdAt),
-          user: {
-            ...member.user,
-          },
-        })),
-      } satisfies Workspace;
+      queryClient.invalidateQueries({ queryKey: ["fetch-workspace"] });
 
-      const updatedWorkspaces = workspaces.map((workspace) =>
-        workspace._id === updatedWorkspace._id ? updatedWorkspace : workspace,
-      );
+      const queryData = queryClient.getQueryData<WorkspacesResponse>([
+        "fetch-workspace",
+      ]);
+
+      if (!queryData) throw new Error(`Invalid query data`);
+
+      console.log("queryData", queryData);
+      console.log("data", data);
+
+      const updatedWorkspaces = queryData.data
+        .map((workspace) => ({
+          ...workspace,
+          createdAt: new Date(workspace.createdAt),
+          updatedAt: new Date(workspace.updatedAt),
+
+          members: workspace.members.map((member) => ({
+            ...member,
+            createdAt: new Date(member.createdAt),
+          })),
+        }))
+        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
       setWorkspaces(updatedWorkspaces);
-      setActiveWorkspace(updatedWorkspace);
-
-      queryClient.invalidateQueries({ queryKey: ["fetch-workspace"] });
-      queryClient.setQueryData<WorkspacesResponse>(
-        ["fetch-workspace"],
-        (oldData) => {
-          if (!oldData) return oldData;
-
-          const updatedData = {
-            ...oldData,
-            data: [...oldData.data, data.data],
-          };
-
-          return updatedData;
-        },
-      );
+      setActiveWorkspace(updatedWorkspaces[0]);
     },
 
     onError: (error: AxiosError<WorkspaceErrorResponse>) => {

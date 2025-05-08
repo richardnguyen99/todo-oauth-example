@@ -16,31 +16,31 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { DeleteWorkspaceResponse, WorkspaceParams } from "../_types/workspace";
-import { useWorkspaceStore } from "../../_providers/workspace";
 import { ErrorApiResponse } from "@/app/_types/response";
+import { Workspace, WorkspacesResponse } from "@/_types/workspace";
+import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 
 type Props = Readonly<{
-  children: React.ReactNode;
+  show: boolean;
+  setShow: (show: boolean) => void;
 }>;
 
 export default function DeleteWorkspaceDialog({
-  children,
+  show,
+  setShow,
 }: Props): JSX.Element {
-  const [show, setShow] = React.useState(false);
   const [_, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
   const { workspace } = useParams<WorkspaceParams>();
   const queryClient = useQueryClient();
-  const { workspaces, activeWorkspace, setWorkspaces } = useWorkspaceStore(
-    (s) => s,
-  );
+  const { activeWorkspace, setWorkspaces, setActiveWorkspace } =
+    useWorkspaceStore((s) => s);
   const { push } = useRouter();
 
   const { mutate } = useMutation({
-    mutationKey: ["deleteWorkspace", workspace],
+    mutationKey: ["delete-workspace"],
     mutationFn: async () => {
       setLoading(true);
 
@@ -51,20 +51,39 @@ export default function DeleteWorkspaceDialog({
       return response.data;
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["fetch-workspace", workspace],
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["fetch-workspace"],
       });
 
-      const newWorkspaces = workspaces.filter(
-        (workspace) => workspace._id !== activeWorkspace?._id,
-      );
+      const newQueryData = queryClient.getQueryData<WorkspacesResponse>([
+        "fetch-workspace",
+      ])!;
 
-      setWorkspaces(newWorkspaces);
-      // Set status to redirecting to prevent notfound error
-      setStatus("redirecting");
+      const updatedWorkspaces = newQueryData.data
+        .map(
+          (workspace) =>
+            ({
+              ...workspace,
+              createdAt: new Date(workspace.createdAt),
+              updatedAt: new Date(workspace.updatedAt),
+              members: workspace.members.map((member) => ({
+                ...member,
+                createdAt: new Date(member.createdAt),
+              })),
+            }) satisfies Workspace,
+        )
+        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
-      push(`/dashboard/workspace/${newWorkspaces[0]?._id}`);
+      setWorkspaces(updatedWorkspaces);
+      setShow(false);
+      if (updatedWorkspaces.length > 0) {
+        setActiveWorkspace(updatedWorkspaces[0]);
+        push(`/dashboard/workspace/${updatedWorkspaces[0]._id}`);
+      } else {
+        setActiveWorkspace(null);
+        push("/dashboard/workspace");
+      }
     },
 
     onSettled: () => {
@@ -81,12 +100,9 @@ export default function DeleteWorkspaceDialog({
   }, [mutate]);
 
   return (
-    <AlertDialog open={show} onOpenChange={setShow}>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
-
+    <AlertDialog open={show}>
       <AlertDialogContent
-        onCloseAutoFocus={(e) => {
-          e.preventDefault();
+        onCloseAutoFocus={() => {
           document.body.style.pointerEvents = "";
         }}
       >

@@ -29,7 +29,8 @@ export default function WorkspacePageLayout({
     }
 
     setActiveWorkspace(foundWorkspace);
-  }, [setActiveWorkspace, workspace, workspaces]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="mx-auto max-w-4xl">

@@ -32,12 +32,8 @@ import { Label } from "@/components/ui/label";
 import { colorList, colorMap } from "../_constants/colors";
 import { icons } from "../_constants/icons";
 import { useWorkspaceStore } from "../../_providers/workspace";
-import { Color, WorkspaceErrorResponse } from "../_types/workspace";
-import {
-  WorkspaceResponse,
-  WorkspacesResponse,
-  Workspace,
-} from "@/_types/workspace";
+import { WorkspaceErrorResponse } from "../_types/workspace";
+import { WorkspaceResponse, WorkspacesResponse } from "@/_types/workspace";
 
 const [defaultColor, ...otherColors] = Object.keys(
   colorMap,
@@ -81,9 +77,7 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
     },
   });
 
-  const { setWorkspaces, workspaces, setActiveWorkspace } = useWorkspaceStore(
-    (s) => s,
-  );
+  const { setWorkspaces } = useWorkspaceStore((s) => s);
   const { mutate } = useMutation({
     mutationKey: ["add-workspace"],
     mutationFn: async (newWorkspace: {
@@ -105,48 +99,28 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
     },
 
     onSuccess: async (data) => {
-      const newWorkspaces = [
-        ...workspaces,
-        {
-          _id: data.data._id,
-          title: data.data.title,
-          color: data.data.color as Color,
-          icon: data.data.icon,
-          createdAt: new Date(data.data.createdAt),
-          updatedAt: new Date(data.data.updatedAt),
-          tagIds: data.data.tagIds,
-          memberIds: data.data.memberIds,
-          ownerId: data.data.ownerId,
-          private: data.data.private,
-          members: data.data.members.map((member) => ({
+      // Invalidate the query to refetch the workspaces
+      await queryClient.invalidateQueries({
+        queryKey: ["fetch-workspace"],
+      });
+
+      const newQueryData = queryClient.getQueryData<WorkspacesResponse>([
+        "fetch-workspace",
+      ])!;
+
+      const updatedWorkspaces = newQueryData.data
+        .map((workspace) => ({
+          ...workspace,
+          createdAt: new Date(workspace.createdAt),
+          updatedAt: new Date(workspace.updatedAt),
+          members: workspace.members.map((member) => ({
             ...member,
             createdAt: new Date(member.createdAt),
           })),
+        }))
+        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
-          tags: data.data.tags,
-          owner: data.data.owner,
-        } satisfies Workspace,
-      ].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
-
-      // Set the workspaces response in the query cache
-      queryClient.setQueryData<WorkspacesResponse>(
-        ["fetch-workspace"],
-        (oldResponse) => {
-          if (!oldResponse) return oldResponse;
-
-          const newData = {
-            ...oldResponse,
-            data: [...oldResponse.data, data.data],
-          };
-
-          console.log("new workspaces", newData);
-
-          return newData;
-        },
-      );
-
-      setWorkspaces(newWorkspaces);
-      setActiveWorkspace(newWorkspaces[0]);
+      setWorkspaces(updatedWorkspaces);
 
       onCancel();
       push(`/dashboard/workspace/${data.data._id}`);
