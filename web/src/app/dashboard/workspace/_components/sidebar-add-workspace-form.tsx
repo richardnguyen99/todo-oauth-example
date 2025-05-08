@@ -157,7 +157,11 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
             <FormItem>
               <FormLabel>Workspace Title</FormLabel>
               <FormControl>
-                <Input placeholder="Enter workspace title" {...field} />
+                <Input
+                  placeholder="Enter workspace title"
+                  {...field}
+                  className="w-full"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
