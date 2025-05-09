@@ -17,13 +17,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Member } from "../_types/member";
 import { WorkspaceErrorResponse, WorkspaceParams } from "../_types/workspace";
 import { useWorkspaceStore } from "../../_providers/workspace";
 import { Workspace, WorkspacesResponse } from "@/_types/workspace";
 
 type Props = Readonly<{
-  member: Member;
+  member: Workspace["members"][number];
   show: boolean;
   setShow: (show: boolean) => void;
 }>;

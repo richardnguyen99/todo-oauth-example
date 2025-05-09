@@ -55,23 +55,18 @@ type FormValues = z.infer<typeof formSchema>;
 
 type Props = Readonly<{
   onCancel: () => void;
-  workspaceTitle?: string;
-  workspaceId: string;
 }>;
 
-export default function ShareWorkspaceForm({
-  onCancel,
-  workspaceTitle = "this workspace",
-  workspaceId,
-}: Props): JSX.Element {
-  const { setWorkspaces, setActiveWorkspace } = useWorkspaceStore((s) => s);
+export default function ShareWorkspaceForm({ onCancel }: Props): JSX.Element {
+  const { setWorkspaces, setActiveWorkspace, activeWorkspace } =
+    useWorkspaceStore((s) => s);
 
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationKey: ["inviteUser"],
     mutationFn: async (values: FormValues) => {
       const response = await api.post<WorkspaceResponse>(
-        `/workspaces/${workspaceId}/members`,
+        `/workspaces/${activeWorkspace?._id}/members`,
         values,
         {
           headers: {
@@ -83,17 +78,14 @@ export default function ShareWorkspaceForm({
       return response.data;
     },
 
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["fetch-workspace"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["fetch-workspace"] });
 
       const queryData = queryClient.getQueryData<WorkspacesResponse>([
         "fetch-workspace",
       ]);
 
       if (!queryData) throw new Error(`Invalid query data`);
-
-      console.log("queryData", queryData);
-      console.log("data", data);
 
       const updatedWorkspaces = queryData.data
         .map((workspace) => ({
@@ -159,7 +151,8 @@ export default function ShareWorkspaceForm({
               </FormControl>
 
               <FormDescription>
-                Enter a username or email address to invite to {workspaceTitle}.
+                Enter a username or email address to invite to{" "}
+                {activeWorkspace?.title}.
               </FormDescription>
               <FormMessage />
             </FormItem>

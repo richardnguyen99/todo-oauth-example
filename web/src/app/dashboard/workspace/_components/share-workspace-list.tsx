@@ -5,11 +5,7 @@ import React, { type JSX } from "react";
 import ShareWorkspaceMemberItem from "./share-workspace-member";
 import { useWorkspaceStore } from "../../_providers/workspace";
 
-type Props = Readonly<{
-  workspaceId: string;
-}>;
-
-export default function ShareWorkspaceList({}: Props): JSX.Element {
+export default function ShareWorkspaceList(): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
 
   return (

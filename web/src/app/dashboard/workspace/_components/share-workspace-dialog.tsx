@@ -16,17 +16,7 @@ import ShareWorkspaceForm from "./share-workspace-form";
 import ShareWorkspaceList from "./share-workspace-list";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-type Props = Readonly<{
-  workspaceId: string;
-  workspaceTitle: string;
-
-  onInviteUser?: (user: { userId: string; role: "admin" | "member" }) => void;
-}>;
-
-export default function ShareWorkspaceDialog({
-  workspaceId,
-  workspaceTitle,
-}: Props): JSX.Element {
+export default function ShareWorkspaceDialog(): JSX.Element {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -49,17 +39,13 @@ export default function ShareWorkspaceDialog({
           <h3 className="mb-3 text-sm font-medium">Current Members</h3>
 
           <ScrollArea className="h-[180px]">
-            <ShareWorkspaceList workspaceId={workspaceId} />
+            <ShareWorkspaceList />
           </ScrollArea>
         </div>
 
         <div className="pt-2">
           <h3 className="mb-3 text-lg font-medium">Invite New Members</h3>
-          <ShareWorkspaceForm
-            onCancel={() => setOpen(false)}
-            workspaceTitle={workspaceTitle}
-            workspaceId={workspaceId}
-          />
+          <ShareWorkspaceForm onCancel={() => setOpen(false)} />
         </div>
       </DialogContent>
     </Dialog>
