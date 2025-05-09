@@ -301,16 +301,12 @@ but due to an internal bug or misconfiguration.",
   ) {
     let member: MemberDocument;
 
-    const updateMemberDto = {
-      memberId: memberId,
-      role: body.role,
-    };
-
     try {
       member = await this.workspaceService.updateMemberInWorkspace(
         user.userId as string,
         workspaceId as string,
-        updateMemberDto,
+        memberId as string,
+        body,
       );
     } catch (e) {
       respondWithError(e, res);

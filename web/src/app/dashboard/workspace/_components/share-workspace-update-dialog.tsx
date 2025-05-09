@@ -43,7 +43,7 @@ export default function ShareWorkspaceUpdateDialog({
       setLoading(true);
 
       const response = await api.put<UpdateMemberResponse>(
-        `/workspaces/${workspace}/update_member/${member.userId}`,
+        `/workspaces/${workspace}/${member.userId}`,
         values,
       );
 

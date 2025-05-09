@@ -251,6 +251,7 @@ export class WorkspacesService {
   async updateMemberInWorkspace(
     userId: string,
     workspaceId: string,
+    memberId: string,
     updateMemberDto: UpdateMemberDto,
   ): Promise<MemberDocument> {
     // Check if the workspace exists
@@ -259,30 +260,33 @@ export class WorkspacesService {
       workspaceId,
     );
 
-    const { memberId, role } = updateMemberDto; // Destructure to get memberId and role
+    const existingMember = await this.memberModel.findOneAndUpdate(
+      {
+        userId: memberId,
+        workspaceId: workspace._id,
+      },
+      {
+        $set: updateMemberDto,
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
 
-    // Check if the user is already a member of the workspace
-    const existingMember = await this.memberModel.findOne({
-      userId: memberId,
-      workspaceId: workspace._id,
-    });
-
-    if (!existingMember) {
+    if (existingMember === null) {
       throw new NotFoundException(
-        `User with ID ${memberId} is not a member of this workspace.`,
+        `Member with ID ${memberId} not found in this workspace.`,
       );
     }
 
-    if (role) {
-      existingMember.role = role;
-    }
-
-    let savedMember = await existingMember.save();
-
-    await savedMember.populate({
-      path: "user",
-      model: "User",
-    });
+    const savedMember = await existingMember.populate([
+      {
+        path: "user",
+        model: User.name,
+        select: "-createdAt -updatedAt -accounts -workspaces",
+      },
+    ]);
 
     return savedMember;
   }

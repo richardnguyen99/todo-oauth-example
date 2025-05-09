@@ -51,9 +51,11 @@ export const TagSchema = SchemaFactory.createForClass(Tag);
   id: false,
   timestamps: true,
   toJSON: {
+    versionKey: false,
     virtuals: true,
   },
   toObject: {
+    versionKey: false,
     virtuals: true,
   },
 })
@@ -84,6 +86,7 @@ export class Member {
 
 export type MemberDocument = HydratedDocument<Member>;
 export const MemberSchema = SchemaFactory.createForClass(Member);
+MemberSchema.index({ userId: 1, workspaceId: 1 }, { unique: true });
 
 @Schema({
   collection: "workspaces",

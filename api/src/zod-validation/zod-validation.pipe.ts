@@ -21,11 +21,13 @@ export class ZodValidationPipe implements PipeTransform {
     } catch (e) {
       const zodError = e as ZodError;
 
+      const detailedMessage = `${zodError.issues[0].path[0]}: ${zodError.issues[0].message}`;
+
       throw new BadRequestException({
         message: "Bad Request",
         error: {
           name: "BodyValidationError",
-          message: zodError.format()._errors.join("\n"),
+          message: detailedMessage,
         },
       });
     }
