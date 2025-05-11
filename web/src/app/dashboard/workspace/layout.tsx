@@ -6,10 +6,10 @@ import { AxiosError } from "axios";
 import { Loader2, MoreHorizontal, Plus, Users } from "lucide-react";
 
 import api from "@/lib/axios";
-import SideBar from "./_components/sidebar";
 import { WorkspaceStoreProvider } from "../_providers/workspace";
 import { WorkspacesResponse } from "@/_types/workspace";
 import { Button } from "@/components/ui/button";
+import WorkspaceSidebarLayout from "./_components/workspace-sidebar";
 
 type Props = {
   children: React.ReactNode;
@@ -146,12 +146,10 @@ export default function WorkspaceLayout({
     <div className="flex min-h-screen flex-col">
       <div className="relative flex flex-1">
         <WorkspaceStoreProvider initialState={data.data}>
-          <SideBar />
-
-          {/* Main Content */}
-          <main className="flex-1 p-4 transition-all duration-300 ease-in-out md:p-6">
+          <WorkspaceSidebarLayout>
+            {/* Main Content */}
             {children}
-          </main>
+          </WorkspaceSidebarLayout>
         </WorkspaceStoreProvider>
       </div>
     </div>
