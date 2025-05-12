@@ -102,7 +102,7 @@ MemberSchema.index({ userId: 1, workspaceId: 1 }, { unique: true });
   },
 })
 export class Workspace {
-  @Prop({ type: mongoose.Schema.Types.String, required: true, unique: true })
+  @Prop({ type: mongoose.Schema.Types.String, required: true })
   title: string;
 
   @Prop({ type: mongoose.Schema.Types.String, required: true })
@@ -141,3 +141,4 @@ export class Workspace {
 
 export type WorkspaceDocument = HydratedDocument<Workspace>;
 export const WorkspaceSchema = SchemaFactory.createForClass(Workspace);
+WorkspaceSchema.index({ title: 1, ownerId: 1 }, { unique: true });

@@ -70,8 +70,26 @@ export class WorkspacesService {
     userId: string,
     query?: GetWorkspacesQueryDto,
   ): Promise<WorkspaceDocument[]> {
+    const queryOr: mongoose.FilterQuery<Workspace>[] = [
+      {
+        ownerId: userId,
+      },
+    ];
+
+    if (query?.include_shared_workspaces) {
+      const members = await this.memberModel.find({
+        userId,
+        isActive: true,
+        role: { $ne: "owner" },
+      });
+
+      queryOr.push({
+        _id: { $in: members.map((member) => member.workspaceId) },
+      });
+    }
+
     let workspacesQuery = this.workspaceModel.find({
-      ownerId: userId,
+      $or: queryOr,
     });
 
     workspacesQuery = this._prepareQuery<WorkspaceDocument[]>(
