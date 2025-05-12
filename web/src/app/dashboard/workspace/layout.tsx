@@ -9,7 +9,8 @@ import api from "@/lib/axios";
 import { WorkspaceStoreProvider } from "../_providers/workspace";
 import { WorkspacesResponse } from "@/_types/workspace";
 import { Button } from "@/components/ui/button";
-import WorkspaceSidebarLayout from "./_components/workspace-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import WorkspaceSidebar from "./_components/workspace-sidebar";
 
 type Props = {
   children: React.ReactNode;
@@ -146,10 +147,13 @@ export default function WorkspaceLayout({
     <div className="flex min-h-screen flex-col">
       <div className="relative flex flex-1">
         <WorkspaceStoreProvider initialState={data.data}>
-          <WorkspaceSidebarLayout>
-            {/* Main Content */}
-            {children}
-          </WorkspaceSidebarLayout>
+          <SidebarProvider>
+            {/* Sidebar component */}
+            <WorkspaceSidebar />
+
+            {/* Main layout */}
+            <SidebarInset className="flex flex-col">{children}</SidebarInset>
+          </SidebarProvider>
         </WorkspaceStoreProvider>
       </div>
     </div>

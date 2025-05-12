@@ -26,25 +26,7 @@ export default function SidebarActiveWorkspace(): JSX.Element {
   const { isMobile } = useSidebar();
 
   if (!activeWorkspace) {
-    return (
-      <SidebarMenuButton
-        size="lg"
-        className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-      >
-        <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-          <div className="bg-accent size-6 h-6 w-6 animate-pulse rounded-full" />
-        </div>
-        <div className="grid flex-1 text-left text-sm leading-tight">
-          <span className="bg-accent animate-pulse truncate font-semibold text-transparent">
-            Loading team
-          </span>
-          <span className="bg-accent animate-pulse truncate text-xs text-transparent">
-            Loading plan
-          </span>
-        </div>
-        <LucideReact.ChevronsUpDown className="ml-auto" />
-      </SidebarMenuButton>
-    );
+    return <></>;
   }
 
   const Icon = LucideReact[
