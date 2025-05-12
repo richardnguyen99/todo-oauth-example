@@ -51,6 +51,7 @@ export default function WorkspaceLayout({
         owner_field: ["username", "email", "emailVerified", "avatar"].join(","),
         includes: ["tags", "members", "owner"].join(","),
         include_member_account: "true",
+        include_shared_workspaces: "true",
       });
 
       const response = await api.get(`/workspaces?${searchParams.toString()}`);

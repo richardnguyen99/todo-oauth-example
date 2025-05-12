@@ -13,16 +13,23 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import SidebarWorkspaceItem from "./workspace-item";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Workspace } from "@/_types/workspace";
 
-export default function SidebarWorkspaceList(): JSX.Element {
-  const { workspaces, activeWorkspace } = useWorkspaceStore((s) => s);
+type Props = Readonly<{
+  workspaces: Workspace[];
+  activeWorkspace: Workspace | undefined;
+}>;
+
+function SidebarWorkspaceList({
+  workspaces,
+  activeWorkspace,
+}: Props): JSX.Element {
   const { isMobile } = useSidebar();
 
   return (
@@ -68,3 +75,8 @@ export default function SidebarWorkspaceList(): JSX.Element {
     </SidebarGroup>
   );
 }
+
+const SidebarWorkspaceListMemo = React.memo(SidebarWorkspaceList);
+SidebarWorkspaceListMemo.displayName = "SidebarWorkspaceListMemo";
+
+export default SidebarWorkspaceListMemo;
