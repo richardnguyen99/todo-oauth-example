@@ -11,16 +11,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { cn } from "@/lib/utils";
 
-export default function SidebarHomeGroup(): JSX.Element {
-  const { activeWorkspace } = useWorkspaceStore((s) => s);
+type Props = Readonly<{
+  activeWorkspaceId: string;
+}>;
 
-  if (!activeWorkspace) {
-    return <></>;
-  }
-
+export default function SidebarHomeGroup({
+  activeWorkspaceId,
+}: Props): JSX.Element {
   return (
     <SidebarGroup className="">
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -30,7 +29,7 @@ export default function SidebarHomeGroup(): JSX.Element {
             asChild
             className="group-data-[collapsible=icon]:!p-0"
           >
-            <Link href={`/dashboard/workspace/${activeWorkspace._id}`}>
+            <Link href={`/dashboard/workspace/${activeWorkspaceId}`}>
               <div
                 className={cn(
                   "bg-accent flex aspect-square size-8 items-center justify-center rounded-md",
@@ -48,7 +47,7 @@ export default function SidebarHomeGroup(): JSX.Element {
             asChild
             className="group-data-[collapsible=icon]:!p-0"
           >
-            <Link href={`/dashboard/workspace/${activeWorkspace._id}/inbox`}>
+            <Link href={`/dashboard/workspace/${activeWorkspaceId}/inbox`}>
               <div
                 className={cn(
                   "bg-accent flex aspect-square size-8 items-center justify-center rounded-md",
@@ -66,7 +65,7 @@ export default function SidebarHomeGroup(): JSX.Element {
             asChild
             className="group-data-[collapsible=icon]:!p-0"
           >
-            <Link href={`/dashboard/workspace/${activeWorkspace._id}/members`}>
+            <Link href={`/dashboard/workspace/${activeWorkspaceId}/members`}>
               <div
                 className={cn(
                   "bg-accent flex aspect-square size-8 items-center justify-center rounded-md",

@@ -23,12 +23,14 @@ import { Workspace } from "@/_types/workspace";
 
 type Props = Readonly<{
   workspaces: Workspace[];
-  activeWorkspace: Workspace | undefined;
+  activeWorkspace?: Workspace;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }>;
 
 function SidebarWorkspaceList({
   workspaces,
   activeWorkspace,
+  setOpen,
 }: Props): JSX.Element {
   const { isMobile } = useSidebar();
 
@@ -37,9 +39,13 @@ function SidebarWorkspaceList({
       <SidebarGroupLabel className="peer/group-label">
         Your workspaces
       </SidebarGroupLabel>
+
       <Tooltip disableHoverableContent>
         <TooltipTrigger asChild>
-          <SidebarGroupAction className="opacity-0 transition-opacity duration-100 peer-hover/group-label:opacity-100 hover:opacity-100">
+          <SidebarGroupAction
+            onClick={() => setOpen((prev) => !prev)}
+            className="opacity-0 transition-opacity duration-100 peer-hover/group-label:opacity-100 hover:opacity-100"
+          >
             <span className="sr-only">Your workspaces</span>
             <LucideIcons.Plus />
           </SidebarGroupAction>

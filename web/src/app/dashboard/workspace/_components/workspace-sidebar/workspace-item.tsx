@@ -79,22 +79,46 @@ export default function SidebarWorkspaceItem({
           </SidebarMenuAction>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className="w-48 rounded-lg"
+          className="rounded-lg"
           side={isMobile ? "bottom" : "right"}
           align={isMobile ? "end" : "start"}
         >
           <DropdownMenuItem>
-            <LucideIcons.Folder className="text-muted-foreground" />
-            <span>View Project</span>
+            <LucideIcons.Star className="text-muted-foreground" />
+            <span>Add To Favorites</span>
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem>
+            <LucideIcons.Pen className="text-muted-foreground" />
+            <span>Update</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <LucideIcons.Forward className="text-muted-foreground" />
-            <span>Share Project</span>
+            <LucideIcons.Copy className="text-muted-foreground" />
+            <span>Duplicate</span>
           </DropdownMenuItem>
+          <DropdownMenuItem>
+            <LucideIcons.SquarePen className="text-muted-foreground" />
+            <span>Rename</span>
+          </DropdownMenuItem>
+
           <DropdownMenuSeparator />
+
           <DropdownMenuItem>
             <LucideIcons.Trash2 className="text-muted-foreground" />
-            <span>Delete Project</span>
+            <span>Delete</span>
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem className="text-muted-foreground text-xs">
+            Last modified:{" "}
+            {new Date(workspace.updatedAt).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "2-digit",
+            })}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

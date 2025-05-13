@@ -29,18 +29,16 @@ export const WorkspaceStoreProvider = ({
 
   if (storeRef.current === null) {
     const state = {
-      workspaces: initialState
-        .map((workspace) => ({
-          ...workspace,
-          createdAt: new Date(workspace.createdAt),
-          updatedAt: new Date(workspace.updatedAt),
+      workspaces: initialState.map((workspace) => ({
+        ...workspace,
+        createdAt: new Date(workspace.createdAt),
+        updatedAt: new Date(workspace.updatedAt),
 
-          members: workspace.members.map((member) => ({
-            ...member,
-            createdAt: new Date(member.createdAt),
-          })),
-        }))
-        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()),
+        members: workspace.members.map((member) => ({
+          ...member,
+          createdAt: new Date(member.createdAt),
+        })),
+      })),
       activeWorkspace: null,
     } satisfies WorkspaceState;
 

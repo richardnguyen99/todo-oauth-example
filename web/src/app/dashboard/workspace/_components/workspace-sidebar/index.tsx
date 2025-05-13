@@ -14,12 +14,14 @@ import SidebarWorkspaceList from "./workspace-list";
 import SidebarSharedWorkspaceList from "./shared-workspace-list";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { useUserStore } from "@/providers/user-store-provider";
+import SidebarAddWorkspaceDialog from "./add-workspace-dialog";
 
 export default function WorkspaceSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>): JSX.Element {
   const { user } = useUserStore((s) => s);
   const { activeWorkspace, workspaces } = useWorkspaceStore((s) => s);
+  const [addDialogOpen, setAddDialogOpen] = React.useState(false);
 
   const sharedWorkspaces = React.useMemo(
     () => workspaces.filter((ws) => user!.id !== ws.ownerId),
@@ -32,36 +34,62 @@ export default function WorkspaceSidebar({
   );
 
   if (!activeWorkspace) {
-    return <></>;
+    return (
+      <Sidebar
+        collapsible="icon"
+        className="data-[slot='sidebar-container']:inset-auto"
+        {...props}
+      >
+        <SidebarContent>
+          <SidebarSeparator className="mx-0 group-data-[collapsible='']:hidden" />
+
+          <SidebarWorkspaceList
+            setOpen={setAddDialogOpen}
+            workspaces={ownedWorkspaces}
+          />
+
+          <SidebarSharedWorkspaceList workspaces={sharedWorkspaces} />
+        </SidebarContent>
+        <SidebarRail />
+      </Sidebar>
+    );
   }
 
   return (
-    <Sidebar
-      collapsible="icon"
-      className="data-[slot='sidebar-container']:inset-auto"
-      {...props}
-    >
-      <SidebarHeader>
-        <SidebarActiveWorkspace />
-      </SidebarHeader>
+    <>
+      <Sidebar
+        collapsible="icon"
+        className="data-[slot='sidebar-container']:inset-auto"
+        {...props}
+      >
+        <SidebarHeader>
+          <SidebarActiveWorkspace />
+        </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarHomeGroup />
-        <SidebarSeparator className="mx-0 group-data-[collapsible='']:hidden" />
+        <SidebarContent>
+          <SidebarHomeGroup activeWorkspaceId={activeWorkspace._id} />
+          <SidebarSeparator className="mx-0 group-data-[collapsible='']:hidden" />
 
-        <SidebarWorkspaceList
-          workspaces={ownedWorkspaces}
-          activeWorkspace={activeWorkspace}
-        />
+          <SidebarWorkspaceList
+            setOpen={setAddDialogOpen}
+            workspaces={ownedWorkspaces}
+            activeWorkspace={activeWorkspace}
+          />
 
-        <SidebarSharedWorkspaceList
-          workspaces={sharedWorkspaces}
-          activeWorkspace={activeWorkspace}
-        />
-      </SidebarContent>
+          <SidebarSharedWorkspaceList
+            workspaces={sharedWorkspaces}
+            activeWorkspace={activeWorkspace}
+          />
+        </SidebarContent>
 
-      <SidebarFooter>{/* <SidebarUser /> */}</SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+        <SidebarFooter>{/* <SidebarUser /> */}</SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+
+      <SidebarAddWorkspaceDialog
+        open={addDialogOpen}
+        setOpen={setAddDialogOpen}
+      />
+    </>
   );
 }

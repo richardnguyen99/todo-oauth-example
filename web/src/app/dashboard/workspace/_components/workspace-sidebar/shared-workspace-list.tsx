@@ -17,7 +17,7 @@ import { Workspace } from "@/_types/workspace";
 
 type Props = Readonly<{
   workspaces: Workspace[];
-  activeWorkspace: Workspace | undefined;
+  activeWorkspace?: Workspace;
 }>;
 
 function SidebarSharedWorkspaceList({
