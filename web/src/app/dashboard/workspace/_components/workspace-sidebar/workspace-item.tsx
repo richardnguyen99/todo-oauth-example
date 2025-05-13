@@ -112,7 +112,7 @@ export default function SidebarWorkspaceItem({
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem className="text-muted-foreground text-xs">
+          <DropdownMenuItem className="text-xs" disabled>
             Last modified:{" "}
             {new Date(workspace.updatedAt).toLocaleDateString("en-US", {
               year: "numeric",

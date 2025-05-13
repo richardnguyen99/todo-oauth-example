@@ -1,4 +1,5 @@
 import React, { type JSX } from "react";
+import Link from "next/link";
 
 import {
   Breadcrumb,
@@ -30,8 +31,10 @@ export default function SidebarLayoutBreadcrumb(): JSX.Element {
     <Breadcrumb>
       <BreadcrumbList className="flex-nowrap">
         <BreadcrumbItem className="hidden md:block">
-          <BreadcrumbLink href={`/dashboard/workspace/${activeWorkspace._id}`}>
-            {activeWorkspace.title}
+          <BreadcrumbLink asChild>
+            <Link href={`/dashboard/workspace/${activeWorkspace._id}`}>
+              {activeWorkspace.title}
+            </Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
       </BreadcrumbList>

@@ -42,9 +42,12 @@ export default function WorkspacePageLayout({
   modal,
 }: Props): JSX.Element | never {
   const { workspace } = useParams<WorkspaceParams>();
-  const { workspaces, setActiveWorkspace } = useWorkspaceStore((s) => s);
+  const { workspaces, activeWorkspace, setActiveWorkspace } = useWorkspaceStore(
+    (s) => s,
+  );
 
   React.useEffect(() => {
+    console.log("WORKSPACE", workspace);
     const foundWorkspace = workspaces.find((w) => w._id === workspace);
 
     if (!foundWorkspace) {
@@ -54,6 +57,10 @@ export default function WorkspacePageLayout({
     setActiveWorkspace(foundWorkspace);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!activeWorkspace) {
+    return <></>;
+  }
 
   return (
     <TaskStoreProvider>
