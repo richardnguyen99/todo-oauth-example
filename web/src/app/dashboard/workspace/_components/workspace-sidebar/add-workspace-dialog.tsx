@@ -119,20 +119,22 @@ export default function SidebarAddWorkspaceDialog({
         "fetch-workspace",
       ])!;
 
-      const updatedWorkspaces = newQueryData.data
-        .map((workspace) => ({
-          ...workspace,
-          createdAt: new Date(workspace.createdAt),
-          updatedAt: new Date(workspace.updatedAt),
-          members: workspace.members.map((member) => ({
-            ...member,
-            createdAt: new Date(member.createdAt),
-          })),
-        }))
-        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+      const updatedWorkspaces = newQueryData.data.map((workspace) => ({
+        ...workspace,
+        createdAt: new Date(workspace.createdAt),
+        updatedAt: new Date(workspace.updatedAt),
+        members: workspace.members.map((member) => ({
+          ...member,
+          createdAt: new Date(member.createdAt),
+        })),
+      }));
 
       setWorkspaces(updatedWorkspaces);
       push(`/dashboard/workspace/${data.data._id}`);
+    },
+
+    onSettled: () => {
+      setOpen(false);
     },
 
     onError: (error: AxiosError<WorkspaceErrorResponse>) => {

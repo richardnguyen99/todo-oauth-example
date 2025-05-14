@@ -1,7 +1,6 @@
 "use client";
 
 import React, { type JSX } from "react";
-import Link from "next/link";
 import * as LucideIcons from "lucide-react";
 
 import {
@@ -9,8 +8,6 @@ import {
   SidebarGroupAction,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import SidebarWorkspaceItem from "./workspace-item";
@@ -20,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Workspace } from "@/_types/workspace";
+import SidebarMoreWorkspaceSheet from "./more-workspace-sheet";
 
 type Props = Readonly<{
   workspaces: Workspace[];
@@ -67,16 +65,7 @@ function SidebarWorkspaceList({
           />
         ))}
 
-        {workspaces.length > 5 && (
-          <SidebarMenuItem>
-            <SidebarMenuButton className="text-sidebar-foreground/70" asChild>
-              <Link href={`/dashboard/workspaces`}>
-                <LucideIcons.MoreHorizontal className="text-sidebar-foreground/70" />
-                <span>{workspaces.length - 5} more</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        )}
+        {workspaces.length > 5 && <SidebarMoreWorkspaceSheet />}
       </SidebarMenu>
     </SidebarGroup>
   );
