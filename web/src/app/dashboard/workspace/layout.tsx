@@ -3,13 +3,18 @@
 import React, { type JSX } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { Loader2, MoreHorizontal, Plus, Users } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import api from "@/lib/axios";
-import SideBar from "./_components/sidebar";
 import { WorkspaceStoreProvider } from "../_providers/workspace";
 import { WorkspacesResponse } from "@/_types/workspace";
-import { Button } from "@/components/ui/button";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import WorkspaceSidebar from "./_components/workspace-sidebar";
+import WorkspaceSidebarSkeleton from "./_components/workspace-sidebar/skeleton";
 
 type Props = {
   children: React.ReactNode;
@@ -50,6 +55,7 @@ export default function WorkspaceLayout({
         owner_field: ["username", "email", "emailVerified", "avatar"].join(","),
         includes: ["tags", "members", "owner"].join(","),
         include_member_account: "true",
+        include_shared_workspaces: "true",
       });
 
       const response = await api.get(`/workspaces?${searchParams.toString()}`);
@@ -62,58 +68,27 @@ export default function WorkspaceLayout({
     return (
       <div className="flex min-h-screen flex-col">
         <div className="relative flex flex-1">
-          <aside className="bg-muted/40 sticky top-16 h-[calc(100vh-4rem)] w-64 max-w-64 border-r transition-all duration-300 ease-in-out">
-            <div className="h-full px-4 py-4">
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-lg font-semibold whitespace-nowrap">
-                  <span
-                    className={`mr-3 inline-block max-w-[200px] overflow-hidden align-middle transition-all duration-300 ease-in-out`}
-                  >
-                    Workspaces
-                  </span>
-                </h2>
+          <SidebarProvider>
+            {/* Sidebar component */}
+            <WorkspaceSidebarSkeleton />
 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-11 w-11 flex-shrink-0"
-                >
-                  <Plus className="h-8 w-8" />
-                </Button>
-              </div>
+            {/* Main layout */}
+            <SidebarInset className="flex flex-col">
+              <div>
+                <header className="bg-background sticky top-16 z-10 flex h-12 shrink-0 items-center justify-between gap-2 overflow-x-auto border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-10">
+                  <div className="bg-background flex flex-nowrap items-center gap-2 px-3">
+                    <SidebarTrigger className="-ml-1 cursor-pointer" />
+                  </div>
+                </header>
 
-              <nav className="relative h-full space-y-1">
-                <Loader2 className="text-muted-foreground absolute top-1/2 left-1/2 h-6 w-6 animate-spin" />
-              </nav>
-            </div>
-          </aside>
-
-          <main className="relative flex-1 p-4 transition-all duration-300 ease-in-out md:p-6">
-            <div className="mx-auto max-w-4xl">
-              <div className="mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="bg-accent flex h-8 w-8 animate-pulse items-center justify-center rounded-md"></div>
-                  <div className="bg-accent h-8 w-16 animate-pulse rounded-md"></div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="gap-1">
-                    <Users className="h-4 w-4" />
-                    <span>Share</span>
-                  </Button>
-
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
+                <div className="mx-auto mt-4 h-full max-w-4xl">
+                  <div className="flex flex-1 items-center justify-center">
+                    <Loader2 className="text-muted-foreground size-6 animate-spin" />
+                  </div>
                 </div>
               </div>
-              <div className="relative space-y-1">
-                <div className="relative h-64 space-y-1">
-                  <Loader2 className="text-muted-foreground absolute top-1/2 left-1/2 h-6 w-6 animate-spin" />
-                </div>
-              </div>
-            </div>
-          </main>
+            </SidebarInset>
+          </SidebarProvider>
         </div>
       </div>
     );
@@ -146,12 +121,20 @@ export default function WorkspaceLayout({
     <div className="flex min-h-screen flex-col">
       <div className="relative flex flex-1">
         <WorkspaceStoreProvider initialState={data.data}>
-          <SideBar />
+          <SidebarProvider>
+            {/* Sidebar component */}
+            <WorkspaceSidebar />
 
-          {/* Main Content */}
-          <main className="flex-1 p-4 transition-all duration-300 ease-in-out md:p-6">
-            {children}
-          </main>
+            {/* Main layout */}
+            <SidebarInset className="flex flex-col">
+              <div
+                data-sidebar="sidebar-sheet-container"
+                className="absolute mt-12 h-full w-full [&>[data-slot=sheet-content]]:absolute [&>[data-slot=sheet-content]]:z-10 [&>[data-slot=sheet-overlay]]:absolute [&>[data-slot=sheet-overlay]]:z-[9]"
+              />
+
+              {children}
+            </SidebarInset>
+          </SidebarProvider>
         </WorkspaceStoreProvider>
       </div>
     </div>

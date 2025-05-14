@@ -63,6 +63,16 @@ export const getWorkspacesQueryDtoSchema = z
         if (value === "false") return false;
         return false;
       }),
+
+    include_shared_workspaces: z
+      .string()
+      .optional()
+      .default("false")
+      .transform((value) => {
+        if (value === "true") return true;
+        if (value === "false") return false;
+        return false;
+      }),
   })
   .refine(
     (data) =>

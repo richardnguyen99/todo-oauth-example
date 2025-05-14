@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isObjectId } from "src/utils/object-id";
+
 export const colors = [
   "red",
   "orange",
@@ -48,5 +50,20 @@ export const createWorkspaceDtoSchema = z.object({
     invalid_type_error: "Color must be one of the predefined values",
   }),
 });
+
+export const createWorkspacesQueryDtoSchema = z.object({
+  workspace_id: z
+    .string()
+    .optional()
+    .refine((value) => {
+      if (!value) return true;
+
+      return isObjectId(value);
+    }),
+});
+
+export type CreateWorkspacesQueryDto = z.infer<
+  typeof createWorkspacesQueryDtoSchema
+>;
 
 export type CreateWorkspaceDto = z.infer<typeof createWorkspaceDtoSchema>;

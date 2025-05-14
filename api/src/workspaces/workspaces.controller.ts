@@ -6,7 +6,6 @@ import {
   Get,
   Header,
   HttpStatus,
-  InternalServerErrorException,
   Param,
   Post,
   Put,
@@ -32,6 +31,8 @@ import {
 import {
   CreateWorkspaceDto,
   createWorkspaceDtoSchema,
+  CreateWorkspacesQueryDto,
+  createWorkspacesQueryDtoSchema,
 } from "./dto/create-workspace.dto";
 import { respondWithError } from "src/utils/handle-error";
 import { JwtUser } from "src/decorators/user/user.decorator";
@@ -131,11 +132,15 @@ export class WorkspacesController {
   @UseGuards(JwtAuthGuard)
   @Post("")
   @Header("Content-Type", "application/json")
-  @UsePipes(new ZodValidationPipe(createWorkspaceDtoSchema))
+  @UsePipes(
+    new ZodValidationPipe(createWorkspaceDtoSchema),
+    new ZodQueryValidationPipe(createWorkspacesQueryDtoSchema),
+  )
   async createWorkspace(
     @Res() res: ExpressResponse,
     @Body() body: CreateWorkspaceDto,
     @JwtUser() user: JwtUserPayload,
+    @Query() query: CreateWorkspacesQueryDto,
   ) {
     let newWorkspace: WorkspaceDocument;
 
@@ -143,6 +148,7 @@ export class WorkspacesController {
       newWorkspace = await this.workspaceService.createWorkspace(
         user.userId,
         body,
+        query,
       );
     } catch (error) {
       if (error instanceof mongoose.mongo.MongoError) {
@@ -157,16 +163,7 @@ export class WorkspacesController {
         }
       }
 
-      throw new InternalServerErrorException({
-        message: "An unknown error occurred",
-        error: {
-          name: "InternalServerError",
-          message:
-            "\
-An unknown error occurred while creating the workspace. This is not your fault \
-but due to an internal bug or misconfiguration.",
-        },
-      });
+      throw error;
     }
 
     res.status(HttpStatus.CREATED).json({

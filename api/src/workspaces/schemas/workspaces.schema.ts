@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 
 import { User } from "src/users/schemas/user.schema";
+import { Color } from "../dto/create-workspace.dto";
 
 @Schema({
   id: false,
@@ -102,14 +103,14 @@ MemberSchema.index({ userId: 1, workspaceId: 1 }, { unique: true });
   },
 })
 export class Workspace {
-  @Prop({ type: mongoose.Schema.Types.String, required: true, unique: true })
+  @Prop({ type: mongoose.Schema.Types.String, required: true })
   title: string;
 
   @Prop({ type: mongoose.Schema.Types.String, required: true })
   icon: string;
 
   @Prop({ type: mongoose.Schema.Types.String, required: true })
-  color: string;
+  color: Color;
 
   @Prop({
     type: mongoose.Schema.Types.String,
@@ -141,3 +142,4 @@ export class Workspace {
 
 export type WorkspaceDocument = HydratedDocument<Workspace>;
 export const WorkspaceSchema = SchemaFactory.createForClass(Workspace);
+WorkspaceSchema.index({ title: 1, ownerId: 1 }, { unique: true });

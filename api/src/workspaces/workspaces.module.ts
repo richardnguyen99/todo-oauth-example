@@ -61,6 +61,13 @@ import { Task, TaskSchema } from "src/tasks/schemas/tasks.schema";
             justOne: true,
           });
 
+          schema.virtual("workspace", {
+            foreignField: "_id",
+            localField: "workspaceId",
+            ref: Workspace.name,
+            justOne: true,
+          });
+
           return schema;
         },
       },
