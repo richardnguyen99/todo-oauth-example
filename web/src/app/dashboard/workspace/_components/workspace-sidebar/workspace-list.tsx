@@ -65,7 +65,9 @@ function SidebarWorkspaceList({
           />
         ))}
 
-        {workspaces.length > 5 && <SidebarMoreWorkspaceSheet />}
+        {workspaces.length > 5 && (
+          <SidebarMoreWorkspaceSheet workspaces={workspaces} />
+        )}
       </SidebarMenu>
     </SidebarGroup>
   );

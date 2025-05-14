@@ -33,28 +33,6 @@ export default function WorkspaceSidebar({
     [user, workspaces],
   );
 
-  if (!activeWorkspace) {
-    return (
-      <Sidebar
-        collapsible="icon"
-        className="data-[slot='sidebar-container']:inset-auto"
-        {...props}
-      >
-        <SidebarContent>
-          <SidebarSeparator className="mx-0 group-data-[collapsible='']:hidden" />
-
-          <SidebarWorkspaceList
-            setOpen={setAddDialogOpen}
-            workspaces={ownedWorkspaces}
-          />
-
-          <SidebarSharedWorkspaceList workspaces={sharedWorkspaces} />
-        </SidebarContent>
-        <SidebarRail />
-      </Sidebar>
-    );
-  }
-
   return (
     <>
       <Sidebar
@@ -67,18 +45,20 @@ export default function WorkspaceSidebar({
         </SidebarHeader>
 
         <SidebarContent>
-          <SidebarHomeGroup activeWorkspaceId={activeWorkspace._id} />
+          {activeWorkspace && (
+            <SidebarHomeGroup activeWorkspaceId={activeWorkspace._id} />
+          )}
           <SidebarSeparator className="mx-0 group-data-[collapsible='']:hidden" />
 
           <SidebarWorkspaceList
             setOpen={setAddDialogOpen}
             workspaces={ownedWorkspaces}
-            activeWorkspace={activeWorkspace}
+            activeWorkspace={activeWorkspace ?? undefined}
           />
 
           <SidebarSharedWorkspaceList
             workspaces={sharedWorkspaces}
-            activeWorkspace={activeWorkspace}
+            activeWorkspace={activeWorkspace ?? undefined}
           />
         </SidebarContent>
 

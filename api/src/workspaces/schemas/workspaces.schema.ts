@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 
 import { User } from "src/users/schemas/user.schema";
+import { Color } from "../dto/create-workspace.dto";
 
 @Schema({
   id: false,
@@ -109,7 +110,7 @@ export class Workspace {
   icon: string;
 
   @Prop({ type: mongoose.Schema.Types.String, required: true })
-  color: string;
+  color: Color;
 
   @Prop({
     type: mongoose.Schema.Types.String,

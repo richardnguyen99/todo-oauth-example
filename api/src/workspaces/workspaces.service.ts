@@ -17,7 +17,10 @@ import {
   Workspace,
   WorkspaceDocument,
 } from "src/workspaces/schemas/workspaces.schema";
-import { CreateWorkspaceDto } from "./dto/create-workspace.dto";
+import {
+  CreateWorkspaceDto,
+  CreateWorkspacesQueryDto,
+} from "./dto/create-workspace.dto";
 import { AddNewMemberDto } from "./dto/add-new-member.dto";
 import { UpdateMemberDto } from "./dto/update-member.dto";
 import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
@@ -105,6 +108,7 @@ export class WorkspacesService {
   async createWorkspace(
     ownerId: string,
     createWorkspaceDto: CreateWorkspaceDto,
+    query?: CreateWorkspacesQueryDto,
   ): Promise<WorkspaceDocument> {
     // Check if the owner exists
     const owner = await this.userModel.findById(ownerId);
@@ -113,13 +117,41 @@ export class WorkspacesService {
       throw new BadRequestException(`User with ID ${ownerId} not found`);
     }
 
-    // Create a new workspace
-    const newWorkspace = new this.workspaceModel({
+    let userDto = {
       title: createWorkspaceDto.title,
       icon: createWorkspaceDto.icon,
       color: createWorkspaceDto.color,
       ownerId: ownerId, // Set the owner to the user's ID
-    });
+    };
+
+    if (query?.workspace_id) {
+      const member = await this.memberModel
+        .findOne({
+          userId: ownerId,
+          workspaceId: query.workspace_id,
+        })
+        .populate<{ workspace: WorkspaceDocument }>("workspace");
+
+      if (!member) {
+        throw new BadRequestException({
+          message: `Cannot create workspace`,
+          error: {
+            name: "BadRequestException",
+            message: `Either workspace is not found or you cannot access it`,
+          },
+        });
+      }
+
+      userDto = {
+        title: `${member.workspace.title} (copy)`,
+        icon: member.workspace.icon,
+        color: member.workspace.color,
+        ownerId: ownerId,
+      };
+    }
+
+    // Create a new workspace
+    const newWorkspace = new this.workspaceModel(userDto);
 
     // Create the default member (the owner)
     const newMember = new this.memberModel({
@@ -134,33 +166,27 @@ export class WorkspacesService {
     let workspace = await newWorkspace.save();
     await newMember.save();
 
-    try {
-      workspace = await workspace.populate([
-        {
-          path: "owner",
+    workspace = await workspace.populate([
+      {
+        path: "owner",
+        model: User.name,
+        select: "-accounts -createdAt -updatedAt -workspaces",
+      },
+      {
+        path: "tags",
+        model: Tag.name,
+      },
+      {
+        path: "members",
+        model: Member.name,
+        select: "-updatedAt -workspaceId",
+        populate: {
+          path: "user",
           model: User.name,
           select: "-accounts -createdAt -updatedAt -workspaces",
         },
-        {
-          path: "tags",
-          model: Tag.name,
-        },
-        {
-          path: "members",
-          model: Member.name,
-          select: "-updatedAt -workspaceId",
-          populate: {
-            path: "user",
-            model: User.name,
-            select: "-accounts -createdAt -updatedAt -workspaces",
-          },
-        },
-      ]);
-    } catch (error) {
-      console.log("Error populating workspace:", error);
-    }
-
-    console.log("Created workspace:", workspace);
+      },
+    ]);
 
     return workspace;
   }

@@ -5,7 +5,6 @@ import {
   Check,
   History,
   MoreHorizontal,
-  Rows2,
   Users,
   X,
 } from "lucide-react";
@@ -15,7 +14,6 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -37,8 +35,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Workspace } from "@/_types/workspace";
 
-export default function SidebarMoreWorkspaceSheet(): JSX.Element {
+type Props = Readonly<{
+  workspaces: Workspace[];
+}>;
+
+export default function SidebarMoreWorkspaceSheet({
+  workspaces,
+}: Props): JSX.Element {
   const { isMobile } = useSidebar();
   const [container, setContainer] = React.useState<HTMLElement | null>(null);
 
@@ -71,10 +76,10 @@ export default function SidebarMoreWorkspaceSheet(): JSX.Element {
           side="left"
           container={container}
         >
-          <SheetHeader>
+          <SheetHeader className="pb-2">
             <SheetTitle asChild>
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">More workspaces</h3>
+                <h3 className="text font-semibold">More workspaces</h3>
                 <div className="flex items-center gap-2">
                   <Tooltip disableHoverableContent>
                     <DropdownMenu>
@@ -118,14 +123,6 @@ export default function SidebarMoreWorkspaceSheet(): JSX.Element {
                           </span>
                           <Check className="ml-auto h-4 w-4" />
                         </DropdownMenuItem>
-
-                        <DropdownMenuItem>
-                          <Rows2 className="mr-1 h-4 w-4" />
-                          <span className="truncate text-ellipsis">
-                            Number of tasks
-                          </span>
-                          <Check className="ml-auto h-4 w-4" />
-                        </DropdownMenuItem>
                       </DropdownMenuContent>
 
                       <TooltipContent container={container}>
@@ -157,11 +154,20 @@ export default function SidebarMoreWorkspaceSheet(): JSX.Element {
                 </div>
               </div>
             </SheetTitle>
-            <SheetDescription>
-              Make changes to your profile here. Click save when you&apos;re
-              done.
-            </SheetDescription>
           </SheetHeader>
+
+          <div className="flex flex-col gap-2 px-2 text-sm">
+            {workspaces.map((ws) => (
+              <div key={ws._id}>
+                <div className="flex items-center gap-2">
+                  <span>{ws.title}</span>
+                  <span className="text-muted-foreground text-xs">
+                    {ws.members.length} members
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
 
           <SheetFooter>
             <SheetClose asChild>
