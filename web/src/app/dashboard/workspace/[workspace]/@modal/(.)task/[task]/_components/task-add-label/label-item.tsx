@@ -35,7 +35,7 @@ export default function TaskAddLabelItem({ tag, ...rest }: Props): JSX.Element {
   const { setEditTag, setView } = useTaskAddLabelContext();
 
   const isLabelSelected = React.useMemo(() => {
-    return task.tags.some((t) => t.id === tag.id);
+    return task.tags.some((t) => t._id === tag._id);
   }, [task, tag]);
 
   const [mutate, loading] = useTagMutation(tag);

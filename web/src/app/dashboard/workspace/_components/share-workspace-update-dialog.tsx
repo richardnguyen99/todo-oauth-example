@@ -17,16 +17,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Member,
-  UpdateMemberParams,
-  UpdateMemberResponse,
-} from "../_types/member";
+import { UpdateMemberParams, UpdateMemberResponse } from "../_types/member";
 import { WorkspaceErrorResponse, WorkspaceParams } from "../_types/workspace";
-import { useMemberStore } from "../../_providers/member";
+import { Workspace } from "@/_types/workspace";
 
 type Props = Readonly<{
-  member: Member;
+  member: Workspace["members"][number];
   show: boolean;
   setShow: (show: boolean) => void;
 }>;
@@ -40,7 +36,6 @@ export default function ShareWorkspaceUpdateDialog({
   const [loading, setLoading] = React.useState(false);
   const { workspace } = useParams<WorkspaceParams>();
   const queryClient = useQueryClient();
-  const { members, setMembers } = useMemberStore((s) => s);
 
   const { mutate } = useMutation({
     mutationKey: ["updateMember", member.userId],
@@ -48,7 +43,7 @@ export default function ShareWorkspaceUpdateDialog({
       setLoading(true);
 
       const response = await api.put<UpdateMemberResponse>(
-        `/workspaces/${workspace}/update_member/${member.userId}`,
+        `/workspaces/${workspace}/${member.userId}`,
         values,
       );
 
@@ -76,7 +71,6 @@ export default function ShareWorkspaceUpdateDialog({
       });
 
       setShow(false);
-      setMembers(updatedMembers);
     },
     onSettled: () => {
       setLoading(false);

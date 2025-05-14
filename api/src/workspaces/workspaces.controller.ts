@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,12 +9,12 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Res,
   UseGuards,
   UsePipes,
 } from "@nestjs/common";
 import { type Response as ExpressResponse } from "express";
-import { AuthGuard } from "@nestjs/passport";
 
 import { WorkspacesService } from "./workspaces.service";
 import { ResponsePayloadDto } from "src/dto/response.dto";
@@ -23,10 +24,15 @@ import {
   WorkspaceDocument,
 } from "./schemas/workspaces.schema";
 import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
-import { ZodValidationPipe } from "src/zod-validation/zod-validation.pipe";
+import {
+  ZodQueryValidationPipe,
+  ZodValidationPipe,
+} from "src/zod-validation/zod-validation.pipe";
 import {
   CreateWorkspaceDto,
   createWorkspaceDtoSchema,
+  CreateWorkspacesQueryDto,
+  createWorkspacesQueryDtoSchema,
 } from "./dto/create-workspace.dto";
 import { respondWithError } from "src/utils/handle-error";
 import { JwtUser } from "src/decorators/user/user.decorator";
@@ -42,17 +48,29 @@ import {
 } from "./dto/update-member.dto";
 import { AddNewTagDto, addNewTagDtoSchema } from "./dto/add-new-tag.dto";
 import { updateTagDtoSchema } from "./dto/update-tag.dto";
+import {
+  GetWorkspacesQueryDto,
+  getWorkspacesQueryDtoSchema,
+} from "./dto/get-workspaces-query.dto";
+import { JwtAuthGuard } from "src/auth/guards/jwt.guard";
+import mongoose from "mongoose";
 
 @Controller("workspaces")
 export class WorkspacesController {
   constructor(private workspaceService: WorkspacesService) {}
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Get("")
   @Header("Content-Type", "application/json")
-  async findAll(@Res() res: ExpressResponse, @JwtUser() user: JwtUserPayload) {
+  @UsePipes(new ZodQueryValidationPipe(getWorkspacesQueryDtoSchema))
+  async findAll(
+    @Res() res: ExpressResponse,
+    @JwtUser() user: JwtUserPayload,
+    @Query() query: GetWorkspacesQueryDto,
+  ) {
     const workspaces = await this.workspaceService.findWorkspacesByUserId(
       user.userId as string,
+      query,
     );
 
     res.status(HttpStatus.OK).json({
@@ -62,19 +80,24 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Get(":workspaceId")
   @Header("Content-Type", "application/json")
+  @UsePipes(new ZodQueryValidationPipe(getWorkspacesQueryDtoSchema))
   async findOne(
     @Res() res: ExpressResponse,
     @Param("workspaceId") workspaceId: string,
     @JwtUser() user: JwtUserPayload,
+    @Query() query: GetWorkspacesQueryDto,
   ) {
     // Find the workspace by ID
     let workspace: WorkspaceDocument;
 
     try {
-      workspace = await this.workspaceService.findWorkspaceById(workspaceId);
+      workspace = await this.workspaceService.findWorkspaceById(
+        workspaceId,
+        query,
+      );
     } catch (error) {
       // If the workspace is not found, return a 404 error
       respondWithError(error, res);
@@ -106,14 +129,18 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
-  @Post("new")
+  @UseGuards(JwtAuthGuard)
+  @Post("")
   @Header("Content-Type", "application/json")
-  @UsePipes(new ZodValidationPipe(createWorkspaceDtoSchema))
+  @UsePipes(
+    new ZodValidationPipe(createWorkspaceDtoSchema),
+    new ZodQueryValidationPipe(createWorkspacesQueryDtoSchema),
+  )
   async createWorkspace(
     @Res() res: ExpressResponse,
     @Body() body: CreateWorkspaceDto,
     @JwtUser() user: JwtUserPayload,
+    @Query() query: CreateWorkspacesQueryDto,
   ) {
     let newWorkspace: WorkspaceDocument;
 
@@ -121,46 +148,32 @@ export class WorkspacesController {
       newWorkspace = await this.workspaceService.createWorkspace(
         user.userId,
         body,
+        query,
       );
     } catch (error) {
-      respondWithError(error, res);
-      return;
+      if (error instanceof mongoose.mongo.MongoError) {
+        if (error.code === 11000) {
+          throw new BadRequestException({
+            message: "Cannot create workspace",
+            error: {
+              name: "DuplicateKeyError",
+              message: `Workspace with title=${body.title} already exists`,
+            },
+          });
+        }
+      }
+
+      throw error;
     }
 
     res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
-      message: "OK",
+      message: `New workspace created successfully (Workspace ID: ${newWorkspace._id})`,
       data: newWorkspace,
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
-  @Get("/:id/members")
-  @Header("Content-Type", "application/json")
-  async getMembersInWorkspace(
-    @Res() res: ExpressResponse,
-    @Param("id") workspaceId: string,
-    @JwtUser() user: JwtUserPayload,
-  ) {
-    let members: MemberDocument[];
-
-    try {
-      members = await this.workspaceService.getWorkspaceMembers(
-        user.userId,
-        workspaceId,
-      );
-
-      res.status(HttpStatus.OK).json({
-        statusCode: HttpStatus.OK,
-        message: "OK",
-        data: members,
-      } satisfies ResponsePayloadDto);
-    } catch (e) {
-      respondWithError(e, res);
-    }
-  }
-
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Put("/:id/update")
   @Header("Content-Type", "application/json")
   async updateWorkspace(
@@ -189,7 +202,7 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
+  @UseGuards(JwtAuthGuard)
   @Delete("/:id/delete")
   @Header("Content-Type", "application/json")
   async deleteWorkspace(
@@ -216,22 +229,80 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
-  @Post("/:id/add_member")
+  @UseGuards(JwtAuthGuard)
+  @Get("/:workspace_id/members")
+  @Header("Content-Type", "application/json")
+  async getMembersInWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("workspace_id") workspaceId: string,
+    @JwtUser() user: JwtUserPayload,
+  ) {
+    let members: MemberDocument[];
+
+    try {
+      members = await this.workspaceService.getWorkspaceMembers(
+        user.userId,
+        workspaceId,
+      );
+
+      res.status(HttpStatus.OK).json({
+        statusCode: HttpStatus.OK,
+        message: "OK",
+        data: members,
+      } satisfies ResponsePayloadDto);
+    } catch (e) {
+      respondWithError(e, res);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("/:workspace_id/members")
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodValidationPipe(addNewMemberDtoSchema))
   async addNewMemberToWorkspace(
     @Res() res: ExpressResponse,
-    @Param("id") workspaceId: string,
+    @Param("workspace_id") workspaceId: string,
     @JwtUser() user: JwtUserPayload,
     @Body() body: AddNewMemberDto,
+  ) {
+    let workspace: WorkspaceDocument;
+
+    try {
+      workspace = await this.workspaceService.addMemberToWorkspace(
+        user.userId as string,
+        workspaceId as string,
+        body,
+      );
+    } catch (e) {
+      respondWithError(e, res);
+      return;
+    }
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "OK",
+      data: workspace,
+    } satisfies ResponsePayloadDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put("/:workspace_id/members/:member_id")
+  @Header("Content-Type", "application/json")
+  @UsePipes(new ZodValidationPipe(updateMemberDtoSchema))
+  async updateMemberInWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("workspace_id") workspaceId: string,
+    @Param("member_id") memberId: string,
+    @JwtUser() user: JwtUserPayload,
+    @Body() body: UpdateMemberDto,
   ) {
     let member: MemberDocument;
 
     try {
-      member = await this.workspaceService.addMemberToWorkspace(
+      member = await this.workspaceService.updateMemberInWorkspace(
         user.userId as string,
         workspaceId as string,
+        memberId as string,
         body,
       );
     } catch (e) {
@@ -246,47 +317,11 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
-  @Put("/:workspace_id/update_member/:member_id")
-  @Header("Content-Type", "application/json")
-  @UsePipes(new ZodValidationPipe(updateMemberDtoSchema))
-  async updateMemberInWorkspace(
-    @Res() res: ExpressResponse,
-    @Param("workspace_id") workspaceId: string,
-    @Param("member_id") memberId: string,
-    @JwtUser() user: JwtUserPayload,
-    @Body() body: UpdateMemberDto,
-  ) {
-    let member: MemberDocument;
-
-    const updateMemberDto = {
-      memberId: memberId,
-      role: body.role,
-    };
-
-    try {
-      member = await this.workspaceService.updateMemberInWorkspace(
-        user.userId as string,
-        workspaceId as string,
-        updateMemberDto,
-      );
-    } catch (e) {
-      respondWithError(e, res);
-      return;
-    }
-
-    res.status(HttpStatus.OK).json({
-      statusCode: HttpStatus.OK,
-      message: "OK",
-      data: member,
-    } satisfies ResponsePayloadDto);
-  }
-
-  @UseGuards(AuthGuard("jwt"))
-  @Delete("/:id/remove_member/:member_id")
+  @UseGuards(JwtAuthGuard)
+  @Delete("/:workspace_id/members/:member_id")
   async removeMemberFromWorkspace(
     @Res() res: ExpressResponse,
-    @Param("id") workspaceId: string,
+    @Param("workspace_id") workspaceId: string,
     @Param("member_id") memberId: string,
     @JwtUser() user: JwtUserPayload,
   ) {
@@ -301,19 +336,42 @@ export class WorkspacesController {
       return;
     }
 
+    res.status(HttpStatus.NO_CONTENT).send();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("/:workspace_id/tags")
+  @Header("Content-Type", "application/json")
+  async getTagsInWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("workspace_id") workspaceId: string,
+    @JwtUser() user: JwtUserPayload,
+  ) {
+    let workspaceDoc: WorkspaceDocument;
+
+    try {
+      workspaceDoc = await this.workspaceService.getTagsInWorkspace(
+        user.userId as string,
+        workspaceId as string,
+      );
+    } catch (e) {
+      respondWithError(e, res);
+      return;
+    }
+
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       message: "OK",
-      data: null,
+      data: workspaceDoc,
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
-  @Post("/:id/add_tag")
+  @UseGuards(JwtAuthGuard)
+  @Post("/:workspace_id/tags")
   @UsePipes(new ZodValidationPipe(addNewTagDtoSchema))
   async addTagToWorkspace(
     @Res() res: ExpressResponse,
-    @Param("id") workspaceId: string,
+    @Param("workspace_id") workspaceId: string,
     @JwtUser() user: JwtUserPayload,
     @Body() body: AddNewTagDto,
   ) {
@@ -337,8 +395,8 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
-  @Put("/:workspace_id/update_tag/:tag_id")
+  @UseGuards(JwtAuthGuard)
+  @Put("/:workspace_id/tags/:tag_id")
   @UsePipes(new ZodValidationPipe(updateTagDtoSchema))
   async updateTagInWorkspace(
     @Res() res: ExpressResponse,
@@ -368,11 +426,11 @@ export class WorkspacesController {
     } satisfies ResponsePayloadDto);
   }
 
-  @UseGuards(AuthGuard("jwt"))
-  @Delete("/:id/remove_tag/:tag_id")
+  @UseGuards(JwtAuthGuard)
+  @Delete("/:workspace_id/tags/:tag_id")
   async removeTagFromWorkspace(
     @Res() res: ExpressResponse,
-    @Param("id") workspaceId: string,
+    @Param("workspace_id") workspaceId: string,
     @Param("tag_id") tagId: string,
     @JwtUser() user: JwtUserPayload,
   ) {

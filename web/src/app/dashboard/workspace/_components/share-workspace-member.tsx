@@ -14,14 +14,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Member } from "../_types/member";
 import { useUserStore } from "@/providers/user-store-provider";
 import { useWorkspaceStore } from "../../_providers/workspace";
 import ShareWorkspaceUpdateDialog from "./share-workspace-update-dialog";
 import ShareWorkspaceDeleteDialog from "./share-workspace-delete-dialog";
+import { Workspace } from "@/_types/workspace";
 
 type Props = Readonly<{
-  member: Member;
+  member: Workspace["members"][number];
 }>;
 
 export default function ShareWorkspaceMemberItem({

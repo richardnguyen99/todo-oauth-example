@@ -28,9 +28,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useMemberStore } from "../../_providers/member";
-import { AddMemberResponse } from "../_types/member";
 import { WorkspaceErrorResponse } from "../_types/workspace";
+import { useWorkspaceStore } from "../../_providers/workspace";
+import { WorkspaceResponse, WorkspacesResponse } from "@/_types/workspace";
 
 // Define the available roles
 const roles = [
@@ -55,23 +55,18 @@ type FormValues = z.infer<typeof formSchema>;
 
 type Props = Readonly<{
   onCancel: () => void;
-  workspaceTitle?: string;
-  workspaceId: string;
 }>;
 
-export default function ShareWorkspaceForm({
-  onCancel,
-  workspaceTitle = "this workspace",
-  workspaceId,
-}: Props): JSX.Element {
-  const queryClient = useQueryClient();
-  const { members, setMembers } = useMemberStore((s) => s);
+export default function ShareWorkspaceForm({ onCancel }: Props): JSX.Element {
+  const { setWorkspaces, setActiveWorkspace, activeWorkspace } =
+    useWorkspaceStore((s) => s);
 
+  const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationKey: ["inviteUser"],
     mutationFn: async (values: FormValues) => {
-      const response = await api.post<AddMemberResponse>(
-        `/workspaces/${workspaceId}/add_member`,
+      const response = await api.post<WorkspaceResponse>(
+        `/workspaces/${activeWorkspace?._id}/members`,
         values,
         {
           headers: {
@@ -83,15 +78,30 @@ export default function ShareWorkspaceForm({
       return response.data;
     },
 
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: ["workspaceMembers", workspaceId],
-      });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["fetch-workspace"] });
 
-      data.data.createdAt = new Date(data.data.createdAt);
-      data.data.updatedAt = new Date(data.data.updatedAt);
+      const queryData = queryClient.getQueryData<WorkspacesResponse>([
+        "fetch-workspace",
+      ]);
 
-      setMembers([...members, data.data]);
+      if (!queryData) throw new Error(`Invalid query data`);
+
+      const updatedWorkspaces = queryData.data
+        .map((workspace) => ({
+          ...workspace,
+          createdAt: new Date(workspace.createdAt),
+          updatedAt: new Date(workspace.updatedAt),
+
+          members: workspace.members.map((member) => ({
+            ...member,
+            createdAt: new Date(member.createdAt),
+          })),
+        }))
+        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+
+      setWorkspaces(updatedWorkspaces);
+      setActiveWorkspace(updatedWorkspaces[0]);
     },
 
     onError: (error: AxiosError<WorkspaceErrorResponse>) => {
@@ -141,7 +151,8 @@ export default function ShareWorkspaceForm({
               </FormControl>
 
               <FormDescription>
-                Enter a username or email address to invite to {workspaceTitle}.
+                Enter a username or email address to invite to{" "}
+                {activeWorkspace?.title}.
               </FormDescription>
               <FormMessage />
             </FormItem>

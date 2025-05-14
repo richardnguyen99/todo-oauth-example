@@ -2,8 +2,10 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 
 import { User } from "src/users/schemas/user.schema";
+import { Color } from "../dto/create-workspace.dto";
 
 @Schema({
+  id: false,
   collection: "tags",
   timestamps: true,
   toJSON: {
@@ -47,11 +49,14 @@ export const TagSchema = SchemaFactory.createForClass(Tag);
 
 @Schema({
   collection: "members",
+  id: false,
   timestamps: true,
   toJSON: {
+    versionKey: false,
     virtuals: true,
   },
   toObject: {
+    versionKey: false,
     virtuals: true,
   },
 })
@@ -82,12 +87,19 @@ export class Member {
 
 export type MemberDocument = HydratedDocument<Member>;
 export const MemberSchema = SchemaFactory.createForClass(Member);
+MemberSchema.index({ userId: 1, workspaceId: 1 }, { unique: true });
 
 @Schema({
   collection: "workspaces",
   timestamps: true,
+  id: false,
   toJSON: {
     versionKey: false,
+    virtuals: true,
+  },
+  toObject: {
+    versionKey: false,
+    virtuals: true,
   },
 })
 export class Workspace {
@@ -98,7 +110,7 @@ export class Workspace {
   icon: string;
 
   @Prop({ type: mongoose.Schema.Types.String, required: true })
-  color: string;
+  color: Color;
 
   @Prop({
     type: mongoose.Schema.Types.String,
@@ -111,22 +123,23 @@ export class Workspace {
     ref: "User",
     required: true,
   })
-  owner: mongoose.Types.ObjectId | User;
+  ownerId: mongoose.Types.ObjectId;
 
   @Prop({
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Member",
     default: [],
   })
-  members: Array<mongoose.Types.ObjectId | Member>;
+  memberIds: Array<mongoose.Types.ObjectId>;
 
   @Prop({
     type: [mongoose.Schema.Types.ObjectId],
     ref: "Tag",
     default: [],
   })
-  tags: Array<mongoose.Types.ObjectId | Tag>;
+  tagIds: Array<mongoose.Types.ObjectId>;
 }
 
 export type WorkspaceDocument = HydratedDocument<Workspace>;
 export const WorkspaceSchema = SchemaFactory.createForClass(Workspace);
+WorkspaceSchema.index({ title: 1, ownerId: 1 }, { unique: true });

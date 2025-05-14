@@ -32,12 +32,8 @@ import { Label } from "@/components/ui/label";
 import { colorList, colorMap } from "../_constants/colors";
 import { icons } from "../_constants/icons";
 import { useWorkspaceStore } from "../../_providers/workspace";
-import {
-  AddWorkspaceResponse,
-  Color,
-  Workspace,
-  WorkspaceErrorResponse,
-} from "../_types/workspace";
+import { WorkspaceErrorResponse } from "../_types/workspace";
+import { WorkspaceResponse, WorkspacesResponse } from "@/_types/workspace";
 
 const [defaultColor, ...otherColors] = Object.keys(
   colorMap,
@@ -81,7 +77,7 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
     },
   });
 
-  const { setWorkspaces, workspaces } = useWorkspaceStore((s) => s);
+  const { setWorkspaces } = useWorkspaceStore((s) => s);
   const { mutate } = useMutation({
     mutationKey: ["add-workspace"],
     mutationFn: async (newWorkspace: {
@@ -89,33 +85,44 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
       color: string;
       icon: string;
     }) => {
-      const response = await api.post<AddWorkspaceResponse>(
-        "/workspaces/new",
+      const response = await api.post<WorkspaceResponse>(
+        "/workspaces",
         newWorkspace,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
       );
 
       return response.data;
     },
 
-    onSuccess: (data) => {
-      const newWorkspaces = [
-        ...workspaces,
-        {
-          _id: data.data._id,
-          title: data.data.title,
-          color: data.data.color as Color,
-          icon: data.data.icon,
-          createdAt: new Date(data.data.createdAt),
-          updatedAt: new Date(data.data.updatedAt),
-          members: data.data.members,
-          owner: data.data.owner,
-        } satisfies Workspace,
-      ].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+    onSuccess: async (data) => {
+      // Invalidate the query to refetch the workspaces
+      await queryClient.invalidateQueries({
+        queryKey: ["fetch-workspace"],
+      });
 
-      setWorkspaces(newWorkspaces);
-      queryClient.invalidateQueries({ queryKey: ["fetch-workspace"] });
+      const newQueryData = queryClient.getQueryData<WorkspacesResponse>([
+        "fetch-workspace",
+      ])!;
+
+      const updatedWorkspaces = newQueryData.data
+        .map((workspace) => ({
+          ...workspace,
+          createdAt: new Date(workspace.createdAt),
+          updatedAt: new Date(workspace.updatedAt),
+          members: workspace.members.map((member) => ({
+            ...member,
+            createdAt: new Date(member.createdAt),
+          })),
+        }))
+        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+
+      setWorkspaces(updatedWorkspaces);
+
       onCancel();
-
       push(`/dashboard/workspace/${data.data._id}`);
     },
 
@@ -124,7 +131,6 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
         type: "400",
         message: error.response?.data.message,
       });
-      console.error("Error creating workspace:", error);
     },
   });
 
@@ -151,7 +157,11 @@ export function AddWorkspaceForm({ onCancel }: Props): JSX.Element {
             <FormItem>
               <FormLabel>Workspace Title</FormLabel>
               <FormControl>
-                <Input placeholder="Enter workspace title" {...field} />
+                <Input
+                  placeholder="Enter workspace title"
+                  {...field}
+                  className="w-full"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -1,5 +1,5 @@
 export type Tag = {
-  id: string;
+  _id: string;
   text: string;
   color: string;
   createdBy: string;

@@ -1,34 +1,13 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { LoaderCircleIcon, Squirrel } from "lucide-react";
+import { Squirrel } from "lucide-react";
 
 import Redirect from "@/components/redirect";
 import { useWorkspaceStore } from "../_providers/workspace";
 
 export default function Page(): JSX.Element {
-  const { workspaces, setActiveWorkspace, status } = useWorkspaceStore(
-    (s) => s,
-  );
-
-  if (status === "loading") {
-    // If the workspace store is still loading, show a loading spinner
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <LoaderCircleIcon className="animate-spin" />
-      </div>
-    );
-  }
-
-  if (status === "error") {
-    // If there was an error fetching the workspaces, you can handle it here
-    // For example, you might want to show an error message or redirect
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <span>Error loading workspaces.</span>
-      </div>
-    );
-  }
+  const { workspaces, setActiveWorkspace } = useWorkspaceStore((s) => s);
 
   return workspaces.length > 0 ? (
     <Redirect

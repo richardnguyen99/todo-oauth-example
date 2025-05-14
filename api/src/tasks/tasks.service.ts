@@ -382,7 +382,7 @@ export class TasksService {
     }
 
     // Check if the user is the owner of the workspace
-    if (workspace.owner.toString() !== ownerId) {
+    if (workspace.ownerId.toString() !== ownerId) {
       throw new ForbiddenException(
         `User with ID ${ownerId} is not the owner of this workspace.`,
       );

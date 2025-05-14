@@ -41,8 +41,8 @@ export default function SideBar(): JSX.Element {
   return (
     <aside
       ref={sidebarRef}
-      className={`bg-muted/40 sticky top-16 h-[calc(100vh-4rem)] w-fit border-r transition-all duration-300 ease-in-out ${
-        isMobile && !sidebarOpen ? "w-0" : ""
+      className={`bg-muted/40 sticky top-16 h-[calc(100vh-4rem)] max-w-64 border-r transition-all duration-300 ease-in-out ${
+        isMobile || !sidebarOpen ? "w-[77px]" : "w-64"
       }`}
     >
       <div className="h-full px-4 py-4">

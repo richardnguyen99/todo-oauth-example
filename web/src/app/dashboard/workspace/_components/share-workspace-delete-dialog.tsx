@@ -3,7 +3,7 @@
 import React, { type JSX } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { Loader2 } from "lucide-react";
 
 import api from "@/lib/axios";
@@ -17,12 +17,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Member, RemoveMemberResponse } from "../_types/member";
 import { WorkspaceErrorResponse, WorkspaceParams } from "../_types/workspace";
-import { useMemberStore } from "../../_providers/member";
+import { useWorkspaceStore } from "../../_providers/workspace";
+import { Workspace, WorkspacesResponse } from "@/_types/workspace";
 
 type Props = Readonly<{
-  member: Member;
+  member: Workspace["members"][number];
   show: boolean;
   setShow: (show: boolean) => void;
 }>;
@@ -32,42 +32,69 @@ export default function ShareWorkspaceDeleteDialog({
   show,
   setShow,
 }: Props): JSX.Element {
+  const { activeWorkspace, workspaces, setActiveWorkspace, setWorkspaces } =
+    useWorkspaceStore((s) => s);
+
+  if (!activeWorkspace) {
+    throw new Error("No active workspace found");
+  }
+
   const [_, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
   const { workspace } = useParams<WorkspaceParams>();
   const queryClient = useQueryClient();
-  const { members, setMembers } = useMemberStore((s) => s);
 
   const { mutate } = useMutation({
-    mutationKey: ["removeMembers", member.userId],
+    mutationKey: ["remove-member", member.userId],
     mutationFn: async () => {
       setLoading(true);
 
-      const response = await api.delete<
-        AxiosError,
-        AxiosResponse<RemoveMemberResponse>
-      >(`/workspaces/${workspace}/remove_member/${member.userId}`);
-
-      return response.data;
+      await api.delete(`/workspaces/${workspace}/members/${member.userId}`);
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["workspaceMembers", workspace, member.userId],
+    onSuccess: async () => {
+      // Invalidate the query to refetch all the workspaces in the background
+      await queryClient.invalidateQueries({
+        queryKey: ["fetch-workspace"],
       });
 
-      const removedMembers = members.filter((m) => m.userId !== member.userId);
+      // Get the updated workspaces from the cache
+      const data = queryClient.getQueryData<WorkspacesResponse>([
+        "fetch-workspace",
+      ])!;
 
-      setShow(false);
-      setMembers(removedMembers);
+      const workspaceData = data.data.find(
+        (w) => w._id === activeWorkspace._id,
+      )!;
+
+      const updatedWorkspace = {
+        ...activeWorkspace,
+        updatedAt: new Date(workspaceData.updatedAt),
+        members: workspaceData.members.map((m) => ({
+          ...m,
+          createdAt: new Date(m.createdAt),
+        })),
+      } satisfies Workspace;
+
+      const updatedWorkspaces = workspaces
+        .map((w) => {
+          if (w._id === activeWorkspace._id) {
+            return updatedWorkspace;
+          }
+
+          return w;
+        })
+        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+
+      setWorkspaces(updatedWorkspaces);
+      setActiveWorkspace(updatedWorkspace);
     },
     onSettled: () => {
       setLoading(false);
+      setShow(false);
     },
 
     onError: (error: AxiosError<WorkspaceErrorResponse>) => {
-      console.error(error);
-
       setError(`${error.code}: ${error.response?.data.message}`);
     },
   });

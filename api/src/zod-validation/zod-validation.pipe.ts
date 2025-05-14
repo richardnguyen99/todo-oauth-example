@@ -21,9 +21,41 @@ export class ZodValidationPipe implements PipeTransform {
     } catch (e) {
       const zodError = e as ZodError;
 
-      throw new BadRequestException(
-        `Validation failed for following fields: ${JSON.stringify(zodError.flatten().fieldErrors)}`,
-      );
+      const detailedMessage = `${zodError.issues[0].path[0]}: ${zodError.issues[0].message}`;
+
+      throw new BadRequestException({
+        message: "Bad Request",
+        error: {
+          name: "BodyValidationError",
+          message: detailedMessage,
+        },
+      });
+    }
+  }
+}
+
+@Injectable()
+export class ZodQueryValidationPipe implements PipeTransform {
+  constructor(private schema: ZodSchema) {}
+
+  transform(value: unknown, metadata: ArgumentMetadata) {
+    if (metadata.type !== "query") {
+      return value;
+    }
+
+    try {
+      const parsedValue = this.schema.parse(value);
+      return parsedValue;
+    } catch (e) {
+      const zodError = e as ZodError;
+
+      throw new BadRequestException({
+        message: "Bad Request",
+        error: {
+          name: "QueryValidationError",
+          message: zodError.format()._errors.join("\n"),
+        },
+      });
     }
   }
 }

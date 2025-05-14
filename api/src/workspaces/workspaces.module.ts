@@ -27,6 +27,25 @@ import { Task, TaskSchema } from "src/tasks/schemas/tasks.schema";
         useFactory: () => {
           const schema = WorkspaceSchema;
 
+          schema.virtual("members", {
+            localField: "memberIds",
+            foreignField: "_id",
+            ref: Member.name,
+          });
+
+          schema.virtual("tags", {
+            localField: "tagIds",
+            foreignField: "_id",
+            ref: Tag.name,
+          });
+
+          schema.virtual("owner", {
+            localField: "ownerId",
+            foreignField: "_id",
+            ref: User.name,
+            justOne: true,
+          });
+
           return schema;
         },
       },
@@ -39,6 +58,13 @@ import { Task, TaskSchema } from "src/tasks/schemas/tasks.schema";
             foreignField: "_id",
             localField: "userId",
             ref: User.name,
+            justOne: true,
+          });
+
+          schema.virtual("workspace", {
+            foreignField: "_id",
+            localField: "workspaceId",
+            ref: Workspace.name,
             justOne: true,
           });
 

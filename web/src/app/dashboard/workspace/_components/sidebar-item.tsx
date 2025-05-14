@@ -5,9 +5,9 @@ import * as LucideReact from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { Workspace } from "../_types/workspace";
 import { colorMap } from "../_constants/colors";
 import { useWorkspaceStore } from "../../_providers/workspace";
+import { Workspace } from "@/_types/workspace";
 
 type Props = Readonly<{
   workspace: Workspace;

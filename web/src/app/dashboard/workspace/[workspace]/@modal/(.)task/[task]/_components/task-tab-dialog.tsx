@@ -143,7 +143,7 @@ export default function TaskDialog(): JSX.Element {
                 <div className="mt-2 w-full pl-5 md:pl-14">
                   <div className="flex w-full flex-wrap items-center gap-2 pr-4">
                     {task.tags.map((tag) => (
-                      <TaskBadge key={tag.id} tag={tag} />
+                      <TaskBadge key={tag._id} tag={tag} />
                     ))}
                   </div>
                 </div>

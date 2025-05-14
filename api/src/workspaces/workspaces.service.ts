@@ -17,7 +17,10 @@ import {
   Workspace,
   WorkspaceDocument,
 } from "src/workspaces/schemas/workspaces.schema";
-import { CreateWorkspaceDto } from "./dto/create-workspace.dto";
+import {
+  CreateWorkspaceDto,
+  CreateWorkspacesQueryDto,
+} from "./dto/create-workspace.dto";
 import { AddNewMemberDto } from "./dto/add-new-member.dto";
 import { UpdateMemberDto } from "./dto/update-member.dto";
 import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
@@ -25,6 +28,7 @@ import { Task } from "src/tasks/schemas/tasks.schema";
 import { UpdateWorkspaceDto } from "./dto/update-workspace.dto";
 import { AddNewTagDto } from "./dto/add-new-tag.dto";
 import { UpdateTagDto } from "./dto/update-tag.dto";
+import { GetWorkspacesQueryDto } from "./dto/get-workspaces-query.dto";
 
 @Injectable()
 export class WorkspacesService {
@@ -45,18 +49,18 @@ export class WorkspacesService {
     private taskModel: Model<Task>,
   ) {}
 
-  async findWorkspaceById(workspaceId: string): Promise<WorkspaceDocument> {
-    const workspace = await this.workspaceModel
-      .findById(workspaceId)
-      .populate([
-        "owner",
-        "members",
-        {
-          path: "tags",
-          select: "name color createdBy",
-        },
-      ])
-      .exec();
+  async findWorkspaceById(
+    workspaceId: string,
+    query?: GetWorkspacesQueryDto,
+  ): Promise<WorkspaceDocument> {
+    let workspaceQuery = this.workspaceModel.findById(workspaceId);
+
+    workspaceQuery = this._prepareQuery<WorkspaceDocument | null>(
+      workspaceQuery,
+      query,
+    );
+
+    const workspace = await workspaceQuery.exec();
 
     if (!workspace) {
       throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
@@ -65,13 +69,38 @@ export class WorkspacesService {
     return workspace;
   }
 
-  async findWorkspacesByUserId(userId: string): Promise<WorkspaceDocument[]> {
-    const workspaces = await this.workspaceModel
-      .find({
-        owner: userId,
-      })
-      .populate(["owner", "tags"])
-      .exec();
+  async findWorkspacesByUserId(
+    userId: string,
+    query?: GetWorkspacesQueryDto,
+  ): Promise<WorkspaceDocument[]> {
+    const queryOr: mongoose.FilterQuery<Workspace>[] = [
+      {
+        ownerId: userId,
+      },
+    ];
+
+    if (query?.include_shared_workspaces) {
+      const members = await this.memberModel.find({
+        userId,
+        isActive: true,
+        role: { $ne: "owner" },
+      });
+
+      queryOr.push({
+        _id: { $in: members.map((member) => member.workspaceId) },
+      });
+    }
+
+    let workspacesQuery = this.workspaceModel.find({
+      $or: queryOr,
+    });
+
+    workspacesQuery = this._prepareQuery<WorkspaceDocument[]>(
+      workspacesQuery,
+      query,
+    );
+
+    const workspaces = await workspacesQuery.exec();
 
     return workspaces;
   }
@@ -79,6 +108,7 @@ export class WorkspacesService {
   async createWorkspace(
     ownerId: string,
     createWorkspaceDto: CreateWorkspaceDto,
+    query?: CreateWorkspacesQueryDto,
   ): Promise<WorkspaceDocument> {
     // Check if the owner exists
     const owner = await this.userModel.findById(ownerId);
@@ -87,25 +117,41 @@ export class WorkspacesService {
       throw new BadRequestException(`User with ID ${ownerId} not found`);
     }
 
-    // check if the title is already taken by another workspace for the same owner
-    const existingWorkspace = await this.workspaceModel.findOne({
-      owner: ownerId,
-      title: createWorkspaceDto.title,
-    });
-
-    if (existingWorkspace) {
-      throw new BadRequestException(
-        `Workspace with title "${createWorkspaceDto.title}" already exists for this user.`,
-      );
-    }
-
-    // Create a new workspace
-    const newWorkspace = new this.workspaceModel({
+    let userDto = {
       title: createWorkspaceDto.title,
       icon: createWorkspaceDto.icon,
       color: createWorkspaceDto.color,
-      owner: ownerId, // Set the owner to the user's ID
-    });
+      ownerId: ownerId, // Set the owner to the user's ID
+    };
+
+    if (query?.workspace_id) {
+      const member = await this.memberModel
+        .findOne({
+          userId: ownerId,
+          workspaceId: query.workspace_id,
+        })
+        .populate<{ workspace: WorkspaceDocument }>("workspace");
+
+      if (!member) {
+        throw new BadRequestException({
+          message: `Cannot create workspace`,
+          error: {
+            name: "BadRequestException",
+            message: `Either workspace is not found or you cannot access it`,
+          },
+        });
+      }
+
+      userDto = {
+        title: `${member.workspace.title} (copy)`,
+        icon: member.workspace.icon,
+        color: member.workspace.color,
+        ownerId: ownerId,
+      };
+    }
+
+    // Create a new workspace
+    const newWorkspace = new this.workspaceModel(userDto);
 
     // Create the default member (the owner)
     const newMember = new this.memberModel({
@@ -115,12 +161,34 @@ export class WorkspacesService {
       isActive: true,
     });
 
-    newWorkspace.members = [newMember._id];
+    newWorkspace.memberIds = [newMember._id];
 
-    await newWorkspace.save();
+    let workspace = await newWorkspace.save();
     await newMember.save();
 
-    return newWorkspace;
+    workspace = await workspace.populate([
+      {
+        path: "owner",
+        model: User.name,
+        select: "-accounts -createdAt -updatedAt -workspaces",
+      },
+      {
+        path: "tags",
+        model: Tag.name,
+      },
+      {
+        path: "members",
+        model: Member.name,
+        select: "-updatedAt -workspaceId",
+        populate: {
+          path: "user",
+          model: User.name,
+          select: "-accounts -createdAt -updatedAt -workspaces",
+        },
+      },
+    ]);
+
+    return workspace;
   }
 
   async getWorkspaceMembers(
@@ -144,26 +212,24 @@ export class WorkspacesService {
     }
 
     // Populate the members of the workspace
-    const workspaceWithMembers = await workspace.populate([
+    const workspaceWithMembers = await workspace.populate<{
+      members: MemberDocument[];
+    }>([
       {
         path: "members",
-        populate: {
-          path: "user",
-          model: "User",
-        },
       },
     ]);
 
-    return workspaceWithMembers.members as MemberDocument[];
+    return workspaceWithMembers.members;
   }
 
   async addMemberToWorkspace(
     userId: string,
     workspaceId: string,
     addNewMemberDto: AddNewMemberDto,
-  ): Promise<MemberDocument> {
+  ): Promise<WorkspaceDocument> {
     // Check if the workspace exists
-    const workspace = await this._getWorkspaceWithAdminAccess(
+    let workspace = await this._getWorkspaceWithAdminAccess(
       userId,
       workspaceId,
     );
@@ -196,22 +262,40 @@ export class WorkspacesService {
       role,
       isActive: true,
     });
-    workspace.members.push(newMember._id);
+    workspace.memberIds.push(newMember._id);
 
-    const savedMember = await newMember.save();
-    await workspace.save();
+    await newMember.save();
+    workspace = await workspace.save();
+    workspace = await workspace.populate([
+      {
+        path: "owner",
+        model: User.name,
+        select: "-accounts",
+      },
+      {
+        path: "tags",
+        model: Tag.name,
+        select: "_id color text",
+      },
+      {
+        path: "members",
+        model: Member.name,
+        select: "-updatedAt",
+        populate: {
+          path: "user",
+          model: User.name,
+          select: "-createdAt -updatedAt -accounts",
+        },
+      },
+    ]);
 
-    const returnedMember = await savedMember.populate({
-      path: "user",
-      model: "User",
-    });
-
-    return returnedMember;
+    return workspace;
   }
 
   async updateMemberInWorkspace(
     userId: string,
     workspaceId: string,
+    memberId: string,
     updateMemberDto: UpdateMemberDto,
   ): Promise<MemberDocument> {
     // Check if the workspace exists
@@ -220,30 +304,33 @@ export class WorkspacesService {
       workspaceId,
     );
 
-    const { memberId, role } = updateMemberDto; // Destructure to get memberId and role
+    const existingMember = await this.memberModel.findOneAndUpdate(
+      {
+        userId: memberId,
+        workspaceId: workspace._id,
+      },
+      {
+        $set: updateMemberDto,
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
 
-    // Check if the user is already a member of the workspace
-    const existingMember = await this.memberModel.findOne({
-      userId: memberId,
-      workspaceId: workspace._id,
-    });
-
-    if (!existingMember) {
+    if (existingMember === null) {
       throw new NotFoundException(
-        `User with ID ${memberId} is not a member of this workspace.`,
+        `Member with ID ${memberId} not found in this workspace.`,
       );
     }
 
-    if (role) {
-      existingMember.role = role;
-    }
-
-    let savedMember = await existingMember.save();
-
-    await savedMember.populate({
-      path: "user",
-      model: "User",
-    });
+    const savedMember = await existingMember.populate([
+      {
+        path: "user",
+        model: User.name,
+        select: "-createdAt -updatedAt -accounts -workspaces",
+      },
+    ]);
 
     return savedMember;
   }
@@ -274,7 +361,7 @@ export class WorkspacesService {
     // Remove the member from the workspace's members array
     await this.memberModel.deleteOne({ _id: existingMember._id });
 
-    workspace.members = workspace.members.filter(
+    workspace.memberIds = workspace.memberIds.filter(
       (memberId) => memberId.toString() !== existingMember._id.toString(),
     );
 
@@ -353,25 +440,79 @@ export class WorkspacesService {
     };
   }
 
+  async getTagsInWorkspace(
+    userId: string,
+    workspaceId: string,
+  ): Promise<WorkspaceDocument> {
+    // Find member to check if the user is a member of the workspace
+    const member = await this.memberModel.findOne({
+      userId,
+      workspaceId,
+    });
+
+    if (!member) {
+      throw new BadRequestException({
+        message: "Cannot query tags",
+        error: {
+          name: "BadRequestException",
+          message:
+            "\
+The current user is not allowed to access this workspace. Further actions are \
+forbidden.",
+        },
+      });
+    }
+
+    // Find the workspace
+    let workspaceQuery = this.workspaceModel
+      .findById(workspaceId)
+      .select("_id tagIds")
+      .populate<{ tags: TagDocument[] }>([
+        {
+          path: "tags",
+          model: Tag.name,
+          select: "-workspaceId",
+        },
+      ]);
+
+    const workspaceDoc = await workspaceQuery.exec();
+
+    if (!workspaceDoc) {
+      throw new NotFoundException({
+        message: "Cannot query tags",
+        error: {
+          name: "NotFoundException",
+          message: `Workspace with ID ${workspaceId} not found`,
+        },
+      });
+    }
+
+    workspaceDoc.set("tagIds", undefined);
+
+    return workspaceDoc;
+  }
+
   async addTagToWorkspace(
     userId: string,
     workspaceId: string,
     body: AddNewTagDto,
   ): Promise<WorkspaceDocument> {
+    // Check if the user is a member of the workspace
+    const isMember = await this.memberModel.findOne({
+      userId,
+      workspaceId,
+    });
+
+    if (!isMember) {
+      throw new ForbiddenException(
+        `User with ID ${userId} is not a member of this workspace.`,
+      );
+    }
+
     const workspace = await this.findWorkspaceById(workspaceId);
 
     if (!workspace) {
       throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
-    }
-
-    if (
-      workspace.members.filter(
-        (member) => (member as Member).userId.toString() === userId,
-      ).length === 0
-    ) {
-      throw new ForbiddenException(
-        `User with ID ${userId} is not a member of this workspace.`,
-      );
     }
 
     try {
@@ -382,7 +523,7 @@ export class WorkspacesService {
         workspaceId: workspace._id,
       });
 
-      workspace.tags.push(newTag._id);
+      workspace.tagIds.push(newTag._id);
       let savedWorkspace = await workspace.save();
       savedWorkspace = await savedWorkspace.populate(["tags"]);
 
@@ -400,21 +541,22 @@ export class WorkspacesService {
     tagId: string,
     body: UpdateTagDto,
   ): Promise<TagDocument> {
-    console.log("body", body);
+    // Check if the user is a member of the workspace
+    const isMember = await this.memberModel.findOne({
+      userId,
+      workspaceId,
+    });
+
+    if (!isMember) {
+      throw new ForbiddenException(
+        `User with ID ${userId} is not a member of this workspace.`,
+      );
+    }
+
     const workspace = await this.findWorkspaceById(workspaceId);
 
     if (!workspace) {
       throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
-    }
-
-    if (
-      workspace.members.filter(
-        (member) => (member as Member).userId.toString() === userId,
-      ).length === 0
-    ) {
-      throw new ForbiddenException(
-        `User with ID ${userId} is not a member of this workspace.`,
-      );
     }
 
     const tagUpdateQuery = {};
@@ -563,12 +705,83 @@ export class WorkspacesService {
     }
 
     // Check if the user is the owner of the workspace
-    if (workspace.owner.toString() !== ownerId) {
+    if (workspace.ownerId.toString() !== ownerId) {
       throw new ForbiddenException(
         `User with ID ${ownerId} is not the owner of this workspace.`,
       );
     }
 
     return workspace;
+  }
+
+  private _prepareQuery<QueryType>(
+    query: mongoose.Query<QueryType, WorkspaceDocument>,
+    params?: GetWorkspacesQueryDto,
+  ) {
+    if (params) {
+      if (params.fields && params.fields.length > 0) {
+        const fields = params.fields.join(" ");
+        query = query.select(fields);
+      }
+
+      const populateOptions = params.includes.map(
+        (include) =>
+          ({
+            path: include,
+          }) as mongoose.PopulateOptions,
+      );
+
+      if (params.tag_fields && params.tag_fields.length > 0) {
+        const tagFields = params.tag_fields.join(" ");
+        const tagsOption = populateOptions.find(
+          (option) => option.path === "tags",
+        )!;
+
+        tagsOption.select = tagFields;
+      }
+
+      if (params.member_fields && params.member_fields.length > 0) {
+        const memberFields = params.member_fields
+          .filter((field) => !field.startsWith("user."))
+          .join(" ");
+
+        const membersOption = populateOptions.find(
+          (option) => option.path === "members",
+        )!;
+
+        membersOption.select = memberFields;
+      }
+
+      if (params.owner_field && params.owner_field.length > 0) {
+        const ownerFields = params.owner_field.join(" ");
+        const ownerOption = populateOptions.find(
+          (option) => option.path === "owner",
+        )!;
+
+        ownerOption.select = ownerFields;
+      }
+
+      if (params.include_member_account) {
+        const membersOption = populateOptions.find(
+          (option) => option.path === "members",
+        )!;
+
+        const userFields = params.member_fields.filter((field) =>
+          field.startsWith("user."),
+        );
+
+        membersOption.populate = {
+          path: "user",
+          model: User.name,
+          select: userFields
+            .map((field) => field.replace("user.", ""))
+            .join(" "),
+        };
+      }
+
+      query = query.populate(populateOptions);
+    }
+
+    return query;
   }
 }
