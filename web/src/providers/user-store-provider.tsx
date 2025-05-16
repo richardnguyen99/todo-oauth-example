@@ -13,12 +13,29 @@ export const UserStoreContext = createContext<UserStoreApi | undefined>(
 
 export interface UserStoreProviderProps {
   children: ReactNode;
+  initialData: Record<string, unknown>;
 }
 
-export const UserStoreProvider = ({ children }: UserStoreProviderProps) => {
+export const UserStoreProvider = ({
+  children,
+  initialData,
+}: UserStoreProviderProps) => {
   const storeRef = useRef<UserStoreApi | null>(null);
   if (storeRef.current === null) {
-    storeRef.current = createUserStore();
+    storeRef.current = createUserStore({
+      error: null,
+      status: "success",
+      user: {
+        id: initialData.id as string,
+        username: initialData.username as string,
+        email: initialData.email as string,
+        avatar: initialData.avatar as string,
+        createdAt: new Date(initialData.createdAt as string),
+        updatedAt: new Date(initialData.updatedAt as string),
+        verified: initialData.verified as boolean,
+        accounts: [],
+      },
+    });
   }
 
   return (

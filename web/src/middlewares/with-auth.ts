@@ -23,7 +23,7 @@ export function withAuth(middleware: CustomMiddleware) {
 
     if (isProtectedRoute(pathname) && accessToken) {
       const userResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/users/@me`,
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/verify`,
         {
           method: "GET",
           cache: "no-store",
@@ -49,10 +49,22 @@ export function withAuth(middleware: CustomMiddleware) {
           );
 
           if (refreshTokenResponse.ok) {
+            const refreshTokenData = await refreshTokenResponse.json();
+
+            const newAccessToken = refreshTokenData.data.access_token;
+            const newRefreshToken = refreshTokenData.data.refresh_token;
+            const cookieOptions = refreshTokenData.data.cookie_options;
+
             const newResponse = NextResponse.next();
-            newResponse.headers.set(
-              "set-cookie",
-              refreshTokenResponse.headers.get("set-cookie")!,
+            newResponse.cookies.set(
+              "access_token",
+              newAccessToken,
+              cookieOptions,
+            );
+            newResponse.cookies.set(
+              "refresh_token",
+              newRefreshToken,
+              cookieOptions,
             );
 
             return middleware(request, event, newResponse);
@@ -73,8 +85,6 @@ export function withAuth(middleware: CustomMiddleware) {
           });
         }
       }
-
-      response.headers.set("X-User", await userResponse.text());
     }
 
     return middleware(request, event, response);

@@ -19,6 +19,7 @@ import { Cache } from "cache-manager";
 import { AuthService } from "./auth.service";
 import { UserDocument } from "src/users/schemas/user.schema";
 import { ResponsePayloadDto } from "src/dto/response.dto";
+import { JwtAuthGuard } from "./guards/jwt.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -106,6 +107,30 @@ export class AuthController {
     res.redirect(`${process.env.WEB_URL}/`);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get("/verify")
+  async verify(@Request() req: ExpressRequest, @Res() res: ExpressResponse) {
+    const userId = req.user!["userId"] as string;
+    const accessToken = req.user!["access_token"] as string;
+
+    const accessTokenInCache = await this.cacheManager.get<number>(
+      `${userId}:${accessToken}`,
+    );
+
+    if (accessTokenInCache) {
+      res.status(HttpStatus.FORBIDDEN).json({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: "accessToken invalid",
+        data: null,
+      } satisfies ResponsePayloadDto);
+    }
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "accessToken valid",
+    });
+  }
+
   @UseGuards(AuthGuard(["refresh-token"]))
   @Get("/refresh")
   async refresh(@Req() req: ExpressRequest, @Res() res: ExpressResponse) {
@@ -132,7 +157,10 @@ export class AuthController {
     res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       message: "refreshed new access token",
-      data,
+      data: {
+        ...data,
+        cookie_options: this.cookieOptions,
+      },
     } satisfies ResponsePayloadDto);
   }
 }

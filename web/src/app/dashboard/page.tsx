@@ -1,23 +1,14 @@
 import React, { type JSX } from "react";
-import { cookies, headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export default async function DashboardPage(): Promise<JSX.Element> {
-  const headerList = await headers();
-  const user = headerList.get("x-user");
+  const cookieStore = await cookies();
 
-  if (!user) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <h1 className="text-2xl font-bold">Unauthorized</h1>
-      </div>
-    );
+  if (!cookieStore.has("access_token")) {
+    redirect("/login");
   }
 
-  const userData = JSON.parse(user);
-
-  return (
-    <div className="flex h-screen w-full items-center justify-center">
-      <h1 className="text-2xl font-bold">Welcome, {userData.data.email}</h1>
-    </div>
-  );
+  redirect("/dashboard/workspace"); // Redirect to the workspace page by default
+  return <></>;
 }

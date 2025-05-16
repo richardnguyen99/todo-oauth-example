@@ -12,9 +12,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export default function DashboardHeader(): JSX.Element {
+type Props = Readonly<{
+  avatarUrl: string;
+  avatarName: string;
+  avatarAlt: string;
+}>;
+
+export default function DashboardHeader({
+  avatarUrl,
+  avatarName,
+  avatarAlt,
+}: Props): JSX.Element {
   return (
     <header className="bg-background sticky top-0 z-40 w-full border-b">
       <div className="container flex h-16 max-w-full items-center justify-between px-4">
@@ -42,7 +52,8 @@ export default function DashboardHeader(): JSX.Element {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarImage src={avatarUrl} alt={avatarAlt} />
+                  <AvatarFallback>{avatarName.slice(0, 2)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
