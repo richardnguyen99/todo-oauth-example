@@ -1,27 +1,23 @@
-"use client";
-
 import React, { type JSX } from "react";
-import { LoaderCircleIcon } from "lucide-react";
+import { cookies, headers } from "next/headers";
 
-import { useUserStore } from "@/providers/user-store-provider";
-import Redirect from "@/components/redirect";
+export default async function DashboardPage(): Promise<JSX.Element> {
+  const headerList = await headers();
+  const user = headerList.get("x-user");
 
-export default function TodoPage(): JSX.Element {
-  const { user, status } = useUserStore((s) => s);
-
-  if (status === "loading") {
+  if (!user) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <LoaderCircleIcon className="animate-spin" />
+      <div className="flex h-screen w-full items-center justify-center">
+        <h1 className="text-2xl font-bold">Unauthorized</h1>
       </div>
     );
   }
 
-  if (user === null) {
-    // If the user store is not initialized, redirect to the login page
-    // This could happen if the user is not authenticated
-    return <Redirect url={`/login`} />;
-  }
+  const userData = JSON.parse(user);
 
-  return <Redirect url={`/dashboard/workspace`} />;
+  return (
+    <div className="flex h-screen w-full items-center justify-center">
+      <h1 className="text-2xl font-bold">Welcome, {userData.data.email}</h1>
+    </div>
+  );
 }
