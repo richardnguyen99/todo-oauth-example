@@ -47,7 +47,6 @@ export default function WorkspacePageLayout({
   );
 
   React.useEffect(() => {
-    console.log("WORKSPACE", workspace);
     const foundWorkspace = workspaces.find((w) => w._id === workspace);
 
     if (!foundWorkspace) {

@@ -26,7 +26,7 @@ export const UserStoreProvider = ({
       error: null,
       status: "success",
       user: {
-        id: initialData.id as string,
+        id: initialData._id as string,
         username: initialData.username as string,
         email: initialData.email as string,
         avatar: initialData.avatar as string,

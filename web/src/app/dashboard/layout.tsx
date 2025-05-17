@@ -1,8 +1,8 @@
 import React, { type JSX } from "react";
 import { cookies } from "next/headers";
-
-import DashboardHeader from "./workspace/_components/dashboard-header";
 import { redirect } from "next/navigation";
+
+import DashboardHeader from "./_components/dashboard-header";
 import { UserStoreProvider } from "@/providers/user-store-provider";
 
 type Props = Readonly<{
@@ -38,6 +38,8 @@ export default async function DashboardLayout({
         avatarUrl={userData.data.avatar}
         avatarAlt={userData.data.username}
         avatarName={userData.data.username}
+        username={userData.data.username}
+        email={userData.data.email}
       />
       {children}
     </UserStoreProvider>

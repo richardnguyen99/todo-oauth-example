@@ -14,6 +14,7 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -62,11 +63,11 @@ export default function SidebarMoreWorkspaceSheet({
       <Sheet data-sidebar="sidebar-sheet" modal>
         <SheetTrigger asChild>
           <SidebarMenuItem>
-            <SidebarMenuButton className="text-sidebar-foreground/70" asChild>
-              <div>
+            <SidebarMenuButton className="text-sidebar-foreground/70 cursor-pointer">
+              <>
                 <MoreHorizontal className="text-sidebar-foreground/70" />
                 <span>more</span>
-              </div>
+              </>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SheetTrigger>
@@ -154,6 +155,21 @@ export default function SidebarMoreWorkspaceSheet({
                 </div>
               </div>
             </SheetTitle>
+
+            <SheetDescription asChild>
+              <p className="text-muted-foreground">
+                You can add up to 5 workspaces. To add more, please{" "}
+                <a
+                  href="https://taskmaster.dev/pricing"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary underline underline-offset-4"
+                >
+                  upgrade your plan
+                </a>
+                .
+              </p>
+            </SheetDescription>
           </SheetHeader>
 
           <div className="flex flex-col gap-2 px-2 text-sm">
