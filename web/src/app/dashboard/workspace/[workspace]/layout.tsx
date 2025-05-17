@@ -66,7 +66,7 @@ export default function WorkspacePageLayout({
     <TaskStoreProvider>
       <TaskInitializer />
       <div>
-        <header className="bg-background sticky top-16 z-10 flex h-12 shrink-0 items-center justify-between gap-2 overflow-x-auto border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-10">
+        <div className="bg-background sticky top-16 z-10 flex h-12 shrink-0 items-center justify-between gap-2 overflow-x-auto border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-10">
           <div className="bg-background flex flex-nowrap items-center gap-2 px-3">
             <SidebarTrigger className="-ml-1 cursor-pointer" />
             <Separator orientation="vertical" className="mr-2 !h-5" />
@@ -132,7 +132,7 @@ export default function WorkspacePageLayout({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </header>
+        </div>
 
         <div className="mx-auto mt-4 max-w-4xl">
           {children}

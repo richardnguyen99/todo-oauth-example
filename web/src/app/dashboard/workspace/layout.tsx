@@ -118,25 +118,21 @@ export default function WorkspaceLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="relative flex flex-1">
-        <WorkspaceStoreProvider initialState={data.data}>
-          <SidebarProvider>
-            {/* Sidebar component */}
-            <WorkspaceSidebar />
+    <WorkspaceStoreProvider initialState={data.data}>
+      <SidebarProvider>
+        {/* Sidebar component */}
+        <WorkspaceSidebar />
 
-            {/* Main layout */}
-            <SidebarInset className="flex flex-col">
-              <div
-                data-sidebar="sidebar-sheet-container"
-                className="absolute mt-12 h-full w-full [&>[data-slot=sheet-content]]:absolute [&>[data-slot=sheet-content]]:z-10 [&>[data-slot=sheet-overlay]]:absolute [&>[data-slot=sheet-overlay]]:z-[9]"
-              />
+        {/* Main layout */}
+        <SidebarInset className="flex flex-col">
+          <div
+            data-sidebar="sidebar-sheet-container"
+            className="absolute mt-12 h-full w-full [&>[data-slot=sheet-content]]:absolute [&>[data-slot=sheet-content]]:z-10 [&>[data-slot=sheet-overlay]]:absolute [&>[data-slot=sheet-overlay]]:z-[9]"
+          />
 
-              {children}
-            </SidebarInset>
-          </SidebarProvider>
-        </WorkspaceStoreProvider>
-      </div>
-    </div>
+          {children}
+        </SidebarInset>
+      </SidebarProvider>
+    </WorkspaceStoreProvider>
   );
 }
