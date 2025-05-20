@@ -1,7 +1,19 @@
+"use client";
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
 
+import { useWorkspaceStore } from "../../_providers/workspace";
+
 export default function NotFound(): JSX.Element {
+  const { setActiveWorkspace } = useWorkspaceStore((s) => s);
+
+  React.useEffect(() => {
+    setActiveWorkspace({
+      workspace: null,
+      status: "error",
+    });
+  }, [setActiveWorkspace]);
+
   return (
     <div className="mx-auto max-w-4xl">
       <div className="flex flex-col items-center justify-center py-12 text-center">

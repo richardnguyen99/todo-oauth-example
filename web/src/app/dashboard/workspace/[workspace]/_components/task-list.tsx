@@ -6,9 +6,33 @@ import { CheckCircle } from "lucide-react";
 import { useTaskStore } from "../_providers/task";
 import TaskItem from "./task-item";
 import { TaskCreator } from "./task-creator";
+import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
+import { notFound } from "next/navigation";
 
-export default function TaskList(): JSX.Element {
+type Props = Readonly<{
+  workspaceId: string;
+}>;
+
+export default function TaskList({ workspaceId }: Props): JSX.Element {
   const { tasks } = useTaskStore((s) => s);
+  const { setActiveWorkspace, workspaces } = useWorkspaceStore((s) => s);
+
+  React.useEffect(() => {
+    const workspace = workspaces.find((w) => w._id === workspaceId);
+
+    if (!workspace) {
+      setActiveWorkspace({
+        workspace: null,
+        status: "error",
+      });
+      notFound();
+    }
+
+    setActiveWorkspace({
+      workspace,
+      status: "success",
+    });
+  }, [setActiveWorkspace, workspaceId, workspaces]);
 
   return (
     <div>

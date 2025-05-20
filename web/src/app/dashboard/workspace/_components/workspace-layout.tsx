@@ -67,7 +67,7 @@ export default async function WorkspaceLayout({
         <SidebarInset className="flex flex-col">
           <div
             data-sidebar="sidebar-sheet-container"
-            className="absolute mt-12 h-full w-full [&>[data-slot=sheet-content]]:absolute [&>[data-slot=sheet-content]]:z-10 [&>[data-slot=sheet-overlay]]:absolute [&>[data-slot=sheet-overlay]]:z-[9]"
+            className="pointer-events-none absolute mt-12 h-full w-full [&>[data-slot=sheet-content]]:absolute [&>[data-slot=sheet-content]]:z-10 [&>[data-slot=sheet-overlay]]:absolute [&>[data-slot=sheet-overlay]]:z-[9]"
           />
 
           {children}

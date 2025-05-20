@@ -1,20 +1,31 @@
-"use client";
-
-import React, { type JSX } from "react";
+import React, { Suspense, type JSX } from "react";
 import { Loader2 } from "lucide-react";
 
-import { useTaskStore } from "./_providers/task";
+import WorkspacePageLayout from "./_components/workspace-id-layout";
 import TaskList from "./_components/task-list";
 
-export default function WorkspacePage(): JSX.Element | never {
-  const { status } = useTaskStore((s) => s);
-  if (status === "loading") {
-    return (
-      <div className="relative h-64 space-y-1">
-        {" "}
-        <Loader2 className="text-muted-foreground absolute top-1/2 left-1/2 h-6 w-6 animate-spin" />{" "}
-      </div>
-    );
-  }
-  return <TaskList />;
+type Props = Readonly<{
+  params: Promise<{
+    workspace: string;
+  }>;
+}>;
+
+export default async function WorkspacePage({
+  params,
+}: Props): Promise<JSX.Element> {
+  const { workspace } = await params;
+
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-1 items-center justify-center">
+          <Loader2 className="text-muted-foreground size-6 animate-spin" />
+        </div>
+      }
+    >
+      <WorkspacePageLayout workspaceId={workspace}>
+        <TaskList workspaceId={workspace} />
+      </WorkspacePageLayout>
+    </Suspense>
+  );
 }

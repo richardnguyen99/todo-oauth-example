@@ -13,7 +13,10 @@ export default function Page(): JSX.Element {
     <Redirect
       url={`/dashboard/workspace/${workspaces[0]._id}`}
       onReplace={() => {
-        setActiveWorkspace(workspaces[0]);
+        setActiveWorkspace({
+          workspace: workspaces[0],
+          status: "success",
+        });
       }}
     />
   ) : (
