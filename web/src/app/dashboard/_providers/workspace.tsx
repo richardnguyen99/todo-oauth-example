@@ -40,7 +40,7 @@ export const WorkspaceStoreProvider = ({
         })),
       })),
       activeWorkspace: null,
-      status: "success",
+      status: "loading",
     } satisfies WorkspaceState;
 
     storeRef.current = createWorkspaceStore(state);

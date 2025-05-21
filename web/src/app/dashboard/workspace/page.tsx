@@ -5,17 +5,51 @@ import { Squirrel } from "lucide-react";
 
 import Redirect from "@/components/redirect";
 import { useWorkspaceStore } from "../_providers/workspace";
+import { Workspace } from "@/_types/workspace";
+import { useUserStore } from "@/providers/user-store-provider";
 
 export default function Page(): JSX.Element {
+  const { user } = useUserStore((s) => s);
   const { workspaces, setActiveWorkspace } = useWorkspaceStore((s) => s);
 
-  return workspaces.length > 0 ? (
+  const redirectWorkspace = React.useMemo(() => {
+    const sharedWorkspaces: Workspace[] = [];
+    const ownedWorkspaces = workspaces.filter((ws) => {
+      if (user) {
+        return user.id === ws.ownerId;
+      }
+
+      sharedWorkspaces.push(ws);
+      return false;
+    });
+
+    if (ownedWorkspaces.length > 0) {
+      return ownedWorkspaces[0];
+    }
+
+    if (sharedWorkspaces.length > 0) {
+      return sharedWorkspaces[0];
+    }
+
+    return null;
+  }, [workspaces, user]);
+
+  React.useEffect(() => {
+    if (!redirectWorkspace) {
+      setActiveWorkspace({
+        workspace: null,
+        status: "success",
+      });
+    }
+  }, [redirectWorkspace, setActiveWorkspace]);
+
+  return redirectWorkspace ? (
     <Redirect
-      url={`/dashboard/workspace/${workspaces[0]._id}`}
+      url={`/dashboard/workspace/${redirectWorkspace._id}`}
       onReplace={() => {
         setActiveWorkspace({
-          workspace: workspaces[0],
-          status: "success",
+          workspace: redirectWorkspace,
+          status: "loading",
         });
       }}
     />

@@ -51,7 +51,7 @@ export default function WorkspaceSidebar({
         {...props}
       >
         <SidebarContent>
-          {status !== "error" && !activeWorkspace && (
+          {status === "loading" && !activeWorkspace && (
             <>
               <SidebarHeader>
                 <SidebarMenuButton
