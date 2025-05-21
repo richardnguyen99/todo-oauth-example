@@ -1,13 +1,6 @@
-"use client";
-
 import React, { type JSX } from "react";
-import { useParams } from "next/navigation";
+import TaskDialog from "./_components/task-tab-dialog";
 
-import { TaskParams } from "../../../_types/task";
-import TaskPreview from "./_components/task-tab-preview";
-
-export default function TaskInterceptingRoute(): JSX.Element {
-  const params = useParams<TaskParams>();
-
-  return <TaskPreview params={params} />;
+export default async function TaskInterceptingPage(): Promise<JSX.Element> {
+  return <TaskDialog />;
 }

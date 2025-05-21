@@ -26,12 +26,6 @@ import {
 import TaskList from "./_components/task-list";
 import SidebarLayoutBreadcrumb from "../_components/workspace-sidebar/breadcrumb";
 
-type Props = Readonly<{
-  params: Promise<{
-    workspace: string;
-  }>;
-}>;
-
 export default async function WorkspacePage(): Promise<JSX.Element> {
   return (
     <div>
@@ -103,7 +97,7 @@ export default async function WorkspacePage(): Promise<JSX.Element> {
         </div>
       </div>
 
-      <div className="mx-auto mt-4 max-w-4xl">
+      <div className="mx-auto mt-3 max-w-4xl px-3">
         <TaskList />
       </div>
     </div>

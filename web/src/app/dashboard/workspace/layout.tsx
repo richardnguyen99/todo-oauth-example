@@ -1,5 +1,4 @@
 import React, { type JSX } from "react";
-import { Loader2 } from "lucide-react";
 
 import WorkspaceLayout from "./_components/workspace-layout";
 import {
