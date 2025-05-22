@@ -15,8 +15,6 @@ export default async function FetchedTaskPage({
   workspaceId,
   children,
 }: Props): Promise<JSX.Element> {
-  await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate a delay
-
   const data = await fetchTaskId(taskId, workspaceId, (res) => {
     if (res.status >= 400) {
       notFound();
