@@ -49,3 +49,19 @@ export type WorkspaceResponse = {
   message: string;
   data: FetchedWorkspace;
 };
+
+export type UpdateWorkspaceResponse = {
+  statusCode: number;
+  message: string;
+  data: Omit<FetchedWorkspace, "tags" | "members" | "owner">;
+};
+
+export type UpdateWorkspaceErrorResponse = {
+  timestamp: string;
+  path: string;
+  method: string;
+  statusCode: number;
+  message: string;
+  error: unknown;
+  data: null;
+};

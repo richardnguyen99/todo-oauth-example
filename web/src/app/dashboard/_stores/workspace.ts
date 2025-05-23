@@ -13,6 +13,7 @@ export type WorkspaceState = {
 export type WorkspaceActions = {
   setWorkspaces: (newState: {
     workspaces: Workspace[];
+    activeWorkspace?: Workspace | null;
     status?: WorkspaceStatus;
   }) => void;
   setActiveWorkspace: (newState: {
@@ -34,11 +35,12 @@ export const createWorkspaceStore = (
 ) => {
   return createStore<WorkspaceStore>()((set) => ({
     ...initState,
-    setWorkspaces: ({ workspaces, status = "success" }) =>
+    setWorkspaces: ({ workspaces, activeWorkspace, status = "success" }) =>
       set((state) => ({
         ...state,
         workspaces,
         status,
+        activeWorkspace,
       })),
 
     setActiveWorkspace: ({ workspace, status = "success" }) =>

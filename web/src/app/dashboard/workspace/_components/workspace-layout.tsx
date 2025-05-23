@@ -1,8 +1,9 @@
 import React, { type JSX } from "react";
-import { cookies } from "next/headers";
+
 import { WorkspaceStoreProvider } from "../../_providers/workspace";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset } from "@/components/ui/sidebar";
 import WorkspaceSidebar from "./workspace-sidebar";
+import { fetchWorkspaces } from "@/lib/fetch-workspaces";
 
 type Props = Readonly<{
   children: React.ReactNode;
@@ -11,54 +12,16 @@ type Props = Readonly<{
 export default async function WorkspaceLayout({
   children,
 }: Props): Promise<JSX.Element> {
-  const cookieStore = await cookies();
-  const searchParams = new URLSearchParams({
-    fields: [
-      "title",
-      "icon",
-      "color",
-      "private",
-      "createdAt",
-      "updatedAt",
-    ].join(","),
-    tag_fields: ["text", "color"].join(","),
-    member_fields: [
-      "_id",
-      "userId",
-      "role",
-      "isActive",
-      "createdAt",
-      "user.username",
-      "user.email",
-      "user.emailVerified",
-      "user.avatar",
-    ].join(","),
-    owner_field: ["username", "email", "emailVerified", "avatar"].join(","),
-    includes: ["tags", "members", "owner"].join(","),
-    include_member_account: "true",
-    include_shared_workspaces: "true",
+  const data = await fetchWorkspaces((res) => {
+    if (res.status >= 400) {
+      throw new Error("Failed to fetch workspaces");
+    }
+
+    throw new Error("Something went wrong");
   });
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/workspaces?${searchParams.toString()}`,
-    {
-      method: "GET",
-      cache: "no-store",
-      credentials: "include",
-      headers: {
-        Cookie: cookieStore.toString(),
-      },
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch workspaces");
-  }
-
-  const data = await response.json();
-
   return (
-    <WorkspaceStoreProvider initialState={data.data}>
+    <WorkspaceStoreProvider initialState={data}>
       {/* Sidebar component */}
       <WorkspaceSidebar />
 

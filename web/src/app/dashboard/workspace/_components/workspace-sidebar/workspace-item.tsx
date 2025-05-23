@@ -21,6 +21,7 @@ import { Color } from "@/_types/color";
 import { cn } from "@/lib/utils";
 import { colorMap } from "../../_constants/colors";
 import { Workspace } from "@/_types/workspace";
+import UpdateWorkspaceDialog from "../update-workspace-dialog";
 
 type Props = Readonly<
   {
@@ -73,7 +74,7 @@ export default function SidebarWorkspaceItem({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <SidebarMenuAction className="opacity-0 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100">
+          <SidebarMenuAction className="cursor-pointer opacity-0 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100">
             <LucideIcons.MoreHorizontal />
             <span className="sr-only">More</span>
           </SidebarMenuAction>
@@ -90,10 +91,13 @@ export default function SidebarWorkspaceItem({
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem>
-            <LucideIcons.Pen className="text-muted-foreground" />
-            <span>Update</span>
-          </DropdownMenuItem>
+          <UpdateWorkspaceDialog workspace={workspace}>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              <LucideIcons.Pen className="text-muted-foreground" />
+              <span>Update</span>
+            </DropdownMenuItem>
+          </UpdateWorkspaceDialog>
+
           <DropdownMenuItem>
             <LucideIcons.Copy className="text-muted-foreground" />
             <span>Duplicate</span>
