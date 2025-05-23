@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import TaskList from "./_components/task-list";
+import AddTaskDialog from "./_components/add-task-dialog";
 import SidebarLayoutBreadcrumb from "../_components/workspace-sidebar/breadcrumb";
 
 export default async function WorkspacePage(): Promise<JSX.Element> {
@@ -37,10 +38,12 @@ export default async function WorkspacePage(): Promise<JSX.Element> {
         </div>
 
         <div className="flex items-center gap-2 pr-4">
-          <Button variant="default" className="h-7 cursor-pointer">
-            <Plus className="h-4 w-4" />
-            <span>Add</span>
-          </Button>
+          <AddTaskDialog>
+            <Button variant="default" className="h-7 cursor-pointer">
+              <Plus className="h-4 w-4" />
+              <span>Add</span>
+            </Button>
+          </AddTaskDialog>
 
           <Button variant="outline" className="h-7 cursor-pointer">
             <Columns2 className="h-4 w-4" />
