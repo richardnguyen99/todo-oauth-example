@@ -23,7 +23,6 @@ import {
   TagDocument,
   WorkspaceDocument,
 } from "./schemas/workspaces.schema";
-import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
 import {
   ZodQueryValidationPipe,
   ZodValidationPipe,
@@ -214,7 +213,7 @@ export class WorkspacesController {
     @Param("id") workspaceId: string,
     @JwtUser() user: JwtUserPayload,
   ) {
-    let deleteResult: DeleteWorkspaceResult;
+    let deleteResult: WorkspaceDocument;
 
     try {
       deleteResult = await this.workspaceService.deleteWorkspace(

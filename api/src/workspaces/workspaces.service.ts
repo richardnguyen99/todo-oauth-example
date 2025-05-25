@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -23,12 +24,12 @@ import {
 } from "./dto/create-workspace.dto";
 import { AddNewMemberDto } from "./dto/add-new-member.dto";
 import { UpdateMemberDto } from "./dto/update-member.dto";
-import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
 import { Task } from "src/tasks/schemas/tasks.schema";
 import { UpdateWorkspaceDto } from "./dto/update-workspace.dto";
 import { AddNewTagDto } from "./dto/add-new-tag.dto";
 import { UpdateTagDto } from "./dto/update-tag.dto";
 import { GetWorkspacesQueryDto } from "./dto/get-workspaces-query.dto";
+import { TasksService } from "src/tasks/tasks.service";
 
 @Injectable()
 export class WorkspacesService {
@@ -47,6 +48,9 @@ export class WorkspacesService {
 
     @InjectModel(Task.name)
     private taskModel: Model<Task>,
+
+    @Inject()
+    private readonly taskService: TasksService,
   ) {}
 
   async findWorkspaceById(
@@ -411,33 +415,19 @@ export class WorkspacesService {
   async deleteWorkspace(
     ownerId: string,
     workspaceId: string,
-  ): Promise<DeleteWorkspaceResult> {
-    // Check if the workspace exists
-    const workspace = await this._getWorkspaceWithAdminAccess(
-      ownerId,
-      workspaceId,
-    );
-
-    // Delete all tasks associated with the workspace
-    const taskResult = await this.taskModel.deleteMany({
-      workspaceId: workspace._id,
+  ): Promise<WorkspaceDocument> {
+    const workspace = await this.workspaceModel.findOneAndDelete({
+      _id: workspaceId,
+      ownerId: ownerId,
     });
 
-    // Delete all members associated with the workspace
-    const memberResult = await this.memberModel.deleteMany({
-      workspaceId: workspace._id,
-    });
+    if (!workspace) {
+      throw new NotFoundException(
+        `Workspace with ID ${workspaceId} not found or user is not the owner.`,
+      );
+    }
 
-    // Delete the workspace
-    const workspaceResult = await this.workspaceModel.deleteOne({
-      _id: workspace._id,
-    });
-
-    return {
-      taskDeleteCount: taskResult.deletedCount,
-      memberDeleteCount: memberResult.deletedCount,
-      workspaceDeleteCount: workspaceResult.deletedCount,
-    };
+    return workspace;
   }
 
   async getTagsInWorkspace(

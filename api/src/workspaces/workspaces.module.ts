@@ -16,9 +16,10 @@ import {
 import { User, UserSchema } from "src/users/schemas/user.schema";
 import { JwtStrategy } from "src/auth/strategies/jwt.strategy";
 import { Task, TaskSchema } from "src/tasks/schemas/tasks.schema";
+import { TasksService } from "src/tasks/tasks.service";
 
 @Module({
-  providers: [ConfigService, WorkspacesService, JwtStrategy],
+  providers: [ConfigService, WorkspacesService, TasksService, JwtStrategy],
   controllers: [WorkspacesController],
   imports: [
     MongooseModule.forFeatureAsync([

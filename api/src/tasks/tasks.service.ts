@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ForbiddenException,
-  Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -9,7 +8,6 @@ import mongoose, { Model } from "mongoose";
 
 import { Task, TaskDocument } from "./schemas/tasks.schema";
 import { InjectModel } from "@nestjs/mongoose";
-import { WorkspacesService } from "src/workspaces/workspaces.service";
 import {
   MemberDocument,
   Workspace,
@@ -24,7 +22,6 @@ export class TasksService {
   constructor(
     @InjectModel(Task.name) private taskModel: Model<Task>,
     @InjectModel(Workspace.name) private workspaceModel: Model<Workspace>,
-    @Inject() private workspaceService: WorkspacesService,
   ) {}
 
   async findTasksByUserId(userId: string): Promise<TaskDocument[]> {
@@ -373,9 +370,20 @@ export class TasksService {
     ownerId: string,
     workspaceId: string,
   ): Promise<WorkspaceDocument> {
-    // Check if the workspace exists
-    const workspace =
-      await this.workspaceService.findWorkspaceById(workspaceId);
+    const workspace = await this.workspaceModel.findOne({
+      $or: [
+        {
+          _id: new mongoose.Types.ObjectId(workspaceId),
+          ownerId: new mongoose.Types.ObjectId(ownerId),
+        },
+        {
+          _id: new mongoose.Types.ObjectId(workspaceId),
+          memberIds: {
+            $in: [new mongoose.Types.ObjectId(ownerId)],
+          },
+        },
+      ],
+    });
 
     if (!workspace) {
       throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
