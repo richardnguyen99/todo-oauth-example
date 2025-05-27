@@ -113,7 +113,7 @@ export class Workspace {
   color: Color;
 
   @Prop({
-    type: mongoose.Schema.Types.String,
+    type: mongoose.Schema.Types.Boolean,
     default: true,
   })
   private: boolean;
