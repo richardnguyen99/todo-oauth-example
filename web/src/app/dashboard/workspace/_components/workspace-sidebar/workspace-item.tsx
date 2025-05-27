@@ -37,6 +37,7 @@ export default function SidebarWorkspaceItem({
   ...props
 }: Props): JSX.Element {
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [updateDialogOpen, setUpdateDialogOpen] = React.useState(false);
   const { isMobile, open } = useSidebar();
 
   const renderIcon = (icon: string, color: Color) => {
@@ -93,12 +94,10 @@ export default function SidebarWorkspaceItem({
 
           <DropdownMenuSeparator />
 
-          <UpdateWorkspaceDialog workspace={workspace}>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <LucideIcons.Pen className="text-muted-foreground" />
-              <span>Update</span>
-            </DropdownMenuItem>
-          </UpdateWorkspaceDialog>
+          <DropdownMenuItem onSelect={() => setUpdateDialogOpen(true)}>
+            <LucideIcons.Pen className="text-muted-foreground" />
+            <span>Update</span>
+          </DropdownMenuItem>
 
           <DropdownMenuItem>
             <LucideIcons.Copy className="text-muted-foreground" />
@@ -128,6 +127,12 @@ export default function SidebarWorkspaceItem({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <UpdateWorkspaceDialog
+        show={updateDialogOpen}
+        setShow={setUpdateDialogOpen}
+        workspace={workspace}
+      />
 
       <DeleteWorkspaceDialog
         show={deleteDialogOpen}

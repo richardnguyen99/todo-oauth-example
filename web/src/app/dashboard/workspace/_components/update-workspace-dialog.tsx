@@ -43,7 +43,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
 
@@ -72,15 +71,16 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 type Props = Readonly<{
-  children: React.ReactNode;
   workspace: Workspace;
+  show: boolean;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
 }>;
 
 export default function UpdateWorkspaceDialog({
-  children,
+  show,
+  setShow,
   workspace,
 }: Props): JSX.Element {
-  const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const queryClient = useQueryClient();
   const { setWorkspaces, workspaces } = useWorkspaceStore((s) => s);
@@ -138,7 +138,7 @@ export default function UpdateWorkspaceDialog({
       });
 
       invalidateWorkspaces();
-      setOpen(false);
+      setShow(false);
     },
 
     onSettled: () => {
@@ -163,8 +163,7 @@ export default function UpdateWorkspaceDialog({
     colorList.find((c) => c.name === watchedValues.color)?.name || "Color";
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={show} onOpenChange={setShow}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Update Workspace</DialogTitle>
@@ -303,16 +302,11 @@ export default function UpdateWorkspaceDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setOpen(false)}
-                  className="cursor-pointer"
+                  onClick={() => setShow(false)}
                 >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="cursor-pointer"
-                >
+                <Button type="submit" disabled={loading}>
                   {loading && (
                     <Loader2 className="inline-block h-4 w-4 animate-spin" />
                   )}
