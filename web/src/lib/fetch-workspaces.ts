@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 export const fetchWorkspaces = async (errorFn: (r: Response) => void) => {
@@ -57,4 +57,5 @@ export const fetchWorkspaces = async (errorFn: (r: Response) => void) => {
 
 export const invalidateWorkspaces = async () => {
   revalidateTag("fetch-workspaces");
+  revalidatePath("/dashboard/workspaces");
 };

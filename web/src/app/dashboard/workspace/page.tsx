@@ -35,6 +35,7 @@ export default function Page(): JSX.Element {
   }, [workspaces, user]);
 
   React.useEffect(() => {
+    console.log("workspace page");
     if (!redirectWorkspace) {
       setActiveWorkspace({
         workspace: null,

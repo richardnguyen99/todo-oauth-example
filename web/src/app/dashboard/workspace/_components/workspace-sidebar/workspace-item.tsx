@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { colorMap } from "../../_constants/colors";
 import { Workspace } from "@/_types/workspace";
 import UpdateWorkspaceDialog from "../update-workspace-dialog";
+import DeleteWorkspaceDialog from "../delete-workspace-dialog";
 
 type Props = Readonly<
   {
@@ -35,6 +36,7 @@ export default function SidebarWorkspaceItem({
   isActive,
   ...props
 }: Props): JSX.Element {
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const { isMobile, open } = useSidebar();
 
   const renderIcon = (icon: string, color: Color) => {
@@ -109,7 +111,7 @@ export default function SidebarWorkspaceItem({
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setDeleteDialogOpen(true)}>
             <LucideIcons.Trash2 className="text-muted-foreground" />
             <span>Delete</span>
           </DropdownMenuItem>
@@ -126,6 +128,12 @@ export default function SidebarWorkspaceItem({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <DeleteWorkspaceDialog
+        show={deleteDialogOpen}
+        setShow={setDeleteDialogOpen}
+        workspace={workspace}
+      />
     </SidebarMenuItem>
   );
 }

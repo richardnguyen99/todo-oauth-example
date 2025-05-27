@@ -36,7 +36,6 @@ export default function TaskDescription(): JSX.Element {
     },
 
     onSuccess: (data) => {
-      console.log("add description success: ", data);
       const newTask = {
         ...data.data,
         dueDate: data.data.dueDate ? new Date(data.data.dueDate) : null,
@@ -49,9 +48,7 @@ export default function TaskDescription(): JSX.Element {
       setTasks(updatedTasks);
     },
 
-    onSettled: (data, error) => {
-      console.log("add description settled: ", data, error);
-    },
+    onSettled: (_data, _error) => {},
 
     onError: (error: AxiosError<ErrorApiResponse>) => {
       if (error.response?.data) {

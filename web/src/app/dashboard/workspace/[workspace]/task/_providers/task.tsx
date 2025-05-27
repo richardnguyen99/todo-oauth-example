@@ -39,8 +39,6 @@ export const TaskWithIdStoreProvider = ({
   }
 
   React.useEffect(() => {
-    console.log(initialState);
-
     return () => {
       storeRef.current = null;
     };

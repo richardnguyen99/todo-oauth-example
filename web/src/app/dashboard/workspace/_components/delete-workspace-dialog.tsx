@@ -1,12 +1,10 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { Loader2 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
-import api from "@/lib/axios";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,81 +15,93 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { DeleteWorkspaceResponse, WorkspaceParams } from "../_types/workspace";
-import { ErrorApiResponse } from "@/app/_types/response";
-import { Workspace, WorkspacesResponse } from "@/_types/workspace";
-import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
+import {
+  DeleteWorkspaceErrorResponse,
+  DeleteWorkspaceResponse,
+  Workspace,
+} from "@/_types/workspace";
+import api from "@/lib/axios";
+import { useWorkspaceStore } from "../../_providers/workspace";
+import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
 
 type Props = Readonly<{
   show: boolean;
-  setShow: (show: boolean) => void;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  workspace: Workspace;
 }>;
 
 export default function DeleteWorkspaceDialog({
   show,
+  workspace,
   setShow,
 }: Props): JSX.Element {
-  const [_, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
-  const { workspace } = useParams<WorkspaceParams>();
-  const queryClient = useQueryClient();
-  const { activeWorkspace, setWorkspaces, setActiveWorkspace } =
-    useWorkspaceStore((s) => s);
-  const { push } = useRouter();
+  const router = useRouter();
 
-  const { mutate } = useMutation({
-    mutationKey: ["delete-workspace"],
+  const { workspaces, activeWorkspace, setWorkspaces } = useWorkspaceStore(
+    (s) => s,
+  );
+
+  const { mutate } = useMutation<
+    DeleteWorkspaceResponse,
+    DeleteWorkspaceErrorResponse
+  >({
     mutationFn: async () => {
-      setLoading(true);
+      const response = await api.delete(`/workspaces/${workspace._id}`);
 
-      const response = await api.delete<DeleteWorkspaceResponse>(
-        `/workspaces/${workspace}/delete`,
-      );
+      if (response.status !== 200) {
+        throw new Error("Failed to delete workspace");
+      }
 
       return response.data;
     },
+    onMutate: () => {
+      setLoading(true);
+    },
 
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["fetch-workspace"],
-      });
+      const newWorkspaces = workspaces.filter(
+        (ws: Workspace) => ws._id !== workspace._id,
+      );
 
-      const newQueryData = queryClient.getQueryData<WorkspacesResponse>([
-        "fetch-workspace",
-      ])!;
+      await invalidateWorkspaces();
 
-      const updatedWorkspaces = newQueryData.data
-        .map(
-          (workspace) =>
-            ({
-              ...workspace,
-              createdAt: new Date(workspace.createdAt),
-              updatedAt: new Date(workspace.updatedAt),
-              members: workspace.members.map((member) => ({
-                ...member,
-                createdAt: new Date(member.createdAt),
-              })),
-            }) satisfies Workspace,
-        )
-        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+      if (newWorkspaces.length === 0) {
+        setWorkspaces({
+          workspaces: [],
+          activeWorkspace: null,
+          status: "success",
+        });
 
-      setWorkspaces(updatedWorkspaces);
-      setShow(false);
-      if (updatedWorkspaces.length > 0) {
-        setActiveWorkspace(updatedWorkspaces[0]);
-        push(`/dashboard/workspace/${updatedWorkspaces[0]._id}`);
-      } else {
-        setActiveWorkspace(null);
-        push("/dashboard/workspace");
+        router.push("/dashboard/workspace");
+        return;
       }
+
+      if (activeWorkspace?._id === workspace._id) {
+        setWorkspaces({
+          workspaces: newWorkspaces,
+          activeWorkspace: newWorkspaces[0],
+          status: "success",
+        });
+
+        router.push(`/dashboard/workspace/${newWorkspaces[0]._id}`);
+      } else {
+        setWorkspaces({
+          workspaces: newWorkspaces,
+          activeWorkspace: activeWorkspace,
+          status: "loading",
+        });
+      }
+      router.refresh();
     },
 
     onSettled: () => {
       setLoading(false);
+      setShow(false);
     },
 
-    onError: (error: AxiosError<ErrorApiResponse>) => {
-      setError(`${error.code}: ${error.response?.data.message}`);
+    onError: (error) => {
+      console.error("Error deleting workspace:", error);
     },
   });
 
@@ -100,12 +110,8 @@ export default function DeleteWorkspaceDialog({
   }, [mutate]);
 
   return (
-    <AlertDialog open={show}>
-      <AlertDialogContent
-        onCloseAutoFocus={() => {
-          document.body.style.pointerEvents = "";
-        }}
-      >
+    <AlertDialog open={show} onOpenChange={setShow}>
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete workspace</AlertDialogTitle>
           <AlertDialogDescription asChild>
@@ -118,20 +124,21 @@ export default function DeleteWorkspaceDialog({
               <ul className="mb-3 list-disc pl-5">
                 <li>
                   <strong className="dark:text-white">Workspace Title:</strong>{" "}
-                  {activeWorkspace?.title}
+                  {workspace.title}
                 </li>
                 <li>
                   <strong className="dark:text-white">Workspace Id:</strong>{" "}
-                  {activeWorkspace?._id}
+                  {workspace._id}
                 </li>
                 <li>
                   <strong className="dark:text-white">Owner:</strong>{" "}
-                  {activeWorkspace?.owner.username}
+                  {workspace.owner.username}
                 </li>
               </ul>
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
+
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setShow(false)}>
             Cancel

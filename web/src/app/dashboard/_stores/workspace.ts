@@ -2,7 +2,7 @@ import { createStore } from "zustand/vanilla";
 
 import { Workspace } from "@/_types/workspace";
 
-export type WorkspaceStatus = "loading" | "success" | "error";
+export type WorkspaceStatus = "loading" | "success" | "redirecting" | "error";
 
 export type WorkspaceState = {
   workspaces: Workspace[];

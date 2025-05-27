@@ -16,18 +16,25 @@ export default function ActiveWorkspaceInitializer({
   );
 
   React.useEffect(() => {
-    if (workspaces && status === "loading") {
-      const workspace = workspaces.find((ws) => ws._id === workspaceId);
+    if (status === "loading") {
+      if (workspaces) {
+        const workspace = workspaces.find((ws) => ws._id === workspaceId);
 
-      if (workspace) {
-        setActiveWorkspace({
-          workspace,
-          status: "success",
-        });
+        if (workspace) {
+          setActiveWorkspace({
+            workspace,
+            status: "success",
+          });
+        } else {
+          setActiveWorkspace({
+            workspace: null,
+            status: "error",
+          });
+        }
       } else {
         setActiveWorkspace({
           workspace: null,
-          status: "error",
+          status: "success",
         });
       }
     }
