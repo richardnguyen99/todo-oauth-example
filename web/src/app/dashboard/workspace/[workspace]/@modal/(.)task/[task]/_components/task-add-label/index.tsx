@@ -13,14 +13,16 @@ import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import TaskAddLabelListView from "./list-view";
 import AddPanel from "./add-panel";
 import TaskAddLabelProvider, { ViewType } from "./provider";
-import { Tag } from "@/app/dashboard/workspace/_types/tag";
 import EditPanel from "./edit-panel";
+import { Workspace } from "@/_types/workspace";
 
 export default function TaskAddLabel(): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
   const [open, setOpen] = React.useState(false);
   const [view, setView] = React.useState<ViewType>("list");
-  const [editTag, setEditTag] = React.useState<Tag | null>(null);
+  const [editTag, setEditTag] = React.useState<
+    Workspace["tags"][number] | null
+  >(null);
   const timeoutId = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleOpenChange = React.useCallback((newOpen: boolean) => {

@@ -15,8 +15,8 @@ export const noRefineCreateTaskDtoSchema = z.object({
       invalid_type_error: "Description must be a string",
     })
     .min(1)
-    .max(1000, {
-      message: "Description cannot exceed 1000 characters",
+    .max(3000, {
+      message: "Description cannot exceed 3000 characters",
     })
     .nullable()
     .optional()

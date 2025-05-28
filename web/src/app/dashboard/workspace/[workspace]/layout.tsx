@@ -15,7 +15,7 @@ export default async function WorkspaceIdLayout({
   children,
   modal,
   params,
-}: Props): Promise<JSX.Element | never> {
+}: Props): Promise<JSX.Element> {
   const { workspace } = await params;
 
   return (

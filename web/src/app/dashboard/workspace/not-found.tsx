@@ -12,7 +12,7 @@ export default function NotFound(): JSX.Element {
   React.useEffect(() => {
     setActiveWorkspace({
       workspace: null,
-      status: "error",
+      status: "success",
     });
 
     return () => {

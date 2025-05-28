@@ -14,11 +14,11 @@ import {
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
-import TaskBadge from "@/app/dashboard/workspace/[workspace]/_components/task-badge";
 import TaskDueDate from "./task-due-date";
 import TaskDescription from "./task-description";
+import TaskDialogBadge from "./task-add-label/badge";
 
-export default function TaskDialogDescription(): JSX.Element {
+export default function TaskDialogContent(): JSX.Element {
   const { task } = useTaskWithIdStore((s) => s);
 
   return (
@@ -34,7 +34,7 @@ export default function TaskDialogDescription(): JSX.Element {
             <div className="mt-2 w-full pl-5 md:pl-14">
               <div className="flex w-full flex-wrap items-center gap-2 pr-4">
                 {task.tags.map((tag) => (
-                  <TaskBadge key={tag._id} tag={tag} />
+                  <TaskDialogBadge key={tag._id} tag={tag} />
                 ))}
               </div>
             </div>

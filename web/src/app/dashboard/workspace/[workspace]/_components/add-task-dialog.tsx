@@ -49,7 +49,7 @@ const taskSchema = z.object({
     .max(80, "Title must be less than 80 characters"),
   description: z
     .string()
-    .max(200, "Description must be less than 200 characters")
+    .max(3000, "Description must be less than 3000 characters")
     .optional(),
   priority: z.enum(["low", "medium", "high"], {
     required_error: "Please select a priority level",
@@ -178,7 +178,7 @@ export default function AddTaskDialog({ children }: Props): JSX.Element {
                     />
                   </FormControl>
                   <FormDescription>
-                    Optional details about the task (max 200 characters).
+                    Optional details about the task (max 3000 characters).
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

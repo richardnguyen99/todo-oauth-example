@@ -10,6 +10,7 @@ import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/t
 import api from "@/lib/axios";
 import { TaskResponse } from "@/app/dashboard/workspace/[workspace]/_types/task";
 import { ErrorApiResponse } from "@/app/_types/response";
+import { invalidateTaskId } from "@/lib/fetch-task-id";
 
 export default function TaskDescription(): JSX.Element {
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -35,7 +36,7 @@ export default function TaskDescription(): JSX.Element {
       return response.data;
     },
 
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       const newTask = {
         ...data.data,
         dueDate: data.data.dueDate ? new Date(data.data.dueDate) : null,
@@ -46,6 +47,8 @@ export default function TaskDescription(): JSX.Element {
 
       setTask(newTask);
       setTasks(updatedTasks);
+
+      await invalidateTaskId(data.data._id);
     },
 
     onSettled: (_data, _error) => {},

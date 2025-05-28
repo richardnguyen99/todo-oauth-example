@@ -81,7 +81,7 @@ export default function DeleteWorkspaceDialog({
         setWorkspaces({
           workspaces: newWorkspaces,
           activeWorkspace: newWorkspaces[0],
-          status: "success",
+          status: "loading",
         });
 
         router.push(`/dashboard/workspace/${newWorkspaces[0]._id}`);

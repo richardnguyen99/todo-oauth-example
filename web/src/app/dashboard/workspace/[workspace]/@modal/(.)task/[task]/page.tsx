@@ -7,10 +7,11 @@ import TaskDialogButtonBack from "./_components/task-dialog-button-back";
 import TaskDialogButtonNext from "./_components/task-dialog-button-next";
 import TaskDialogHeading from "./_components/task-dialog-heading";
 import TaskDialogCheckbox from "./_components/task-dialog-checkbox";
-import TaskDialogDescription from "./_components/task-dialog-description";
+import TaskDialogContent from "./_components/task-dialog-content";
 import TaskDialogActionList from "./_components/task-dialog-action-list";
 
 export default async function TaskInterceptingPage(): Promise<JSX.Element> {
+  await new Promise((resolve) => setTimeout(resolve, 100));
   return (
     <div className="flex h-full w-full flex-col gap-0 overflow-hidden">
       <DialogHeader className="border-b py-5 text-left">
@@ -31,7 +32,7 @@ export default async function TaskInterceptingPage(): Promise<JSX.Element> {
       </DialogHeader>
 
       <div className="flex h-full w-full flex-col gap-2 overflow-auto text-sm md:flex-row md:overflow-hidden">
-        <TaskDialogDescription />
+        <TaskDialogContent />
         <TaskDialogActionList />
       </div>
     </div>

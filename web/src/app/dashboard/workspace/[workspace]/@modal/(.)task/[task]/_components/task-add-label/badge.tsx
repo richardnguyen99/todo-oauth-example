@@ -4,15 +4,15 @@ import React, { type JSX } from "react";
 import { Loader2, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Tag } from "@/app/dashboard/workspace/_types/tag";
 import { Button } from "@/components/ui/button";
 import TaskBadge from "@/app/dashboard/workspace/[workspace]/_components/task-badge";
 import useTagMutation from "./use-task-tag-mutation";
 import { cn } from "@/lib/utils";
+import { Workspace } from "@/_types/workspace";
 
 type Props = Readonly<
   {
-    tag: Tag;
+    tag: Workspace["tags"][number];
   } & React.ComponentProps<typeof Badge>
 >;
 

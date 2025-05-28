@@ -5,9 +5,9 @@ import { Plus, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Workspace } from "@/app/dashboard/workspace/_types/workspace";
 import TaskAddLabelItem from "./label-item";
 import { useTaskAddLabelContext } from "./provider";
+import { Workspace } from "@/_types/workspace";
 
 type Props = Readonly<{
   activeWorkspace: Workspace;

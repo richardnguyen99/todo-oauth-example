@@ -32,4 +32,5 @@ export const fetchTasks = async (
 
 export const invalidateTasks = async (workspaceId: string) => {
   revalidateTag(`fetch-tasks-${workspaceId}`);
+  revalidateTag(`/dashboard/workspace/${workspaceId}`);
 };

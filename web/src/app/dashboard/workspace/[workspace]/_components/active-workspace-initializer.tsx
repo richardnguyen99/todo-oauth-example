@@ -11,42 +11,24 @@ type Props = {
 export default function ActiveWorkspaceInitializer({
   workspaceId,
 }: Props): null {
-  const { setActiveWorkspace, workspaces, status } = useWorkspaceStore(
-    (s) => s,
-  );
+  const { setActiveWorkspace, workspaces } = useWorkspaceStore((s) => s);
 
   React.useEffect(() => {
-    if (status === "loading") {
-      if (workspaces) {
-        const workspace = workspaces.find((ws) => ws._id === workspaceId);
+    const workspace = workspaces.find((ws) => ws._id === workspaceId);
 
-        if (workspace) {
-          setActiveWorkspace({
-            workspace,
-            status: "success",
-          });
-        } else {
-          setActiveWorkspace({
-            workspace: null,
-            status: "error",
-          });
-        }
-      } else {
-        setActiveWorkspace({
-          workspace: null,
-          status: "success",
-        });
-      }
-    }
-
-    return () => {
+    if (!workspace) {
       setActiveWorkspace({
         workspace: null,
-        status: "loading",
+        status: "error",
       });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setActiveWorkspace, workspaces, workspaceId]);
+      return;
+    }
+
+    setActiveWorkspace({
+      workspace: workspace || null,
+      status: "success",
+    });
+  }, [setActiveWorkspace, workspaceId, workspaces]);
 
   return null;
 }
