@@ -74,12 +74,14 @@ type Props = Readonly<{
   workspace: Workspace;
   show: boolean;
   setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose?: () => void;
 }>;
 
 export default function UpdateWorkspaceDialog({
   show,
   setShow,
   workspace,
+  onClose,
 }: Props): JSX.Element {
   const [loading, setLoading] = React.useState(false);
   const queryClient = useQueryClient();
@@ -139,6 +141,7 @@ export default function UpdateWorkspaceDialog({
 
       invalidateWorkspaces();
       setShow(false);
+      onClose?.();
     },
 
     onSettled: () => {
@@ -302,7 +305,10 @@ export default function UpdateWorkspaceDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setShow(false)}
+                  onClick={() => {
+                    setShow(false);
+                    onClose?.();
+                  }}
                 >
                   Cancel
                 </Button>

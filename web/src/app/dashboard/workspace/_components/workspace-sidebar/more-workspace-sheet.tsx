@@ -1,13 +1,6 @@
 import React, { type JSX } from "react";
-import {
-  AlignLeft,
-  ArrowUpDown,
-  Check,
-  History,
-  MoreHorizontal,
-  Users,
-  X,
-} from "lucide-react";
+import * as LucideIcons from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,9 +27,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Workspace } from "@/_types/workspace";
+import { Color } from "@/_types/color";
+import { colorMap } from "../../_constants/colors";
+import { cn } from "@/lib/utils";
+import DeleteWorkspaceDialog from "../delete-workspace-dialog";
+import UpdateWorkspaceDialog from "../update-workspace-dialog";
 
 type Props = Readonly<{
   workspaces: Workspace[];
@@ -45,8 +44,29 @@ type Props = Readonly<{
 export default function SidebarMoreWorkspaceSheet({
   workspaces,
 }: Props): JSX.Element {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [updateDialogOpen, setUpdateDialogOpen] = React.useState(false);
   const { isMobile } = useSidebar();
   const [container, setContainer] = React.useState<HTMLElement | null>(null);
+  const [workspace, setWorkspace] = React.useState<Workspace | null>(null);
+
+  const renderIcon = (icon: string, color: Color) => {
+    const Icon = LucideIcons[
+      icon as keyof typeof LucideIcons
+    ] as React.ComponentType<LucideIcons.LucideProps>;
+
+    return (
+      <div
+        className={cn(
+          "flex aspect-square size-6 items-center justify-center rounded",
+          colorMap[color],
+        )}
+      >
+        <Icon className="size-4" />
+      </div>
+    );
+  };
 
   React.useEffect(() => {
     if (!isMobile) {
@@ -60,12 +80,17 @@ export default function SidebarMoreWorkspaceSheet({
 
   return (
     <>
-      <Sheet data-sidebar="sidebar-sheet" modal>
+      <Sheet
+        data-sidebar="sidebar-sheet"
+        modal
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
         <SheetTrigger asChild>
           <SidebarMenuItem>
             <SidebarMenuButton className="text-sidebar-foreground/70 cursor-pointer">
               <>
-                <MoreHorizontal className="text-sidebar-foreground/70" />
+                <LucideIcons.MoreHorizontal className="text-sidebar-foreground/70" />
                 <span>more</span>
               </>
             </SidebarMenuButton>
@@ -94,7 +119,7 @@ export default function SidebarMoreWorkspaceSheet({
                             tabIndex={-1}
                           >
                             <span className="sr-only">Sort</span>
-                            <ArrowUpDown className="text-sidebar-foreground/70" />
+                            <LucideIcons.ArrowUpDown className="text-sidebar-foreground/70" />
                           </Button>
                         </TooltipTrigger>
                       </DropdownMenuTrigger>
@@ -104,25 +129,25 @@ export default function SidebarMoreWorkspaceSheet({
                         className="w-56 text-sm *:cursor-pointer *:text-sm"
                       >
                         <DropdownMenuItem>
-                          <AlignLeft className="mr-1 h-4 w-4" />
+                          <LucideIcons.AlignLeft className="mr-1 h-4 w-4" />
                           <span className="truncate text-ellipsis">Manual</span>
-                          <Check className="ml-auto h-4 w-4" />
+                          <LucideIcons.Check className="ml-auto h-4 w-4" />
                         </DropdownMenuItem>
 
                         <DropdownMenuItem>
-                          <History className="mr-1 h-4 w-4" />
+                          <LucideIcons.History className="mr-1 h-4 w-4" />
                           <span className="truncate text-ellipsis">
                             Modified time
                           </span>
-                          <Check className="ml-auto h-4 w-4" />
+                          <LucideIcons.Check className="ml-auto h-4 w-4" />
                         </DropdownMenuItem>
 
                         <DropdownMenuItem>
-                          <Users className="mr-1 h-4 w-4" />
+                          <LucideIcons.Users className="mr-1 h-4 w-4" />
                           <span className="truncate text-ellipsis">
                             Number of members
                           </span>
-                          <Check className="ml-auto h-4 w-4" />
+                          <LucideIcons.Check className="ml-auto h-4 w-4" />
                         </DropdownMenuItem>
                       </DropdownMenuContent>
 
@@ -143,7 +168,7 @@ export default function SidebarMoreWorkspaceSheet({
                           tabIndex={-1}
                         >
                           <span className="sr-only">Close</span>
-                          <X className="text-sidebar-foreground/70" />
+                          <LucideIcons.X className="text-sidebar-foreground/70" />
                         </Button>
                       </SheetClose>
                     </TooltipTrigger>
@@ -172,15 +197,82 @@ export default function SidebarMoreWorkspaceSheet({
             </SheetDescription>
           </SheetHeader>
 
-          <div className="flex flex-col gap-2 px-2 text-sm">
+          <div className="flex flex-col gap-1 px-2 text-sm">
             {workspaces.map((ws) => (
-              <div key={ws._id}>
-                <div className="flex items-center gap-2">
-                  <span>{ws.title}</span>
-                  <span className="text-muted-foreground text-xs">
-                    {ws.members.length} members
-                  </span>
-                </div>
+              <div
+                key={ws._id}
+                className="group hover:bg-accent/50 relative rounded px-2 py-1 transition-colors"
+              >
+                <Link
+                  className=""
+                  href={`/dashboard/workspace/${ws._id}`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <div className="flex items-center gap-2">
+                    {renderIcon(ws.icon, ws.color)}
+                    <span className="line-clamp-1 w-[calc(100%-2.5rem)] group-hover:w-[calc(100%-4rem)]">
+                      {ws.title}
+                    </span>
+                  </div>
+                </Link>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-1.5 right-1.5 size-5 cursor-pointer opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100"
+                    >
+                      <LucideIcons.MoreHorizontal className="size-4" />
+                      <span className="sr-only">More</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="relative z-[51] rounded-lg"
+                    side={isMobile ? "bottom" : "right"}
+                    align={isMobile ? "end" : "start"}
+                  >
+                    <DropdownMenuItem>
+                      <LucideIcons.Star className="text-muted-foreground" />
+                      <span>Add To Favorites</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        setUpdateDialogOpen(true);
+                        setIsOpen(false);
+                        setWorkspace(ws);
+                      }}
+                    >
+                      <LucideIcons.Pen className="text-muted-foreground" />
+                      <span>Update</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem>
+                      <LucideIcons.Copy className="text-muted-foreground" />
+                      <span>Duplicate</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <LucideIcons.SquarePen className="text-muted-foreground" />
+                      <span>Rename</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        setDeleteDialogOpen(true);
+                        setIsOpen(false);
+                        setWorkspace(ws);
+                      }}
+                    >
+                      <LucideIcons.Trash2 className="text-muted-foreground" />
+                      <span>Delete</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ))}
           </div>
@@ -192,6 +284,24 @@ export default function SidebarMoreWorkspaceSheet({
           </SheetFooter>
         </SheetContent>
       </Sheet>
+
+      {workspace && (
+        <UpdateWorkspaceDialog
+          show={updateDialogOpen}
+          setShow={setUpdateDialogOpen}
+          workspace={workspace}
+          onClose={() => setWorkspace(null)}
+        />
+      )}
+
+      {workspace && (
+        <DeleteWorkspaceDialog
+          show={deleteDialogOpen}
+          setShow={setDeleteDialogOpen}
+          workspace={workspace}
+          onClose={() => setWorkspace(null)}
+        />
+      )}
     </>
   );
 }

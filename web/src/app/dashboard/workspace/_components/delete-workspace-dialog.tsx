@@ -28,12 +28,14 @@ type Props = Readonly<{
   show: boolean;
   setShow: React.Dispatch<React.SetStateAction<boolean>>;
   workspace: Workspace;
+  onClose?: () => void;
 }>;
 
 export default function DeleteWorkspaceDialog({
   show,
   workspace,
   setShow,
+  onClose,
 }: Props): JSX.Element {
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
@@ -74,6 +76,7 @@ export default function DeleteWorkspaceDialog({
         });
 
         router.push("/dashboard/workspace");
+        onClose?.();
         return;
       }
 
@@ -93,6 +96,7 @@ export default function DeleteWorkspaceDialog({
         });
       }
       router.refresh();
+      onClose?.();
     },
 
     onSettled: () => {
@@ -140,7 +144,12 @@ export default function DeleteWorkspaceDialog({
         </AlertDialogHeader>
 
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setShow(false)}>
+          <AlertDialogCancel
+            onClick={() => {
+              setShow(false);
+              onClose?.();
+            }}
+          >
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
