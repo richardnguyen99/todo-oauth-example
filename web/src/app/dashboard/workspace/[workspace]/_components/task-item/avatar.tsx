@@ -11,7 +11,10 @@ type Props = Readonly<{
   content: string;
 }>;
 
-export default function TaskAvatar({ children, content }: Props): JSX.Element {
+export default function TaskItemAvatar({
+  children,
+  content,
+}: Props): JSX.Element {
   return (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>

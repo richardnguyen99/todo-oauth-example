@@ -2,6 +2,7 @@
 
 import React, { type JSX } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 import {
   AlertDialog,
@@ -12,34 +13,31 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
-import { DeleteTaskResponse } from "../task/_types/task-with-id";
-import { useTaskStore } from "../_providers/task";
-import { Task } from "../_types/task";
+import { invalidateTasks } from "@/lib/fetch-tasks";
+import { useTaskStore } from "../../_providers/task";
+import { DeleteTaskResponse } from "../../task/_types/task-with-id";
+import { Task } from "../../_types/task";
 
 type Props = Readonly<{
   task: Task;
-  children: React.ReactNode;
-  onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-  onSuccess?: (task: Task) => void;
-  onError?: (error: Error) => void;
-  onSettled?: (task: Task | undefined, error: Error | null) => void;
+  show: boolean;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
 }>;
 
 export default function TaskTabDeleteDialog({
   task,
-  children,
-  onSuccess,
-  onError,
-  onSettled,
+  show,
+  setShow,
 }: Props): JSX.Element {
+  const [loading, setLoading] = React.useState(false);
   const { tasks, setTasks } = useTaskStore((s) => s);
   const { mutate } = useMutation({
     mutationKey: ["task-delete", task._id],
     mutationFn: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 500));
       const response = await api.delete<DeleteTaskResponse>(
         `/tasks/${task._id}?workspace_id=${task.workspaceId}`,
       );
@@ -47,17 +45,21 @@ export default function TaskTabDeleteDialog({
       return response.data;
     },
 
-    onSuccess: (data) => {
+    onMutate: () => {
+      setLoading(true);
+    },
+
+    onSuccess: async () => {
       setTasks(tasks.filter((t) => t._id !== task._id));
-      onSuccess?.(data.data);
+      await invalidateTasks(task.workspaceId);
+
+      setShow(false);
     },
 
-    onError: (error) => {
-      onError?.(error);
-    },
+    onError: () => {},
 
-    onSettled: (data, error) => {
-      onSettled?.(data!.data, error);
+    onSettled: () => {
+      setLoading(false);
     },
   });
 
@@ -71,14 +73,8 @@ export default function TaskTabDeleteDialog({
   );
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
-      <AlertDialogContent
-        onCloseAutoFocus={(e) => {
-          e.preventDefault();
-          document.body.style.pointerEvents = "";
-        }}
-      >
+    <AlertDialog open={show} onOpenChange={setShow}>
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
             Are you sure want to delete this task?
@@ -88,15 +84,23 @@ export default function TaskTabDeleteDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+          <AlertDialogCancel onClick={() => setShow(false)}>
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
-              className="bg-red-400 hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-600"
+              variant="destructive"
               onClick={handleDelete}
+              disabled={loading}
             >
-              Delete
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>Delete</>
+              )}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

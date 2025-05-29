@@ -14,7 +14,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import TaskDeleteDialog from "./task-delete-dialog";
 import { Task } from "../_types/task";
 
 export const TaskTabActionDropdownItem = React.forwardRef<
@@ -56,14 +55,7 @@ TaskTabActionDropdownItem.displayName = "TaskTabActionDropdownItem";
 
 type ContentProps = Readonly<{
   task: Task;
-
-  onBeforeDelete?: (
-    task: Task,
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) => void;
-  onDeleteSuccess?: (task: Task) => void;
-  onDeleteError?: (error: Error) => void;
-  onAfterDelete?: (task: Task | undefined, error: Error | null) => void;
+  onDeleteSelect: (e: Event) => void;
 }>;
 
 // For reusability in task tab
@@ -71,14 +63,7 @@ export const TaskTabActionDropdownContent = React.forwardRef<
   React.ComponentRef<"div">,
   React.ComponentProps<typeof DropdownMenuContent> & ContentProps
 >(function TaskTabActionDropdownContentRef(
-  {
-    task,
-    onBeforeDelete,
-    onDeleteError,
-    onDeleteSuccess,
-    onAfterDelete,
-    ...props
-  },
+  { task, onDeleteSelect, ...props },
   ref,
 ): JSX.Element {
   return (
@@ -104,18 +89,13 @@ export const TaskTabActionDropdownContent = React.forwardRef<
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
 
-      <TaskDeleteDialog
-        task={task}
-        onSuccess={onDeleteSuccess || undefined}
-        onError={onDeleteError || undefined}
-        onSettled={onAfterDelete || undefined}
-        onClick={(e) => onBeforeDelete?.(task, e)}
+      <TaskTabActionDropdownItem
+        variant="destructive"
+        onSelect={onDeleteSelect}
       >
-        <TaskTabActionDropdownItem variant="destructive">
-          Delete Task
-          <DropdownMenuShortcut>⇧⌘D</DropdownMenuShortcut>
-        </TaskTabActionDropdownItem>
-      </TaskDeleteDialog>
+        Delete Task
+        <DropdownMenuShortcut>⇧⌘D</DropdownMenuShortcut>
+      </TaskTabActionDropdownItem>
     </DropdownMenuContent>
   );
 });
@@ -143,15 +123,21 @@ TaskTabActionDropdownTrigger.displayName = "TaskTabActionDropdownTrigger";
 
 type Props = Readonly<{
   task: Task;
+  onDeleteSelect: (e: Event) => void;
 }>;
 
-export default function TaskTabActionDropdown({ task }: Props): JSX.Element {
+export default function TaskTabActionDropdown({
+  task,
+  onDeleteSelect,
+}: Props): JSX.Element {
   return (
     <>
       <DropdownMenu>
-        <span tabIndex={0} className="sr-only" />
         <TaskTabActionDropdownTrigger />
-        <TaskTabActionDropdownContent task={task} />
+        <TaskTabActionDropdownContent
+          task={task}
+          onDeleteSelect={onDeleteSelect}
+        />
       </DropdownMenu>
     </>
   );

@@ -27,7 +27,7 @@ type Props = Readonly<
   } & React.ComponentProps<typeof Badge>
 >;
 
-export default function TaskBadge({
+export default function TaskItemBadge({
   tag,
   disableClose,
   disableTooltip,

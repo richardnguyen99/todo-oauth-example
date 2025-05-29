@@ -9,7 +9,7 @@ type Props = Readonly<{
   completed?: boolean;
 }>;
 
-export default function TaskDueDate({
+export default function TaskItemDueDate({
   dueDate,
   completed = false,
 }: Props): JSX.Element {

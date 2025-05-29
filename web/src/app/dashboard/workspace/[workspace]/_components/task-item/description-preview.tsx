@@ -3,7 +3,7 @@
 import React, { type JSX } from "react";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 
-import { Task } from "../_types/task";
+import { Task } from "../../_types/task";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -13,7 +13,7 @@ type Props = Readonly<
   } & React.HTMLAttributes<HTMLDivElement>
 >;
 
-export default function TaskDescriptionPreview({
+export default function TaskItemDescriptionPreview({
   task,
   ...rest
 }: Props): JSX.Element {

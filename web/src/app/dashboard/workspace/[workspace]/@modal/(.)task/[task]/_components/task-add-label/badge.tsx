@@ -5,7 +5,7 @@ import { Loader2, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import TaskBadge from "@/app/dashboard/workspace/[workspace]/_components/task-badge";
+import TaskBadge from "@/app/dashboard/workspace/[workspace]/_components/task-item/badge";
 import useTagMutation from "./use-task-tag-mutation";
 import { cn } from "@/lib/utils";
 import { Workspace } from "@/_types/workspace";
