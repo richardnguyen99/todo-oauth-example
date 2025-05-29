@@ -36,7 +36,7 @@ export default function TaskDueDate({
     mutationKey: ["update-due-date", task._id, task.workspaceId],
     mutationFn: async (value: Date | undefined) => {
       const response = await api.put<TaskResponse>(
-        `/tasks/${task._id}/update?workspace_id=${task.workspaceId}`,
+        `/tasks/${task._id}?workspace_id=${task.workspaceId}`,
         {
           dueDate: value || null, // Set dueDate to `null` to explicitly remove it
         },

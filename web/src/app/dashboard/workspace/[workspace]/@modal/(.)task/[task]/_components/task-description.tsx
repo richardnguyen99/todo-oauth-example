@@ -22,7 +22,7 @@ export default function TaskDescription(): JSX.Element {
     mutationKey: ["update-due-date", task._id, task.workspaceId],
     mutationFn: async (value: string | undefined | null) => {
       const response = await api.put<TaskResponse>(
-        `/tasks/${task._id}/update?workspace_id=${task.workspaceId}`,
+        `/tasks/${task._id}?workspace_id=${task.workspaceId}`,
         {
           description: value || null, // Set dueDate to `null` to explicitly remove it
         },

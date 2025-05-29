@@ -84,7 +84,7 @@ export default function AddTaskDialog({ children }: Props): JSX.Element {
       );
 
       const response = await api.post<TaskResponse>(
-        `/tasks/new?workspace_id=${activeWorkspace._id}`,
+        `/tasks?workspace_id=${activeWorkspace._id}`,
         {
           ...taskData,
           workspaceId: activeWorkspace._id,

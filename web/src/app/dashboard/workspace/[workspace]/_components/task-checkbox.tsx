@@ -22,7 +22,7 @@ export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
     mutationKey: ["tasks", task._id],
     mutationFn: async (completed: boolean) => {
       const response = await api.put<TaskResponse>(
-        `/tasks/${task._id}/update?workspace_id=${activeWorkspace?._id}`,
+        `/tasks/${task._id}?workspace_id=${activeWorkspace?._id}`,
         {
           completed,
         },

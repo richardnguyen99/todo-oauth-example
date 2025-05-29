@@ -20,7 +20,7 @@ const useTagMutation = (initialTag: Workspace["tags"][number]) => {
     mutationFn: async (action: "ADD" | "REMOVE") => {
       setLoading(true);
       const response = await api.put<TaskResponse>(
-        `/tasks/${task._id}/update?workspace_id=${task.workspaceId}`,
+        `/tasks/${task._id}?workspace_id=${task.workspaceId}`,
         {
           tag: {
             action: action.toUpperCase(),

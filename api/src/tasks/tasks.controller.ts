@@ -115,7 +115,7 @@ export class TasksController {
   }
 
   @UseGuards(AuthGuard("jwt"))
-  @Post("new")
+  @Post()
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodValidationPipe(createTaskDtoSchema))
   async createTask(
@@ -152,7 +152,7 @@ export class TasksController {
   }
 
   @UseGuards(AuthGuard("jwt"))
-  @Put(":id/update")
+  @Put(":id")
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodValidationPipe(updateTaskDtoSchema))
   async updateTask(
@@ -199,7 +199,7 @@ export class TasksController {
   }
 
   @UseGuards(AuthGuard("jwt"))
-  @Delete(":id/delete")
+  @Delete(":id")
   async deleteTask(
     @Req() req: RequestType,
     @Res() res: ResponseType,
