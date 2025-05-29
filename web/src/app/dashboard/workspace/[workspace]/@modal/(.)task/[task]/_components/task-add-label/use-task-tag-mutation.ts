@@ -3,11 +3,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
-import { Tag } from "@/app/dashboard/workspace/_types/tag";
 import api from "@/lib/axios";
 import { TaskResponse } from "@/app/dashboard/workspace/[workspace]/_types/task";
+import { Workspace } from "@/_types/workspace";
+import { invalidateTaskId } from "@/lib/fetch-task-id";
 
-const useTagMutation = (initialTag: Tag) => {
+const useTagMutation = (initialTag: Workspace["tags"][number]) => {
   const { task, setTask } = useTaskWithIdStore((s) => s);
   const { tasks, setTasks } = useTaskStore((s) => s);
   const queryClient = useQueryClient();
@@ -23,7 +24,7 @@ const useTagMutation = (initialTag: Tag) => {
         {
           tag: {
             action: action.toUpperCase(),
-            tagId: initialTag.id,
+            tagId: initialTag._id,
           },
         },
       );
@@ -31,7 +32,7 @@ const useTagMutation = (initialTag: Tag) => {
       return response.data;
     },
 
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       const updatedTask = {
         ...data.data,
         dueDate: data.data.dueDate ? new Date(data.data.dueDate) : null,
@@ -55,6 +56,8 @@ const useTagMutation = (initialTag: Tag) => {
 
       setTask(updatedTask);
       setTasks(updatedTasks);
+
+      await invalidateTaskId(task._id);
     },
 
     onSettled: () => {

@@ -3,7 +3,6 @@
 import React, { type JSX } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { Tag } from "@/app/dashboard/workspace/_types/tag";
 import { cn, isLightColor } from "@/lib/utils";
 import {
   Tooltip,
@@ -12,17 +11,18 @@ import {
 } from "@/components/ui/tooltip";
 import { ColorOption } from "@/app/dashboard/workspace/_types/color";
 import { colorOptions } from "@/app/dashboard/workspace/_constants/colors";
+import { Workspace } from "@/_types/workspace";
 
 type Props = Readonly<
   {
-    tag: Tag;
+    tag: Workspace["tags"][number];
     disableClose?: boolean;
     disableTooltip?: boolean;
     renderIcon?: (props: {
-      text: Tag["text"];
+      text: Workspace["tags"][number]["text"];
       hexColor: string;
       isLight: boolean;
-      tag: Tag;
+      tag: Workspace["tags"][number];
     }) => JSX.Element;
   } & React.ComponentProps<typeof Badge>
 >;
@@ -47,9 +47,9 @@ export default function TaskBadge({
         <Badge
           variant="outline"
           className={cn(
-            "bg-accent inline-flex h-6 max-w-64 cursor-default items-center truncate py-1 pl-1.5 text-xs",
-            disableClose && "pr-1.5",
-            !disableClose && "pr-0.5",
+            "bg-accent inline-flex h-6 max-w-64 cursor-default items-center truncate py-1 text-xs",
+            disableClose && "px-1.5",
+            !disableClose && "px-1",
           )}
           style={{
             backgroundColor: hexColor,

@@ -44,6 +44,11 @@ export default function TaskDatePicker({
           onSelect={handleSelect}
           fromDate={new Date()}
           initialFocus
+          classNames={{
+            day_selected:
+              "text-white hover:text-white bg-sky-400 hover:bg-sky-500 dark:bg-sky-600 dark:hover:bg-sky-700",
+          }}
+          className="[&_.rdp-button]:cursor-pointer"
         />
 
         <SelectSeparator className="my-2" />

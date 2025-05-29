@@ -36,11 +36,12 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { WorkspaceResponse, WorkspacesResponse } from "@/_types/workspace";
+import { Workspace, WorkspaceResponse } from "@/_types/workspace";
 import { icons } from "../../_constants/icons";
 import { colorList, colorMap } from "../../_constants/colors";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { WorkspaceErrorResponse } from "../../_types/workspace";
+import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
 
 const [defaultColor, ...otherColors] = Object.keys(
   colorMap,
@@ -88,7 +89,7 @@ export default function SidebarAddWorkspaceDialog({
     },
   });
 
-  const { setWorkspaces } = useWorkspaceStore((s) => s);
+  const { workspaces, setWorkspaces } = useWorkspaceStore((s) => s);
   const { mutate } = useMutation({
     mutationKey: ["add-workspace"],
     mutationFn: async (newWorkspace: {
@@ -114,28 +115,32 @@ export default function SidebarAddWorkspaceDialog({
       await queryClient.invalidateQueries({
         queryKey: ["fetch-workspace"],
       });
+      await invalidateWorkspaces();
 
-      const newQueryData = queryClient.getQueryData<WorkspacesResponse>([
-        "fetch-workspace",
-      ])!;
+      const newWorkspace: Workspace = {
+        ...data.data,
+        createdAt: new Date(data.data.createdAt),
+        updatedAt: new Date(data.data.updatedAt),
 
-      const updatedWorkspaces = newQueryData.data.map((workspace) => ({
-        ...workspace,
-        createdAt: new Date(workspace.createdAt),
-        updatedAt: new Date(workspace.updatedAt),
-        members: workspace.members.map((member) => ({
+        members: data.data.members.map((member) => ({
           ...member,
           createdAt: new Date(member.createdAt),
         })),
-      }));
+      };
 
-      setWorkspaces(updatedWorkspaces);
-      push(`/dashboard/workspace/${data.data._id}`);
-    },
+      const updatedWorkspaces: Workspace[] = [...workspaces, newWorkspace];
 
-    onSettled: () => {
+      setWorkspaces({
+        workspaces: updatedWorkspaces,
+        activeWorkspace: newWorkspace,
+        status: "success",
+      });
+
+      push(`/dashboard/workspace/${newWorkspace._id}`);
       setOpen(false);
     },
+
+    onSettled: () => {},
 
     onError: (error: AxiosError<WorkspaceErrorResponse>) => {
       form.setError("root.badRequest", {

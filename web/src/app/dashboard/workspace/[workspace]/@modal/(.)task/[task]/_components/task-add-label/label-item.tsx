@@ -4,7 +4,6 @@ import React, { type JSX } from "react";
 import { Loader2, Pen } from "lucide-react";
 import { type CheckedState } from "@radix-ui/react-checkbox";
 
-import { Tag } from "@/app/dashboard/workspace/_types/tag";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -18,10 +17,11 @@ import useTagMutation from "./use-task-tag-mutation";
 import { ColorOption } from "@/app/dashboard/workspace/_types/color";
 import { colorOptions } from "@/app/dashboard/workspace/_constants/colors";
 import { useTaskAddLabelContext } from "./provider";
+import { Workspace } from "@/_types/workspace";
 
 type Props = Readonly<
   {
-    tag: Tag;
+    tag: Workspace["tags"][number];
   } & React.HTMLAttributes<HTMLDivElement>
 >;
 

@@ -21,6 +21,8 @@ import { Color } from "@/_types/color";
 import { cn } from "@/lib/utils";
 import { colorMap } from "../../_constants/colors";
 import { Workspace } from "@/_types/workspace";
+import UpdateWorkspaceDialog from "../update-workspace-dialog";
+import DeleteWorkspaceDialog from "../delete-workspace-dialog";
 
 type Props = Readonly<
   {
@@ -34,6 +36,8 @@ export default function SidebarWorkspaceItem({
   isActive,
   ...props
 }: Props): JSX.Element {
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [updateDialogOpen, setUpdateDialogOpen] = React.useState(false);
   const { isMobile, open } = useSidebar();
 
   const renderIcon = (icon: string, color: Color) => {
@@ -73,7 +77,7 @@ export default function SidebarWorkspaceItem({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <SidebarMenuAction className="opacity-0 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100">
+          <SidebarMenuAction className="cursor-pointer opacity-0 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100">
             <LucideIcons.MoreHorizontal />
             <span className="sr-only">More</span>
           </SidebarMenuAction>
@@ -90,10 +94,11 @@ export default function SidebarWorkspaceItem({
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setUpdateDialogOpen(true)}>
             <LucideIcons.Pen className="text-muted-foreground" />
             <span>Update</span>
           </DropdownMenuItem>
+
           <DropdownMenuItem>
             <LucideIcons.Copy className="text-muted-foreground" />
             <span>Duplicate</span>
@@ -105,7 +110,7 @@ export default function SidebarWorkspaceItem({
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setDeleteDialogOpen(true)}>
             <LucideIcons.Trash2 className="text-muted-foreground" />
             <span>Delete</span>
           </DropdownMenuItem>
@@ -122,6 +127,18 @@ export default function SidebarWorkspaceItem({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <UpdateWorkspaceDialog
+        show={updateDialogOpen}
+        setShow={setUpdateDialogOpen}
+        workspace={workspace}
+      />
+
+      <DeleteWorkspaceDialog
+        show={deleteDialogOpen}
+        setShow={setDeleteDialogOpen}
+        workspace={workspace}
+      />
     </SidebarMenuItem>
   );
 }

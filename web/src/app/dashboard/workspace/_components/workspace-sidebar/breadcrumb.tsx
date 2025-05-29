@@ -1,3 +1,5 @@
+"use client";
+
 import React, { type JSX } from "react";
 import Link from "next/link";
 
@@ -14,17 +16,7 @@ export default function SidebarLayoutBreadcrumb(): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
 
   if (!activeWorkspace) {
-    return (
-      <Breadcrumb>
-        <BreadcrumbList className="flex-nowrap">
-          <BreadcrumbItem className="hidden md:block">
-            <BreadcrumbPage className="bg-accent animate-pulse text-transparent">
-              Loading
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-    );
+    return <></>;
   }
 
   return (

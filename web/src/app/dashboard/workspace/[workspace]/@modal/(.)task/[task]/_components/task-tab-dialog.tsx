@@ -57,7 +57,7 @@ export default function TaskDialog(): JSX.Element {
   }, [task, tasks]);
 
   return (
-    <>
+    <div className="flex h-full w-full flex-col gap-0 overflow-hidden">
       <DialogHeader className="border-b py-5 text-left">
         <DialogTitle asChild>
           <div className="flex flex-col justify-between px-5 sm:flex-row sm:items-center">
@@ -256,6 +256,6 @@ export default function TaskDialog(): JSX.Element {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -3,7 +3,7 @@
 import React, { type JSX } from "react";
 import { ArrowLeft, Check, Loader2, X } from "lucide-react";
 import { AxiosError } from "axios";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,33 +12,36 @@ import ColorSelector from "./color-selector";
 import { isLightColor } from "@/lib/utils";
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
-import { ErrorApiResponse } from "@/app/_types/response";
 import { colorOptions } from "@/app/dashboard/workspace/_constants/colors";
 import { useTaskAddLabelContext } from "./provider";
-import { UpdateWorkspaceResponse } from "@/app/dashboard/workspace/_types/workspace";
-import { TaskResponse } from "@/app/dashboard/workspace/[workspace]/_types/task";
-import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
-import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
-import { Member } from "@/app/dashboard/workspace/_types/member";
+import {
+  AddTagErrorResponse,
+  AddTagResponse,
+  AddTagVariables,
+} from "@/_types/tag";
+import { Workspace } from "@/_types/workspace";
+import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
 
 export default function AddPanel(): JSX.Element {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   const { setView, setOpen } = useTaskAddLabelContext();
-  const { activeWorkspace, workspaces, setWorkspaces, setActiveWorkspace } =
-    useWorkspaceStore((s) => s);
-  const { task, setTask } = useTaskWithIdStore((s) => s);
-  const { tasks, setTasks } = useTaskStore((s) => s);
+  const { activeWorkspace, workspaces, setWorkspaces } = useWorkspaceStore(
+    (s) => s,
+  );
 
-  const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutate } = useMutation<
+    AddTagResponse,
+    AxiosError<AddTagErrorResponse>,
+    AddTagVariables
+  >({
     mutationKey: ["add-label"],
     mutationFn: async (data: { text: string; color: string }) => {
       setLoading(true);
 
-      const res = await api.post<UpdateWorkspaceResponse>(
-        `/workspaces/${activeWorkspace!._id}/add_tag`,
+      const res = await api.post(
+        `/workspaces/${activeWorkspace!._id}/tags`,
         data,
         {
           headers: {
@@ -50,9 +53,15 @@ export default function AddPanel(): JSX.Element {
       return res.data;
     },
 
-    onSuccess: (data) => {
-      const updatedWorkspace = {
-        ...data.data,
+    onSuccess: async (data) => {
+      const updatedWorkspace: Workspace = {
+        ...activeWorkspace!,
+        tagIds: data.data.tagIds,
+        tags: data.data.tags.map((tag) => ({
+          _id: tag._id,
+          text: tag.text,
+          color: tag.color,
+        })),
       };
 
       const updatedWorkspaces = workspaces.map((workspace) => {
@@ -62,84 +71,22 @@ export default function AddPanel(): JSX.Element {
         return workspace;
       });
 
-      queryClient.invalidateQueries({
-        queryKey: ["fetch-workspace"],
+      setWorkspaces({
+        workspaces: updatedWorkspaces,
+        activeWorkspace: updatedWorkspace,
+        status: "loading",
       });
 
-      queryClient.invalidateQueries({
-        queryKey: ["task-preview"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["fetch-task", data.data._id],
-      });
-
-      queryClient.setQueriesData(
-        {
-          queryKey: ["task-preview"],
-        },
-        (oldData: TaskResponse) => {
-          if (!oldData) {
-            return oldData;
-          }
-
-          const updatedTask = {
-            ...oldData,
-            data: {
-              ...oldData.data,
-              workspace: {
-                ...data.data,
-                owner: data.data.owner._id,
-                members: data.data.members.map(
-                  (member) => (member as unknown as Member)._id,
-                ),
-                tags: data.data.tags.map((tag) => {
-                  if (typeof tag === "string") {
-                    return tag;
-                  }
-                  return tag.id;
-                }),
-              },
-            },
-          };
-
-          return updatedTask;
-        },
-      );
-
-      const updatedTask = {
-        ...task,
-        workspace: {
-          ...data.data,
-          tags: data.data.tags.map((tag) => {
-            if (typeof tag === "string") {
-              return tag;
-            }
-            return tag.id;
-          }),
-        },
-      };
-
-      const updatedTasks = tasks.map((t) => {
-        if (t._id === updatedTask._id) {
-          return updatedTask;
-        }
-        return t;
-      });
-
-      setWorkspaces(updatedWorkspaces);
-      setActiveWorkspace(updatedWorkspace);
-      setTask(updatedTask);
-      setTasks(updatedTasks);
+      await invalidateWorkspaces();
+      setView("list");
     },
 
-    onError: (error: AxiosError<ErrorApiResponse>) => {
+    onError: (error) => {
       setError(error.response?.data.message || "An error occurred");
     },
 
     onSettled: () => {
       setLoading(false);
-      setView("list");
     },
   });
 

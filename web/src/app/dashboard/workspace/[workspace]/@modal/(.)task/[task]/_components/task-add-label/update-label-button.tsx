@@ -97,7 +97,6 @@ export default function UpdateLabelButton({
       queryClient.setQueryData(
         ["task-preview", task.workspaceId, task._id],
         (oldData: TaskResponse) => {
-          console.log("oldData", oldData);
           if (!oldData) {
             return oldData;
           }

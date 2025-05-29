@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import AppProvider from "./provider";
-import UserInitializer from "@/components/user-initializer";
 import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
@@ -34,7 +33,6 @@ export default function RootLayout({ children }: Props): JSX.Element {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AppProvider>
-          <UserInitializer />
           {children}
 
           <Toaster />

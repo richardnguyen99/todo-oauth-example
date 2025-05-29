@@ -5,7 +5,6 @@ import { CheckCircle } from "lucide-react";
 
 import { useTaskStore } from "../_providers/task";
 import TaskItem from "./task-item";
-import { TaskCreator } from "./task-creator";
 
 export default function TaskList(): JSX.Element {
   const { tasks } = useTaskStore((s) => s);
@@ -29,8 +28,6 @@ export default function TaskList(): JSX.Element {
           </div>
         )}
       </div>
-
-      <TaskCreator />
     </div>
   );
 }

@@ -113,7 +113,7 @@ export class Workspace {
   color: Color;
 
   @Prop({
-    type: mongoose.Schema.Types.String,
+    type: mongoose.Schema.Types.Boolean,
     default: true,
   })
   private: boolean;
@@ -143,3 +143,44 @@ export class Workspace {
 export type WorkspaceDocument = HydratedDocument<Workspace>;
 export const WorkspaceSchema = SchemaFactory.createForClass(Workspace);
 WorkspaceSchema.index({ title: 1, ownerId: 1 }, { unique: true });
+
+WorkspaceSchema.pre("save", function (next) {
+  if (this.isNew && !this.icon) {
+    this.icon = "zinc-bold"; // Default icon
+  }
+  next();
+});
+
+WorkspaceSchema.pre("findOneAndDelete", async function () {
+  const doc = await this.model.findOne<WorkspaceDocument>(this.getFilter());
+
+  if (doc) {
+    // Remove all tags referencing this task
+    await doc.model("Tag").deleteMany({ workspaceId: doc._id });
+
+    // Remove all members referencing this task
+    await doc.model("Member").deleteMany({ workspaceId: doc._id });
+
+    // Remove all tasks referencing this workspace
+    await doc.model("Task").deleteMany({ workspaceId: doc._id });
+  }
+});
+
+WorkspaceSchema.pre(
+  "deleteOne",
+  { query: true, document: false },
+  async function () {
+    const doc = await this.model.findOne<WorkspaceDocument>(this.getFilter());
+
+    if (doc) {
+      // Remove all tags referencing this task
+      await doc.model("Tag").deleteMany({ workspaceId: doc._id });
+
+      // Remove all members referencing this task
+      await doc.model("Member").deleteMany({ workspaceId: doc._id });
+
+      // Remove all tasks referencing this workspace
+      await doc.model("Task").deleteMany({ workspaceId: doc._id });
+    }
+  },
+);

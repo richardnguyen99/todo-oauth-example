@@ -12,9 +12,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import DashboardLogoutButton from "./dashboard-logout-button";
 
-export default function DashboardHeader(): JSX.Element {
+type Props = Readonly<{
+  avatarUrl: string;
+  avatarName: string;
+  avatarAlt: string;
+  username: string;
+  email: string;
+}>;
+
+export default function DashboardHeader({
+  avatarUrl,
+  avatarName,
+  avatarAlt,
+  username,
+  email,
+}: Props): JSX.Element {
   return (
     <header className="bg-background sticky top-0 z-40 w-full border-b">
       <div className="container flex h-16 max-w-full items-center justify-between px-4">
@@ -40,27 +55,37 @@ export default function DashboardHeader(): JSX.Element {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+              <Button
+                variant="ghost"
+                className="relative h-9 w-9 cursor-pointer rounded-full"
+              >
                 <Avatar className="h-9 w-9">
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarImage src={avatarUrl} alt={avatarAlt} />
+                  <AvatarFallback>{avatarName.slice(0, 2)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                <div>
+                  <div>{username}</div>
+                  <div className="text-muted-foreground text-sm">{email}</div>
+                </div>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <LucideReact.User className="mr-2 h-4 w-4" />
+
+              <DropdownMenuItem className="cursor-pointer">
+                <LucideReact.User className="mr-1 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <LucideReact.Settings className="mr-2 h-4 w-4" />
+
+              <DropdownMenuItem className="cursor-pointer">
+                <LucideReact.Settings className="mr-1 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <span>Log out</span>
-              </DropdownMenuItem>
+
+              <DashboardLogoutButton />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

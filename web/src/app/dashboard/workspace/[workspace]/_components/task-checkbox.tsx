@@ -6,6 +6,7 @@ import { Task, TaskResponse } from "../_types/task";
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { useTaskStore } from "../_providers/task";
+import { invalidateTaskId } from "@/lib/fetch-task-id";
 
 type Props = Readonly<{
   task: Task;
@@ -44,6 +45,8 @@ export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
 
       setTasks(updatedTasks);
       setTask?.(updatedTask);
+
+      invalidateTaskId(task._id);
 
       await queryClient.invalidateQueries({
         queryKey: ["tasks"],

@@ -2,7 +2,7 @@
 
 import React, { type JSX } from "react";
 
-import { Tag } from "@/app/dashboard/workspace/_types/tag";
+import { Workspace } from "@/_types/workspace";
 
 export type ViewType = "list" | "add" | "edit";
 
@@ -13,8 +13,10 @@ type ContextType = {
   view: ViewType;
   setView: React.Dispatch<React.SetStateAction<ViewType>>;
 
-  editTag: Tag | null;
-  setEditTag: React.Dispatch<React.SetStateAction<Tag | null>>;
+  editTag: Workspace["tags"][number] | null;
+  setEditTag: React.Dispatch<
+    React.SetStateAction<Workspace["tags"][number] | null>
+  >;
 };
 
 export const TaskAddLabelContext = React.createContext<ContextType>(
@@ -42,8 +44,10 @@ type Props = Readonly<{
   view: ViewType;
   setView: React.Dispatch<React.SetStateAction<ViewType>>;
 
-  editTag: Tag | null;
-  setEditTag: React.Dispatch<React.SetStateAction<Tag | null>>;
+  editTag: Workspace["tags"][number] | null;
+  setEditTag: React.Dispatch<
+    React.SetStateAction<Workspace["tags"][number] | null>
+  >;
 }>;
 
 export default function TaskAddLabelProvider({

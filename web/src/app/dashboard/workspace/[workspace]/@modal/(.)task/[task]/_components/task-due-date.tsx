@@ -16,6 +16,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { invalidateTasks } from "@/lib/fetch-tasks";
+import { invalidateTaskId } from "@/lib/fetch-task-id";
 
 type Props = Readonly<{
   disableClose?: boolean;
@@ -57,13 +59,14 @@ export default function TaskDueDate({
         t._id === data.data._id ? newTask : t,
       );
 
+      invalidateTasks(task.workspaceId);
+      invalidateTaskId(task._id);
+
       setTask(newTask);
       setTasks(updatedTasks);
     },
 
-    onSettled: (data, error) => {
-      console.log("add due date settled: ", data, error);
-    },
+    onSettled: (_data, _error) => {},
 
     onError: (error) => {
       console.log("add due date error: ", error);
@@ -108,7 +111,10 @@ export default function TaskDueDate({
       initialDate={task.dueDate}
       onSelect={handleSelect}
     >
-      <Button variant="outline" className="group w-full justify-start text-xs">
+      <Button
+        variant="outline"
+        className="group w-full cursor-pointer justify-start text-xs"
+      >
         <Calendar className="h-4 w-4" />
 
         {task.dueDate ? format(task.dueDate, "MM/dd/yyyy") : "No due date"}

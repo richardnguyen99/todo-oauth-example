@@ -4,8 +4,11 @@ import TaskDialogProvider from "./[task]/_providers/task-dialog";
 
 type Props = Readonly<{
   children: React.ReactNode;
+  params: Promise<unknown>;
 }>;
 
-export default function TaskDialogLayout({ children }: Props): JSX.Element {
+export default async function TaskDialogLayout({
+  children,
+}: Props): Promise<JSX.Element> {
   return <TaskDialogProvider>{children}</TaskDialogProvider>;
 }

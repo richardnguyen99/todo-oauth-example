@@ -15,6 +15,7 @@ export default function Redirect({ url, onReplace }: Props) {
     }
 
     replace(url);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return null;

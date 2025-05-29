@@ -23,7 +23,6 @@ import {
   TagDocument,
   WorkspaceDocument,
 } from "./schemas/workspaces.schema";
-import DeleteWorkspaceResult from "./dto/delete-workspace.dto";
 import {
   ZodQueryValidationPipe,
   ZodValidationPipe,
@@ -37,7 +36,10 @@ import {
 import { respondWithError } from "src/utils/handle-error";
 import { JwtUser } from "src/decorators/user/user.decorator";
 import { JwtUserPayload } from "src/decorators/types/user";
-import { UpdateWorkspaceDto } from "./dto/update-workspace.dto";
+import {
+  UpdateWorkspaceDto,
+  updateWorkspaceDtoSchema,
+} from "./dto/update-workspace.dto";
 import {
   AddNewMemberDto,
   addNewMemberDtoSchema,
@@ -174,8 +176,9 @@ export class WorkspacesController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put("/:id/update")
+  @Put("/:id")
   @Header("Content-Type", "application/json")
+  @UsePipes(new ZodValidationPipe(updateWorkspaceDtoSchema))
   async updateWorkspace(
     @Res() res: ExpressResponse,
     @Param("id") workspaceId: string,
@@ -203,14 +206,14 @@ export class WorkspacesController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete("/:id/delete")
+  @Delete("/:id")
   @Header("Content-Type", "application/json")
   async deleteWorkspace(
     @Res() res: ExpressResponse,
     @Param("id") workspaceId: string,
     @JwtUser() user: JwtUserPayload,
   ) {
-    let deleteResult: DeleteWorkspaceResult;
+    let deleteResult: WorkspaceDocument;
 
     try {
       deleteResult = await this.workspaceService.deleteWorkspace(

@@ -1,27 +1,14 @@
-"use client";
-
 import React, { type JSX } from "react";
-import { LoaderCircleIcon } from "lucide-react";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
-import { useUserStore } from "@/providers/user-store-provider";
-import Redirect from "@/components/redirect";
+export default async function DashboardPage(): Promise<JSX.Element> {
+  const cookieStore = await cookies();
 
-export default function TodoPage(): JSX.Element {
-  const { user, status } = useUserStore((s) => s);
-
-  if (status === "loading") {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <LoaderCircleIcon className="animate-spin" />
-      </div>
-    );
+  if (!cookieStore.has("access_token")) {
+    redirect("/login");
   }
 
-  if (user === null) {
-    // If the user store is not initialized, redirect to the login page
-    // This could happen if the user is not authenticated
-    return <Redirect url={`/login`} />;
-  }
-
-  return <Redirect url={`/dashboard/workspace`} />;
+  redirect("/dashboard/workspace"); // Redirect to the workspace page by default
+  return <></>;
 }
