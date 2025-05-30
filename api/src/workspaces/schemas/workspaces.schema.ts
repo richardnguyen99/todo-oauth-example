@@ -138,6 +138,13 @@ export class Workspace {
     default: [],
   })
   tagIds: Array<mongoose.Types.ObjectId>;
+
+  @Prop({
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Task",
+    default: [],
+  })
+  taskIds: Array<mongoose.Types.ObjectId>;
 }
 
 export type WorkspaceDocument = HydratedDocument<Workspace>;
