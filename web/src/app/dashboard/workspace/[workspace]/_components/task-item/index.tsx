@@ -38,7 +38,7 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
       <div
         {...rest}
         className={cn(
-          "bg-accent/30 hover:bg-accent/70 hover: flex cursor-pointer flex-col rounded-md p-2",
+          "bg-accent/30 hover:bg-accent/70 hover: flex flex-col rounded-md p-2",
           {
             "text-muted-foreground": task.completed,
           },
