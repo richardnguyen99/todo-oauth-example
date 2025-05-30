@@ -14,6 +14,7 @@ export type Workspace = {
   memberIds: string[];
   ownerId: string;
   tagIds: string[];
+  taskIds: string[];
   createdAt: Date;
   updatedAt: Date;
 

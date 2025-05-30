@@ -41,19 +41,22 @@ export class TasksService {
       workspaceId,
     );
 
-    // Now find tasks for the workspace
-    const tasks = await this.taskModel
-      .find({
-        workspaceId: workspace._id, // Filter by workspaceId
-      })
-      .populate([
-        "createdByUser",
+    const tasks = (
+      await workspace.populate<{ taskIds: TaskDocument[] }>([
         {
-          path: "tags",
-          select: "text color createdBy",
+          path: "taskIds",
+          populate: [
+            {
+              path: "createdByUser",
+            },
+            {
+              path: "tags",
+              select: "text color createdBy",
+            },
+          ],
         },
       ])
-      .exec();
+    ).taskIds;
 
     return tasks;
   }
