@@ -377,39 +377,57 @@ export class WorkspacesService {
     workspaceId: string,
     updateData: UpdateWorkspaceDto,
   ): Promise<WorkspaceDocument> {
-    // Check if the workspace exists
-    const workspace = await this._getWorkspaceWithAdminAccess(
-      ownerId,
-      workspaceId,
+    const updateQuery: mongoose.UpdateQuery<WorkspaceDocument> = {};
+
+    if (updateData.title) {
+      updateQuery["title"] = updateData.title;
+    }
+
+    if (updateData.icon) {
+      updateQuery["icon"] = updateData.icon;
+    }
+
+    if (updateData.color) {
+      updateQuery["color"] = updateData.color;
+    }
+
+    if (updateData.newTaskOrder) {
+      const taskIds = updateData.newTaskOrder.map(
+        (taskId) => new mongoose.Types.ObjectId(taskId),
+      );
+
+      updateQuery["taskIds"] = taskIds;
+    }
+
+    const workspace = await this.workspaceModel.findOneAndUpdate(
+      {
+        _id: workspaceId,
+        ownerId,
+      },
+      {
+        $set: updateQuery,
+      },
+      {
+        runValidators: true,
+      },
     );
 
-    // Update the workspace with new data
-    if (updateData.title) {
-      // Check if the new title is already taken by another workspace for the same owner
-      const existingWorkspaceWithTitle = await this.workspaceModel.findOne({
-        owner: ownerId,
-        title: updateData.title,
-        _id: { $ne: workspace._id }, // Exclude the current workspace from the check
-      });
-
-      if (existingWorkspaceWithTitle) {
-        throw new BadRequestException(
-          `Workspace with title "${updateData.title}" already exists for this user.`,
-        );
-      }
-
-      workspace.title = updateData.title;
-    }
-    if (updateData.icon) {
-      workspace.icon = updateData.icon;
-    }
-    if (updateData.color) {
-      workspace.color = updateData.color;
+    if (!workspace) {
+      throw new NotFoundException(
+        `Workspace with ID ${workspaceId} not found or user is not the owner.`,
+      );
     }
 
-    await workspace.save();
+    const updatedWorkspace = await workspace.populate([
+      "owner",
+      "tags",
+      "members",
+      {
+        path: "tasks",
+      },
+    ]);
 
-    return workspace;
+    return updatedWorkspace;
   }
 
   async deleteWorkspace(

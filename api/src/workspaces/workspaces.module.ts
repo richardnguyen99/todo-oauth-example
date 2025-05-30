@@ -47,6 +47,12 @@ import { TasksService } from "src/tasks/tasks.service";
             justOne: true,
           });
 
+          schema.virtual("tasks", {
+            localField: "taskIds",
+            foreignField: "_id",
+            ref: Task.name,
+          });
+
           return schema;
         },
       },
