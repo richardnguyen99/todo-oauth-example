@@ -1,3 +1,4 @@
+import { Task } from "@/app/dashboard/workspace/_types/task";
 import { Color } from "./color";
 import { Member } from "./member";
 import { Tag } from "./tag";
@@ -24,6 +25,8 @@ export type Workspace = {
     "updatedAt" | "user"
   >)[];
   tags: Pick<Tag, "_id" | "color" | "text">[];
+
+  tasks: Task[];
 };
 
 export type FetchedWorkspace = Omit<
@@ -54,7 +57,7 @@ export type WorkspaceResponse = {
 export type UpdateWorkspaceResponse = {
   statusCode: number;
   message: string;
-  data: Omit<FetchedWorkspace, "tags" | "members" | "owner">;
+  data: Omit<FetchedWorkspace, "tags" | "members" | "owner" | "tasks">;
 };
 
 export type UpdateWorkspaceErrorResponse = {

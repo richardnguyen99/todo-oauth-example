@@ -418,16 +418,7 @@ export class WorkspacesService {
       );
     }
 
-    const updatedWorkspace = await workspace.populate([
-      "owner",
-      "tags",
-      "members",
-      {
-        path: "tasks",
-      },
-    ]);
-
-    return updatedWorkspace;
+    return workspace;
   }
 
   async deleteWorkspace(

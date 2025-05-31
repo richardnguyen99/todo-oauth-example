@@ -1,6 +1,7 @@
 "use client";
 
 import React, { type JSX } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { CheckCircle } from "lucide-react";
 import {
   DndContext,
@@ -23,6 +24,12 @@ import { useTaskStore } from "../_providers/task";
 import TaskItem from "./task-item";
 import { Task } from "../_types/task";
 import { cn } from "@/lib/utils";
+import api from "@/lib/axios";
+import {
+  UpdateWorkspaceErrorResponse,
+  UpdateWorkspaceResponse,
+} from "@/_types/workspace";
+import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 
 type SortableTaskItemProps = Readonly<{
   task: Task;
@@ -45,7 +52,7 @@ function SortableTaskItem({ task }: SortableTaskItemProps): JSX.Element {
     transition,
     zIndex: isDragging ? 10 : 1,
     opacity: isDragging ? 0.8 : 1,
-    position: isDragging ? "relative" : ("static" as any),
+    position: isDragging ? "relative" : "static",
   };
 
   return (
@@ -65,7 +72,11 @@ function SortableTaskItem({ task }: SortableTaskItemProps): JSX.Element {
 
 export default function TaskList(): JSX.Element {
   const id = React.useId();
-  const { tasks } = useTaskStore((s) => s);
+  const { tasks, setTasks } = useTaskStore((s) => s);
+  const [, setLoading] = React.useState(false);
+  const { workspaces, activeWorkspace, setWorkspaces } = useWorkspaceStore(
+    (s) => s,
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -79,8 +90,68 @@ export default function TaskList(): JSX.Element {
     }),
   );
 
+  const { mutate } = useMutation<
+    UpdateWorkspaceResponse,
+    UpdateWorkspaceErrorResponse,
+    string[]
+  >({
+    mutationFn: async (newTaskOrder: string[]) => {
+      const response = await api.put(`/workspaces/${activeWorkspace!._id}`, {
+        newTaskOrder,
+      });
+
+      if (response.status !== 200) {
+        throw new Error("Failed to delete workspace");
+      }
+
+      return response.data;
+    },
+
+    onMutate: () => {
+      setLoading(true);
+    },
+
+    onSuccess: (data) => {
+      console.log("Task order updated successfully", data);
+    },
+
+    onError: () => {},
+
+    onSettled: () => {
+      setLoading(false);
+    },
+  });
+
   function handleDragEnd(event: DragEndEvent) {
-    console.log("Drag ended", event);
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = tasks.findIndex((task) => task._id === active.id);
+      const newIndex = tasks.findIndex((task) => task._id === over.id);
+
+      const newItems = [...tasks];
+      const [movedItem] = newItems.splice(oldIndex, 1);
+      newItems.splice(newIndex, 0, movedItem);
+
+      const newTaskOrder = newItems.map((task) => task._id);
+
+      const newActiveWorkspace = {
+        ...activeWorkspace!,
+        taskIds: newTaskOrder,
+      };
+      const newWorkspaces = workspaces.map((ws) =>
+        ws._id === activeWorkspace!._id ? newActiveWorkspace : ws,
+      );
+
+      setWorkspaces({
+        workspaces: newWorkspaces,
+        activeWorkspace: newActiveWorkspace,
+        status: "success",
+      });
+      setTasks(newItems);
+
+      mutate(newTaskOrder);
+    }
   }
 
   return (
