@@ -1,6 +1,10 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
 import mongoose, { HydratedDocument } from "mongoose";
+import {
+  Workspace,
+  WorkspaceDocument,
+} from "src/workspaces/schemas/workspaces.schema";
 
 // Serve no purpose except for migration script
 @Schema({
@@ -139,3 +143,14 @@ export class Task {
 
 export type TaskDocument = HydratedDocument<Task>;
 export const TaskSchema = SchemaFactory.createForClass(Task);
+
+TaskSchema.post("findOneAndDelete", async function (doc: TaskDocument) {
+  if (!doc) return;
+
+  const workspaceModel = doc.model<WorkspaceDocument>(Workspace.name);
+
+  await workspaceModel.updateOne(
+    { _id: doc.workspaceId },
+    { $pull: { taskIds: doc._id } },
+  );
+});
