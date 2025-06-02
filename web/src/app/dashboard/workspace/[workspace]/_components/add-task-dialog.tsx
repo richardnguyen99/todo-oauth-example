@@ -79,10 +79,6 @@ export default function AddTaskDialog({ children }: Props): JSX.Element {
 
       setLoading(true);
 
-      await new Promise((resolve) =>
-        setTimeout(() => resolve({ success: true }), 1000),
-      );
-
       const response = await api.post<TaskResponse>(
         `/tasks?workspace_id=${activeWorkspace._id}`,
         {
@@ -102,7 +98,10 @@ export default function AddTaskDialog({ children }: Props): JSX.Element {
 
       setTasks([...tasks, newTask]);
       invalidateTasks(activeWorkspace!._id);
+
       setOpen(false);
+      setLoading(false);
+      form.reset(); // Reset the form after successful submission
     },
 
     onSettled: () => {
@@ -138,12 +137,7 @@ export default function AddTaskDialog({ children }: Props): JSX.Element {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit((values) => {
-              mutate(values, {
-                onSuccess: () => {
-                  form.reset();
-                  setOpen(false);
-                },
-              });
+              mutate(values);
             })}
             className="space-y-4 py-4"
           >

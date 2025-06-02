@@ -144,6 +144,21 @@ export class Task {
 export type TaskDocument = HydratedDocument<Task>;
 export const TaskSchema = SchemaFactory.createForClass(Task);
 
+TaskSchema.post("save", async function name(doc, next) {
+  const workspaceModel = doc.model<WorkspaceDocument>(Workspace.name);
+
+  await workspaceModel.updateOne(
+    {
+      _id: doc.workspaceId,
+    },
+    {
+      $addToSet: { taskIds: doc._id },
+    },
+  );
+
+  next();
+});
+
 TaskSchema.post("findOneAndDelete", async function (doc: TaskDocument) {
   if (!doc) return;
 
