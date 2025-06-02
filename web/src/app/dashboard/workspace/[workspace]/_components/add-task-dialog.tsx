@@ -37,7 +37,6 @@ import {
 } from "@/components/ui/select";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import api from "@/lib/axios";
-import { TaskResponse } from "../_types/task";
 import { useTaskStore } from "../_providers/task";
 import { invalidateTasks } from "@/lib/fetch-tasks";
 

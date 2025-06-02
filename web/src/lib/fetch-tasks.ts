@@ -5,11 +5,12 @@ import { cookies } from "next/headers";
 
 export const fetchTasks = async (
   workspaceId: string,
+  queryString: string = "",
   errFn: (res: Response) => void,
 ) => {
   const cookieStore = await cookies();
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/tasks?workspace_id=${workspaceId}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/tasks?workspace_id=${workspaceId}&${queryString}`,
     {
       method: "GET",
       headers: {

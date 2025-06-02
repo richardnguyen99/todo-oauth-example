@@ -23,11 +23,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import TaskList from "./_components/task-list";
+import TaskList from "./_components/sortable-task-list";
 import AddTaskDialog from "./_components/add-task-dialog";
 import SidebarLayoutBreadcrumb from "../_components/workspace-sidebar/breadcrumb";
+import { WorkspaceIdPageProps } from "./_types/props";
 
-export default async function WorkspacePage(): Promise<JSX.Element> {
+export default async function WorkspacePage({
+  searchParams,
+}: WorkspaceIdPageProps): Promise<JSX.Element> {
+  const { sort, filter, views, ...rest } = await searchParams;
+
+  console.log("WorkspacePage searchParams:", {
+    sort,
+    filter,
+    views,
+    rest,
+  });
+
   return (
     <div>
       <div className="bg-background sticky top-16 z-10 flex h-12 shrink-0 items-center justify-between gap-2 overflow-x-auto border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-10">

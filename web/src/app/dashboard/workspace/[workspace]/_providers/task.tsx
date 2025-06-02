@@ -4,7 +4,7 @@ import { type ReactNode, createContext, useRef, useContext } from "react";
 import { useStore } from "zustand";
 
 import { type TaskStore, createTaskStore } from "../_stores/task";
-import { Task } from "../_types/task";
+import { Task } from "../../_types/task";
 
 export type taskStoreApi = ReturnType<typeof createTaskStore>;
 

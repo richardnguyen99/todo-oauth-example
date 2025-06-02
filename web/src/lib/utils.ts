@@ -18,3 +18,39 @@ export function isLightColor(color: string): boolean {
 
   return luminance > 0.5;
 }
+
+export function buildSearchParams<T>(params: URLSearchParams) {
+  const searchParams: Record<string, string | string[]> = {};
+
+  params.forEach((value, key) => {
+    if (searchParams[key]) {
+      if (Array.isArray(searchParams[key])) {
+        (searchParams[key] as string[]).push(value);
+      } else {
+        searchParams[key] = [searchParams[key] as string, value];
+      }
+    } else {
+      searchParams[key] = value;
+    }
+  });
+
+  return searchParams as T;
+}
+
+export function buildSearchParamsString<
+  T extends Record<string, string | string[] | undefined>,
+>(params: T): string {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined) return;
+
+    if (Array.isArray(value)) {
+      value.forEach((v) => searchParams.append(key, v));
+    } else {
+      searchParams.set(key, value);
+    }
+  });
+
+  return searchParams.toString();
+}
