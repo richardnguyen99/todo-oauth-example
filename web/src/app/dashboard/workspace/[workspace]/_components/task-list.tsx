@@ -62,7 +62,7 @@ function SortableTaskItem({ task }: SortableTaskItemProps): JSX.Element {
       {...attributes}
       {...listeners}
       className={cn("touch-none first:select-none", {
-        "first:cursor-grabbing": isDragging,
+        "[&>div]:cursor-grabbing": isDragging,
       })}
     >
       <TaskItem task={task} />
