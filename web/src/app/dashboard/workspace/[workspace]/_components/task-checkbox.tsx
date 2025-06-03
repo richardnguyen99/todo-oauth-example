@@ -1,12 +1,19 @@
 import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { useTaskStore } from "../_providers/task";
 import { invalidateTaskId } from "@/lib/fetch-task-id";
-import { Task, TaskResponse } from "@/_types/task";
+import {
+  Task,
+  UpdateTaskErrorResponse,
+  UpdateTaskResponse,
+} from "@/_types/task";
+import { invalidateTasks } from "@/lib/fetch-tasks";
+import { createTaskFromFetchedData } from "@/lib/utils";
+import { AxiosError } from "axios";
 
 type Props = Readonly<{
   task: Task;
@@ -16,12 +23,15 @@ type Props = Readonly<{
 export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
   const { tasks, setTasks } = useTaskStore((s) => s);
-  const queryClient = useQueryClient();
 
-  const { mutate } = useMutation({
+  const { mutate } = useMutation<
+    UpdateTaskResponse,
+    AxiosError<UpdateTaskErrorResponse>,
+    boolean
+  >({
     mutationKey: ["tasks", task._id],
     mutationFn: async (completed: boolean) => {
-      const response = await api.put<TaskResponse>(
+      const response = await api.put(
         `/tasks/${task._id}?workspace_id=${activeWorkspace?._id}`,
         {
           completed,
@@ -32,20 +42,7 @@ export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
     },
 
     onSuccess: async (response) => {
-      const updatedTask = {
-        ...task,
-        updatedAt: new Date(response.data.updatedAt),
-
-        completed: response.data.completed,
-        completedBy: response.data.completedBy,
-        completedByUser: response.data.completedByUser
-          ? {
-              ...response.data.completedByUser,
-              createdAt: new Date(response.data.completedByUser.createdAt),
-              updatedAt: new Date(response.data.completedByUser.updatedAt),
-            }
-          : null,
-      };
+      const updatedTask = createTaskFromFetchedData(response.data);
       const updatedTasks = tasks.map((t) => {
         if (t._id === updatedTask._id) {
           return updatedTask;
@@ -56,15 +53,8 @@ export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
       setTasks(updatedTasks);
       setTask?.(updatedTask);
 
-      invalidateTaskId(task._id);
-
-      await queryClient.invalidateQueries({
-        queryKey: ["tasks"],
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: ["task-preview", task._id],
-      });
+      await invalidateTaskId(task._id);
+      await invalidateTasks(task.workspaceId);
     },
 
     onError: (error) => {

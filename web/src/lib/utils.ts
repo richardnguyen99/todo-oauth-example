@@ -1,3 +1,4 @@
+import { FetchedTask, Task } from "@/_types/task";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -53,4 +54,34 @@ export function buildSearchParamsString<
   });
 
   return searchParams.toString();
+}
+
+export function createTaskFromFetchedData(data: FetchedTask): Task {
+  return {
+    ...data,
+
+    dueDate: data.dueDate ? new Date(data.dueDate) : null,
+    createdAt: new Date(data.createdAt),
+    updatedAt: new Date(data.updatedAt),
+
+    createdByUser: {
+      ...data.createdByUser,
+      createdAt: new Date(data.createdByUser.createdAt),
+      updatedAt: new Date(data.createdByUser.updatedAt),
+    },
+
+    completedByUser: data.completedByUser
+      ? {
+          ...data.completedByUser,
+          createdAt: new Date(data.completedByUser.createdAt),
+          updatedAt: new Date(data.completedByUser.updatedAt),
+        }
+      : null,
+
+    workspace: {
+      ...data.workspace,
+      createdAt: new Date(data.workspace.createdAt),
+      updatedAt: new Date(data.workspace.updatedAt),
+    },
+  };
 }

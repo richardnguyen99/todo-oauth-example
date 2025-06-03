@@ -2,6 +2,18 @@ import { Tag } from "./tag";
 import { FetchedUser, User } from "./user";
 import { FetchedWorkspace, Workspace } from "./workspace";
 
+// Task contains basic information about its workspace for referencing, not a
+// full workspace object to avoid circular references and large payloads.
+export type FetchedTaskWorkspaceSchema = Omit<
+  FetchedWorkspace,
+  "tags" | "members" | "owner" | "tasks"
+>;
+
+export type TaskWorkspaceSchema = Omit<
+  Workspace,
+  "tags" | "members" | "owner" | "tasks"
+>;
+
 export type TaskItem = {
   text: string;
   completed: boolean;
@@ -15,7 +27,7 @@ export type TaskBase = {
   items: Array<TaskItem>;
   completed: boolean;
   priority: "low" | "medium" | "high";
-  tags: Array<Pick<Tag, "_id" | "text" | "color">>;
+  tags: Array<Tag>;
   createdBy: string;
   completedBy: string;
   workspaceId: string;
@@ -27,6 +39,7 @@ export type FetchedTask = TaskBase & {
   updatedAt: string;
   createdByUser: FetchedUser;
   completedByUser: FetchedUser | null;
+  workspace: FetchedTaskWorkspaceSchema;
 };
 
 export type Task = TaskBase & {
@@ -36,27 +49,33 @@ export type Task = TaskBase & {
   createdByUser: User;
   completedByUser: User | null;
 
-  workspace: Omit<Workspace, "tags" | "members" | "owner" | "tasks">;
+  workspace: TaskWorkspaceSchema;
 };
 
 export type TaskResponse = {
   statusCode: number;
   message: string;
-  data: FetchedTask & {
-    workspace: Omit<FetchedWorkspace, "tags" | "members" | "owner" | "tasks">;
-  };
+  data: FetchedTask;
 };
 
 export type AddTaskResponse = {
   statusCode: number;
   message: string;
-  data: Task & {
-    workspace: Omit<FetchedWorkspace, "tags" | "members" | "owner" | "tasks">;
-  };
+  data: Task;
 };
 
 export type UpdateTaskResponse = {
   statusCode: number;
   message: string;
   data: FetchedTask;
+};
+
+export type UpdateTaskErrorResponse = {
+  timestamp: string;
+  path: string;
+  method: string;
+  statusCode: number;
+  message: string;
+  error: unknown;
+  data: null;
 };

@@ -1,14 +1,21 @@
 import type { Workspace } from "./workspace";
 
-export type Tag = {
+export type TagBase = {
   _id: string;
   workspaceId: string;
   createdBy: string;
   color: string;
   text: string;
+};
 
-  createdAt?: Date;
-  updatedAt?: Date;
+export type FetchedTag = TagBase & {
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Tag = TagBase & {
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type AddTagResponse = {

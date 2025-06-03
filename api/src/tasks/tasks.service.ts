@@ -336,9 +336,14 @@ export class TasksService {
     await task.save();
 
     const populatedTask = await task.populate([
-      "workspace",
-      "createdByUser",
-      "completedByUser",
+      {
+        path: "workspace",
+      },
+      {
+        path: "createdByUser",
+        select: "-workspaces -accounts",
+      },
+      { path: "completedByUser", select: "-workspaces -accounts" },
       "tags",
     ]);
 
