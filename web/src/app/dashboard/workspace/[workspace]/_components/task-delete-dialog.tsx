@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
 import { DeleteTaskResponse } from "../task/_types/task-with-id";
 import { useTaskStore } from "../_providers/task";
-import { Task } from "../_types/task";
+import { Task } from "@/_types/task";
 
 type Props = Readonly<{
   task: Task;

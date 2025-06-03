@@ -21,6 +21,7 @@ import {
 } from "@/_types/tag";
 import { Workspace } from "@/_types/workspace";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
+import { invalidateTasks } from "@/lib/fetch-tasks";
 
 export default function AddPanel(): JSX.Element {
   const [loading, setLoading] = React.useState(false);
@@ -78,6 +79,7 @@ export default function AddPanel(): JSX.Element {
       });
 
       await invalidateWorkspaces();
+      await invalidateTasks(activeWorkspace!._id);
       setView("list");
     },
 

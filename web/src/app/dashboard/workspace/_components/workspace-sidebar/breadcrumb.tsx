@@ -8,7 +8,6 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 

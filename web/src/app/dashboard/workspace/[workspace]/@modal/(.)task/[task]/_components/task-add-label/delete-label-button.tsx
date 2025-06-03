@@ -3,7 +3,7 @@
 import React, { type JSX } from "react";
 import { Loader2, Trash } from "lucide-react";
 import { AxiosError } from "axios";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
@@ -11,9 +11,11 @@ import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { ErrorApiResponse } from "@/app/_types/response";
 import { useTaskAddLabelContext } from "./provider";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
-import { TaskResponse } from "@/app/dashboard/workspace/[workspace]/_types/task";
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
-import { UpdateWorkspaceResponse } from "@/app/dashboard/workspace/_types/workspace";
+import { UpdateWorkspaceResponse } from "@/_types/workspace";
+import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
+import { invalidateTasks } from "@/lib/fetch-tasks";
+import { invalidateTaskId } from "@/lib/fetch-task-id";
 
 type Props = Readonly<{
   setErrorMessage: (error: string | null) => void;
@@ -28,20 +30,20 @@ export default function DeleteLabelButton({
     throw new Error("Edit tag is not defined");
   }
 
-  const { activeWorkspace, workspaces, setWorkspaces, setActiveWorkspace } =
-    useWorkspaceStore((s) => s);
+  const { activeWorkspace, workspaces, setWorkspaces } = useWorkspaceStore(
+    (s) => s,
+  );
   const { task, setTask } = useTaskWithIdStore((s) => s);
   const { tasks, setTasks } = useTaskStore((s) => s);
 
   const [loading, setLoading] = React.useState(false);
-  const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationKey: ["edit-label"],
     mutationFn: async () => {
       setLoading(true);
 
       const res = await api.delete<UpdateWorkspaceResponse>(
-        `/workspaces/${activeWorkspace!._id}/remove_tag/${editTag.id}`,
+        `/workspaces/${activeWorkspace!._id}/tags/${editTag._id}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -52,16 +54,22 @@ export default function DeleteLabelButton({
       return res.data;
     },
 
-    onSuccess: (data) => {
-      const updatedWorkspace = {
-        ...data.data,
-        tags: activeWorkspace!.tags.filter((tag) => {
-          if (typeof tag === "string") {
-            return tag !== editTag.id;
-          }
+    onSuccess: async (data) => {
+      await invalidateWorkspaces();
+      await invalidateTasks(activeWorkspace!._id);
 
-          return tag.id !== editTag.id;
-        }),
+      for (const t of tasks) {
+        const usedTag = t.tags.find((tag) => tag._id === editTag._id);
+
+        if (usedTag) {
+          await invalidateTaskId(t._id);
+        }
+      }
+
+      const updatedWorkspace = {
+        ...activeWorkspace!,
+        updatedAt: new Date(data.data.updatedAt),
+        tags: activeWorkspace!.tags.filter((tag) => tag._id !== editTag._id),
       };
 
       const updatedWorkspaces = workspaces.map((workspace) => {
@@ -71,61 +79,29 @@ export default function DeleteLabelButton({
         return workspace;
       });
 
-      queryClient.invalidateQueries({
-        queryKey: ["fetch-workspace"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["task-preview"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["fetch-task", task.workspaceId],
-      });
-
-      queryClient.setQueriesData(
-        {
-          queryKey: ["task-preview"],
-        },
-        (oldData: TaskResponse) => {
-          if (!oldData) {
-            return oldData;
-          }
-
-          const updatedTags = oldData.data.tags.filter(
-            (tag) => tag.id !== editTag.id,
-          );
-
-          const updatedTask = {
-            ...oldData,
-            data: {
-              ...oldData.data,
-              tags: updatedTags,
-              workspace: {
-                ...data.data,
-              },
-            },
-          };
-
-          return updatedTask;
-        },
-      );
-
       const updatedTask = {
         ...task,
-        tags: task.tags.filter((tag) => tag.id !== editTag.id),
+        updatedAt: new Date(data.data.updatedAt),
+        tags: task.tags.filter((tag) => tag._id !== editTag._id),
         workspace: updatedWorkspace,
       };
 
       const updatedTasks = tasks.map((t) => {
-        if (t._id === updatedTask._id) {
+        if (t._id === task._id) {
           return updatedTask;
         }
-        return t;
+
+        return {
+          ...t,
+          tags: t.tags.filter((tag) => tag._id !== editTag._id),
+        };
       });
 
-      setWorkspaces(updatedWorkspaces);
-      setActiveWorkspace(updatedWorkspace);
+      setWorkspaces({
+        workspaces: updatedWorkspaces,
+        activeWorkspace: updatedWorkspace,
+        status: "success",
+      });
       setTask(updatedTask);
       setTasks(updatedTasks);
 

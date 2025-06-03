@@ -9,7 +9,6 @@ import api from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import TaskDatePicker from "@/app/dashboard/workspace/[workspace]/_components/task-date-picker";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
-import { type TaskResponse } from "@/app/dashboard/workspace/[workspace]/_types/task";
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
 import {
   Tooltip,
@@ -18,6 +17,7 @@ import {
 } from "@/components/ui/tooltip";
 import { invalidateTasks } from "@/lib/fetch-tasks";
 import { invalidateTaskId } from "@/lib/fetch-task-id";
+import { TaskResponse } from "@/_types/task";
 
 type Props = Readonly<{
   disableClose?: boolean;
@@ -54,6 +54,28 @@ export default function TaskDueDate({
       const newTask = {
         ...data.data,
         dueDate: data.data.dueDate ? new Date(data.data.dueDate) : null,
+        createdAt: new Date(data.data.createdAt),
+        updatedAt: new Date(data.data.updatedAt),
+
+        createdByUser: {
+          ...data.data.createdByUser,
+          createdAt: new Date(data.data.createdByUser.createdAt),
+          updatedAt: new Date(data.data.createdByUser.updatedAt),
+        },
+
+        workspace: {
+          ...data.data.workspace,
+          createdAt: new Date(data.data.workspace.createdAt),
+          updatedAt: new Date(data.data.workspace.updatedAt),
+        },
+
+        completedByUser: data.data.completedByUser
+          ? {
+              ...data.data.completedByUser,
+              createdAt: new Date(data.data.completedByUser.createdAt),
+              updatedAt: new Date(data.data.completedByUser.updatedAt),
+            }
+          : null,
       };
       const updatedTasks = tasks.map((t) =>
         t._id === data.data._id ? newTask : t,

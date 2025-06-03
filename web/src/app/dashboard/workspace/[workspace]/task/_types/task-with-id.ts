@@ -1,9 +1,7 @@
 import { AxiosError } from "axios";
 
-import {
-  Task,
-  TaskStatus,
-} from "@/app/dashboard/workspace/[workspace]/_types/task";
+import { Task } from "@/_types/task";
+import { TaskStatus } from "../../_types/task-store";
 
 export type TaskWithIdState = {
   task: Task;

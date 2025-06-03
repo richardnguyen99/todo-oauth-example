@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Task } from "../../_types/task";
 import TaskCheckbox from "../task-checkbox";
 import TaskItemDescriptionPreview from "./description-preview";
 import TaskItemDueDate from "./due-date";
@@ -14,6 +13,7 @@ import TaskItemBadge from "./badge";
 import TaskItemAvatar from "./avatar";
 import DeleteTaskDialog from "./delete-task-dialog";
 import TaskItemActionDropdown from "./action-dropdown";
+import { Task } from "@/_types/task";
 
 type Props = Readonly<
   {

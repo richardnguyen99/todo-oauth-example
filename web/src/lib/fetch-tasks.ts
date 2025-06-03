@@ -16,6 +16,7 @@ export const fetchTasks = async (
       headers: {
         Cookie: cookieStore.toString(),
       },
+      cache: "force-cache",
       next: {
         tags: [`fetch-tasks-${workspaceId}`],
       },

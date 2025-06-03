@@ -2,11 +2,11 @@ import React, { type JSX } from "react";
 import * as LucideReact from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Task, TaskResponse } from "../_types/task";
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { useTaskStore } from "../_providers/task";
 import { invalidateTaskId } from "@/lib/fetch-task-id";
+import { Task, TaskResponse } from "@/_types/task";
 
 type Props = Readonly<{
   task: Task;
@@ -33,8 +33,18 @@ export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
 
     onSuccess: async (response) => {
       const updatedTask = {
-        ...response.data,
-        dueDate: response.data.dueDate ? new Date(response.data.dueDate) : null,
+        ...task,
+        updatedAt: new Date(response.data.updatedAt),
+
+        completed: response.data.completed,
+        completedBy: response.data.completedBy,
+        completedByUser: response.data.completedByUser
+          ? {
+              ...response.data.completedByUser,
+              createdAt: new Date(response.data.completedByUser.createdAt),
+              updatedAt: new Date(response.data.completedByUser.updatedAt),
+            }
+          : null,
       };
       const updatedTasks = tasks.map((t) => {
         if (t._id === updatedTask._id) {

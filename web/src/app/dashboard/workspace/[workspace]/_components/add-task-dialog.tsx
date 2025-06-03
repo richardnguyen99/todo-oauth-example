@@ -39,6 +39,7 @@ import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import api from "@/lib/axios";
 import { useTaskStore } from "../_providers/task";
 import { invalidateTasks } from "@/lib/fetch-tasks";
+import { AddTaskResponse } from "@/_types/task";
 
 // Define the task schema with zod
 const taskSchema = z.object({
@@ -78,7 +79,7 @@ export default function AddTaskDialog({ children }: Props): JSX.Element {
 
       setLoading(true);
 
-      const response = await api.post<TaskResponse>(
+      const response = await api.post<AddTaskResponse>(
         `/tasks?workspace_id=${activeWorkspace._id}`,
         {
           ...taskData,
@@ -93,6 +94,14 @@ export default function AddTaskDialog({ children }: Props): JSX.Element {
       const newTask = {
         ...response.data,
         dueDate: response.data.dueDate ? new Date(response.data.dueDate) : null,
+        createdAt: new Date(response.data.createdAt),
+        updatedAt: new Date(response.data.updatedAt),
+
+        createdByUser: {
+          ...response.data.createdByUser,
+          createdAt: new Date(response.data.createdByUser.createdAt),
+          updatedAt: new Date(response.data.createdByUser.updatedAt),
+        },
       };
 
       setTasks([...tasks, newTask]);

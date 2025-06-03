@@ -20,7 +20,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Task } from "../../_types/task";
+import { Task } from "@/_types/task";
 
 type Props = Readonly<{
   task: Task;

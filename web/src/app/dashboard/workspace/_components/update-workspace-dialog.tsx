@@ -124,12 +124,15 @@ export default function UpdateWorkspaceDialog({
         icon: data.data.icon,
       };
 
+      console.log("Updated workspace:", newWorkspace);
+
       // Update the workspace in the store
       const newWorkspaces = workspaces.map((ws: Workspace) => {
         if (ws._id === data.data._id) {
           // Update the workspace with new values
           return newWorkspace;
         }
+
         return ws;
       });
 

@@ -59,11 +59,14 @@ export const TagSchema = SchemaFactory.createForClass(Tag);
 @Schema({
   collection: "tasks",
   timestamps: true,
+  id: false,
   toJSON: {
     virtuals: true,
+    versionKey: false,
   },
   toObject: {
     virtuals: true,
+    versionKey: false,
   },
 })
 export class Task {

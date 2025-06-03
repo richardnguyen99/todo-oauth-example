@@ -1,6 +1,6 @@
 import { createStore } from "zustand/vanilla";
 
-import { type TaskState, type TaskActions } from "../_types/task";
+import type { TaskActions, TaskState } from "../_types/task-store";
 
 export const defaultInitState: TaskState = {
   tasks: [],

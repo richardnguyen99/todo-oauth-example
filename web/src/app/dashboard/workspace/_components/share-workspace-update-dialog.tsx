@@ -49,7 +49,7 @@ export default function ShareWorkspaceUpdateDialog({
 
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       setLoading(false);
 
       queryClient.invalidateQueries({
@@ -61,14 +61,14 @@ export default function ShareWorkspaceUpdateDialog({
         ],
       });
 
-      const updatedMembers = members.map((m) => {
-        if (m._id === member._id) {
-          return {
-            ...data.data,
-          };
-        }
-        return m;
-      });
+      // const updatedMembers = members.map((m) => {
+      // if (m._id === member._id) {
+      // return {
+      // ...data.data,
+      // };
+      // }
+      // return m;
+      // });
 
       setShow(false);
     },

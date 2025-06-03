@@ -5,8 +5,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 import TaskItem from "../task-item";
-import { Task } from "../../_types/task";
 import { cn } from "@/lib/utils";
+import { Task } from "@/_types/task";
 
 type SortableTaskItemProps = Readonly<{
   task: Task;

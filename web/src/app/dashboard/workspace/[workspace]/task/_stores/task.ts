@@ -4,7 +4,7 @@ import {
   type TaskWithIdState,
   type TaskWithIdActions,
 } from "../_types/task-with-id";
-import { type Task } from "@/app/dashboard/workspace/[workspace]/_types/task";
+import { Task } from "@/_types/task";
 
 export const defaultInitState: TaskWithIdState = {
   task: {} as Task,

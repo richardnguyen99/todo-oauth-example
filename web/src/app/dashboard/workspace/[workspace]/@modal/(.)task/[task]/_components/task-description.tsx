@@ -8,9 +8,10 @@ import InteractiveMarkdown from "@/components/interactive-markdown";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
 import api from "@/lib/axios";
-import { TaskResponse } from "@/app/dashboard/workspace/[workspace]/_types/task";
 import { ErrorApiResponse } from "@/app/_types/response";
 import { invalidateTaskId } from "@/lib/fetch-task-id";
+import { UpdateTaskResponse } from "@/_types/task";
+import { invalidateTasks } from "@/lib/fetch-tasks";
 
 export default function TaskDescription(): JSX.Element {
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -21,7 +22,7 @@ export default function TaskDescription(): JSX.Element {
   const { mutateAsync } = useMutation({
     mutationKey: ["update-due-date", task._id, task.workspaceId],
     mutationFn: async (value: string | undefined | null) => {
-      const response = await api.put<TaskResponse>(
+      const response = await api.put<UpdateTaskResponse>(
         `/tasks/${task._id}?workspace_id=${task.workspaceId}`,
         {
           description: value || null, // Set dueDate to `null` to explicitly remove it
@@ -38,9 +39,12 @@ export default function TaskDescription(): JSX.Element {
 
     onSuccess: async (data) => {
       const newTask = {
-        ...data.data,
+        ...task,
         dueDate: data.data.dueDate ? new Date(data.data.dueDate) : null,
+        createdAt: new Date(data.data.createdAt),
+        updatedAt: new Date(data.data.updatedAt),
       };
+
       const updatedTasks = tasks.map((t) =>
         t._id === data.data._id ? newTask : t,
       );
@@ -48,6 +52,7 @@ export default function TaskDescription(): JSX.Element {
       setTask(newTask);
       setTasks(updatedTasks);
 
+      await invalidateTasks(task.workspaceId);
       await invalidateTaskId(data.data._id);
     },
 

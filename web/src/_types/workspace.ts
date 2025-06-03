@@ -1,7 +1,7 @@
-import { Task } from "@/app/dashboard/workspace/_types/task";
 import { Color } from "./color";
 import { Member } from "./member";
 import { Tag } from "./tag";
+import { Task } from "./task";
 import { User } from "./user";
 
 type UserWithoutTimestamps = Omit<User, "createdAt" | "updatedAt">;

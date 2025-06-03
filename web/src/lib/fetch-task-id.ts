@@ -20,6 +20,7 @@ export const fetchTaskId = async (
       headers: {
         Cookie: cookieStore.toString(),
       },
+      cache: "force-cache",
       next: {
         tags: [`fetch-task-${taskId}`],
       },

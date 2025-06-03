@@ -36,11 +36,14 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Workspace, WorkspaceResponse } from "@/_types/workspace";
+import {
+  UpdateWorkspaceErrorResponse,
+  Workspace,
+  WorkspaceResponse,
+} from "@/_types/workspace";
 import { icons } from "../../_constants/icons";
 import { colorList, colorMap } from "../../_constants/colors";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
-import { WorkspaceErrorResponse } from "../../_types/workspace";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
 
 const [defaultColor, ...otherColors] = Object.keys(
@@ -142,7 +145,7 @@ export default function SidebarAddWorkspaceDialog({
 
     onSettled: () => {},
 
-    onError: (error: AxiosError<WorkspaceErrorResponse>) => {
+    onError: (error: AxiosError<UpdateWorkspaceErrorResponse>) => {
       form.setError("root.badRequest", {
         type: "400",
         message: error.response?.data.message,

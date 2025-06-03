@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { type JSX } from "react";
@@ -86,8 +87,8 @@ export default function ShareWorkspaceDeleteDialog({
         })
         .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
-      setWorkspaces(updatedWorkspaces);
-      setActiveWorkspace(updatedWorkspace);
+      // setWorkspaces(updatedWorkspaces);
+      // setActiveWorkspace(updatedWorkspace);
     },
     onSettled: () => {
       setLoading(false);

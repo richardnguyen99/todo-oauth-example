@@ -3,17 +3,18 @@
 import React, { type JSX } from "react";
 import { Loader2, Pen } from "lucide-react";
 import { AxiosError } from "axios";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
-import { TagResponse } from "@/app/dashboard/workspace/_types/tag";
 import { ErrorApiResponse } from "@/app/_types/response";
 import { useTaskAddLabelContext } from "./provider";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
-import { TaskResponse } from "@/app/dashboard/workspace/[workspace]/_types/task";
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
+import { UpdateTagErrorResponse, UpdateTagResponse } from "@/_types/tag";
+import { invalidateTaskId } from "@/lib/fetch-task-id";
+import { invalidateTasks } from "@/lib/fetch-tasks";
 
 type Props = Readonly<{
   text: string;
@@ -35,20 +36,24 @@ export default function UpdateLabelButton({
     throw new Error("Edit tag is not defined");
   }
 
-  const { activeWorkspace, workspaces, setWorkspaces, setActiveWorkspace } =
-    useWorkspaceStore((s) => s);
+  const { activeWorkspace, workspaces, setWorkspaces } = useWorkspaceStore(
+    (s) => s,
+  );
   const { task, setTask } = useTaskWithIdStore((s) => s);
   const { tasks, setTasks } = useTaskStore((s) => s);
 
   const [loading, setLoading] = React.useState(false);
-  const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutate } = useMutation<
+    UpdateTagResponse,
+    AxiosError<UpdateTagErrorResponse>,
+    { text?: string; color?: string }
+  >({
     mutationKey: ["edit-label"],
     mutationFn: async (data: { text?: string; color?: string }) => {
       setLoading(true);
 
-      const res = await api.put<TagResponse>(
-        `/workspaces/${activeWorkspace!._id}/update_tag/${editTag.id}`,
+      const res = await api.put(
+        `/workspaces/${activeWorkspace!._id}/tags/${editTag._id}`,
         data,
         {
           headers: {
@@ -60,11 +65,15 @@ export default function UpdateLabelButton({
       return res.data;
     },
 
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      await invalidateTasks(activeWorkspace!._id);
+      await invalidateTaskId(task._id);
+      await invalidateTasks(activeWorkspace!._id);
+
       const updatedWorkspace = {
         ...activeWorkspace!,
         tags: activeWorkspace!.tags.map((tag) => {
-          if (tag.id === editTag.id) {
+          if (tag._id === editTag._id) {
             return {
               ...tag,
               text: data.data.text,
@@ -82,50 +91,10 @@ export default function UpdateLabelButton({
         return workspace;
       });
 
-      queryClient.invalidateQueries({
-        queryKey: ["fetch-workspace"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["task-preview", task._id, task.workspaceId],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["fetch-task", task.workspaceId],
-      });
-
-      queryClient.setQueryData(
-        ["task-preview", task.workspaceId, task._id],
-        (oldData: TaskResponse) => {
-          if (!oldData) {
-            return oldData;
-          }
-
-          const updatedTags = oldData.data.tags.map((tag) => {
-            if (tag.id === editTag.id) {
-              return {
-                ...tag,
-                text: data.data.text,
-                color: data.data.color,
-              };
-            }
-            return tag;
-          });
-
-          return {
-            ...oldData,
-            data: {
-              ...oldData.data,
-              tags: updatedTags,
-            },
-          };
-        },
-      );
-
       const updatedTask = {
         ...task,
         tags: task.tags.map((tag) => {
-          if (tag.id === editTag.id) {
+          if (tag._id === editTag._id) {
             return {
               ...tag,
               text: data.data.text,
@@ -140,11 +109,27 @@ export default function UpdateLabelButton({
         if (t._id === updatedTask._id) {
           return updatedTask;
         }
-        return t;
+
+        return {
+          ...t,
+          tags: t.tags.map((tag) => {
+            if (tag._id === editTag._id) {
+              return {
+                ...tag,
+                text: data.data.text,
+                color: data.data.color,
+              };
+            }
+            return tag;
+          }),
+        };
       });
 
-      setWorkspaces(updatedWorkspaces);
-      setActiveWorkspace(updatedWorkspace);
+      setWorkspaces({
+        workspaces: updatedWorkspaces,
+        activeWorkspace: updatedWorkspace,
+        status: "success",
+      });
       setTask(updatedTask);
       setTasks(updatedTasks);
 

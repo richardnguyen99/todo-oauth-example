@@ -33,13 +33,13 @@ export default function TaskDialogHeading(): JSX.Element {
           <div className="max-w-fit cursor-default overflow-hidden text-ellipsis whitespace-nowrap">
             @ Workspace:{" "}
             <span className="bg-accent rounded px-1.5 py-1">
-              {task.workspace?.title}
+              {task.workspace.title}
             </span>
           </div>
         </TooltipTrigger>
         <TooltipContent className="block sm:hidden">
           <div className="text-[10px] sm:text-xs">
-            <p>Workspace: {task.workspace?.title}</p>
+            <p>Workspace: {task.workspace.title}</p>
           </div>
         </TooltipContent>
       </Tooltip>

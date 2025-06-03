@@ -48,6 +48,7 @@ export class TasksService {
           populate: [
             {
               path: "createdByUser",
+              select: "-workspaces -accounts",
             },
             {
               path: "tags",

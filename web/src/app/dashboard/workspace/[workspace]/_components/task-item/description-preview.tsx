@@ -1,11 +1,11 @@
 "use client";
 
 import React, { type JSX } from "react";
+import Link from "next/link";
 import MarkdownPreview from "@uiw/react-markdown-preview";
 
-import { Task } from "../../_types/task";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Task } from "@/_types/task";
 
 type Props = Readonly<
   {

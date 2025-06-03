@@ -1,7 +1,6 @@
 import { ColorOption, ColorTone } from "../_types/color";
-import { type ColorMap } from "../_types/workspace";
 
-export const colorMap: ColorMap = {
+export const colorMap = {
   red: "bg-red-500 dark:bg-red-400",
   orange: "bg-orange-500 dark:bg-orange-400",
   amber: "bg-amber-500 dark:bg-amber-400",

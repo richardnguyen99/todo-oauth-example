@@ -38,8 +38,8 @@ import {
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { cn } from "@/lib/utils";
 import api from "@/lib/axios";
-import { TaskResponse } from "../_types/task";
 import { useTaskStore } from "../_providers/task";
+import { TaskResponse } from "@/_types/task";
 
 // Define the task schema with zod
 const taskSchema = z.object({
@@ -96,7 +96,30 @@ export function TaskCreator({ className, ...rest }: Props): JSX.Element {
       const newTask = {
         ...response.data,
         dueDate: response.data.dueDate ? new Date(response.data.dueDate) : null,
+        createdAt: new Date(response.data.createdAt),
+        updatedAt: new Date(response.data.updatedAt),
+
+        createdByUser: {
+          ...response.data.createdByUser,
+          createdAt: new Date(response.data.createdByUser.createdAt),
+          updatedAt: new Date(response.data.createdByUser.updatedAt),
+        },
+
+        workspace: {
+          ...response.data.workspace,
+          createdAt: new Date(response.data.workspace.createdAt),
+          updatedAt: new Date(response.data.workspace.updatedAt),
+        },
+
+        completedByUser: response.data.completedByUser
+          ? {
+              ...response.data.completedByUser,
+              createdAt: new Date(response.data.completedByUser.createdAt),
+              updatedAt: new Date(response.data.completedByUser.updatedAt),
+            }
+          : null,
       };
+
       setTasks([...tasks, newTask]);
     },
 

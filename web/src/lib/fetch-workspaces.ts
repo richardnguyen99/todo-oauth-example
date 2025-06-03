@@ -37,6 +37,7 @@ export const fetchWorkspaces = async (errorFn: (r: Response) => void) => {
     {
       method: "GET",
       credentials: "include",
+      cache: "force-cache",
       headers: {
         Cookie: cookieStore.toString(),
       },

@@ -408,6 +408,7 @@ export class WorkspacesService {
         $set: updateQuery,
       },
       {
+        new: true,
         runValidators: true,
       },
     );

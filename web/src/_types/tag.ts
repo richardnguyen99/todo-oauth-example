@@ -33,3 +33,19 @@ export type AddTagVariables = {
   text: string;
   color: string;
 };
+
+export type UpdateTagResponse = {
+  statusCode: number;
+  message: string;
+  data: Tag;
+};
+
+export type UpdateTagErrorResponse = {
+  timestamp: string;
+  path: string;
+  method: string;
+  statusCode: number;
+  message: string;
+  error: unknown;
+  data: null;
+};

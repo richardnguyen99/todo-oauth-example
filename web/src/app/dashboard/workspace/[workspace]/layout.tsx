@@ -4,7 +4,10 @@ import { ReadonlyURLSearchParams } from "next/navigation";
 
 import FetchedWorkspaceIdLayout from "./_components/fetched-workspace-id-layout";
 import SuspenseWorkspaceIdLayout from "./_components/suspense-workspace-id-layout";
-import { WorkspaceIdLayoutProps } from "./_types/props";
+import {
+  WorkspaceIdLayoutProps,
+  WorkspaceIdSearchParams,
+} from "./_types/props";
 import { buildSearchParams } from "@/lib/utils";
 
 export default async function WorkspaceIdLayout({
@@ -15,9 +18,9 @@ export default async function WorkspaceIdLayout({
   const { workspace } = await params;
   const headerList = await headers();
   const searchParamsString = headerList.get("x-search-params") || "";
-  const searchParams = buildSearchParams<
-    Awaited<WorkspaceIdLayoutProps["searchParams"]>
-  >(new ReadonlyURLSearchParams(searchParamsString));
+  const searchParams = buildSearchParams<WorkspaceIdSearchParams>(
+    new ReadonlyURLSearchParams(searchParamsString),
+  );
 
   return (
     <React.Suspense fallback={<SuspenseWorkspaceIdLayout />}>

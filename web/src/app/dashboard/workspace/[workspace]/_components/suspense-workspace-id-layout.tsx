@@ -1,12 +1,5 @@
 import React, { type JSX } from "react";
-import {
-  ChartBarIncreasing,
-  Columns2,
-  Filter,
-  Loader2,
-  MoreHorizontal,
-  Plus,
-} from "lucide-react";
+import { Loader2, MoreHorizontal } from "lucide-react";
 
 import {
   Breadcrumb,

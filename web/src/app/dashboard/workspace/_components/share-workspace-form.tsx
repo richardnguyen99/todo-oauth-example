@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { type JSX } from "react";
@@ -100,8 +101,8 @@ export default function ShareWorkspaceForm({ onCancel }: Props): JSX.Element {
         }))
         .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
-      setWorkspaces(updatedWorkspaces);
-      setActiveWorkspace(updatedWorkspaces[0]);
+      // setWorkspaces(updatedWorkspaces);
+      // setActiveWorkspace(updatedWorkspaces[0]);
     },
 
     onError: (error: AxiosError<WorkspaceErrorResponse>) => {
