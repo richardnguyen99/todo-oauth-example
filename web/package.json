@@ -5,7 +5,7 @@
   "scripts": {
     "dev:web": "next dev -p 8888",
     "build:web": "next build",
-    "start": "next start -p 8888",
+    "start:web": "next start -p 8888",
     "lint": "next lint"
   },
   "dependencies": {

@@ -18,9 +18,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { WorkspaceErrorResponse, WorkspaceParams } from "../_types/workspace";
 import { useWorkspaceStore } from "../../_providers/workspace";
-import { Workspace, WorkspacesResponse } from "@/_types/workspace";
+import {
+  UpdateWorkspaceErrorResponse,
+  Workspace,
+  WorkspacesResponse,
+} from "@/_types/workspace";
 
 type Props = Readonly<{
   member: Workspace["members"][number];
@@ -42,7 +45,7 @@ export default function ShareWorkspaceDeleteDialog({
 
   const [_, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
-  const { workspace } = useParams<WorkspaceParams>();
+  const { workspace } = useParams<{ workspace: string }>();
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
@@ -95,7 +98,7 @@ export default function ShareWorkspaceDeleteDialog({
       setShow(false);
     },
 
-    onError: (error: AxiosError<WorkspaceErrorResponse>) => {
+    onError: (error: AxiosError<UpdateWorkspaceErrorResponse>) => {
       setError(`${error.code}: ${error.response?.data.message}`);
     },
   });

@@ -29,9 +29,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { WorkspaceErrorResponse } from "../_types/workspace";
 import { useWorkspaceStore } from "../../_providers/workspace";
-import { WorkspaceResponse, WorkspacesResponse } from "@/_types/workspace";
+import {
+  UpdateWorkspaceErrorResponse,
+  WorkspaceResponse,
+  WorkspacesResponse,
+} from "@/_types/workspace";
 
 // Define the available roles
 const roles = [
@@ -105,7 +108,7 @@ export default function ShareWorkspaceForm({ onCancel }: Props): JSX.Element {
       // setActiveWorkspace(updatedWorkspaces[0]);
     },
 
-    onError: (error: AxiosError<WorkspaceErrorResponse>) => {
+    onError: (error: AxiosError<UpdateWorkspaceErrorResponse>) => {
       form.setError("root.badRequest", {
         type: "400",
         message: error.response?.data.message,

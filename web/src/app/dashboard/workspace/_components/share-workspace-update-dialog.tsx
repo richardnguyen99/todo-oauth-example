@@ -18,8 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { UpdateMemberParams, UpdateMemberResponse } from "../_types/member";
-import { WorkspaceErrorResponse, WorkspaceParams } from "../_types/workspace";
-import { Workspace } from "@/_types/workspace";
+import { UpdateWorkspaceErrorResponse, Workspace } from "@/_types/workspace";
 
 type Props = Readonly<{
   member: Workspace["members"][number];
@@ -34,7 +33,7 @@ export default function ShareWorkspaceUpdateDialog({
 }: Props): JSX.Element {
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
-  const { workspace } = useParams<WorkspaceParams>();
+  const { workspace } = useParams<{ workspace: string }>();
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
@@ -76,7 +75,7 @@ export default function ShareWorkspaceUpdateDialog({
       setLoading(false);
     },
 
-    onError: (error: AxiosError<WorkspaceErrorResponse>) => {
+    onError: (error: AxiosError<UpdateWorkspaceErrorResponse>) => {
       console.error(error);
 
       setError(`${error.code}: ${error.response?.data.message}`);

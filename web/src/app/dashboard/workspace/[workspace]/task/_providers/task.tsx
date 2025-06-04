@@ -10,6 +10,7 @@ import { useStore } from "zustand";
 
 import { type TaskWithIdStore, createTaskWithIdStore } from "../_stores/task";
 import { TaskResponse } from "@/_types/task";
+import { createTaskFromFetchedData } from "@/lib/utils";
 
 export type TaskWithIdStoreApi = ReturnType<typeof createTaskWithIdStore>;
 
@@ -29,26 +30,7 @@ export const TaskWithIdStoreProvider = ({
   const storeRef = useRef<TaskWithIdStoreApi | null>(null);
   if (storeRef.current === null) {
     storeRef.current = createTaskWithIdStore({
-      task: {
-        ...initialState,
-        dueDate: initialState.dueDate ? new Date(initialState.dueDate) : null,
-        createdAt: new Date(initialState.createdAt),
-        updatedAt: new Date(initialState.updatedAt),
-
-        createdByUser: {
-          ...initialState.createdByUser,
-          updatedAt: new Date(initialState.createdByUser.updatedAt),
-          createdAt: new Date(initialState.createdByUser.createdAt),
-        },
-
-        completedByUser: initialState.completedByUser
-          ? {
-              ...initialState.completedByUser,
-              updatedAt: new Date(initialState.completedByUser.updatedAt),
-              createdAt: new Date(initialState.completedByUser.createdAt),
-            }
-          : null,
-      },
+      task: createTaskFromFetchedData(initialState),
       status: "success",
       error: null,
     });

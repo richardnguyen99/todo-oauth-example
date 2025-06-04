@@ -1,7 +1,13 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { Copy, CornerDownRight, Move, Trash } from "lucide-react";
+import {
+  Copy,
+  CornerDownRight,
+  MoreHorizontal,
+  Move,
+  Trash,
+} from "lucide-react";
 
 import {
   Tooltip,
@@ -16,10 +22,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
-import { TaskTabActionDropdownTrigger } from "@/app/dashboard/workspace/[workspace]/_components/task-action-dropdown";
 import { useTaskDialogContext } from "../_providers/task-dialog";
+import { Button } from "@/components/ui/button";
 
 export default function TaskTabActionDropdown(): JSX.Element {
   const [openDropdown, setOpenDropdown] = React.useState(false);
@@ -46,7 +53,16 @@ export default function TaskTabActionDropdown(): JSX.Element {
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <TaskTabActionDropdownTrigger />
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Menu options"
+                className="cursor-pointer"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
           </TooltipTrigger>
 
           {!open && <TooltipContent>Actions</TooltipContent>}

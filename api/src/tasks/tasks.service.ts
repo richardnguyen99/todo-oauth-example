@@ -52,7 +52,13 @@ export class TasksService {
             },
             {
               path: "tags",
-              select: "text color createdBy",
+            },
+            {
+              path: "completedByUser",
+              select: "-workspaces -accounts",
+            },
+            {
+              path: "workspace",
             },
           ],
         },

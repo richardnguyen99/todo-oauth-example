@@ -36,10 +36,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
-import { cn } from "@/lib/utils";
+import { cn, createTaskFromFetchedData } from "@/lib/utils";
 import api from "@/lib/axios";
 import { useTaskStore } from "../_providers/task";
 import { TaskResponse } from "@/_types/task";
+import { invalidateTasks } from "@/lib/fetch-tasks";
 
 // Define the task schema with zod
 const taskSchema = z.object({
@@ -93,34 +94,11 @@ export function TaskCreator({ className, ...rest }: Props): JSX.Element {
     },
 
     onSuccess: (response) => {
-      const newTask = {
-        ...response.data,
-        dueDate: response.data.dueDate ? new Date(response.data.dueDate) : null,
-        createdAt: new Date(response.data.createdAt),
-        updatedAt: new Date(response.data.updatedAt),
-
-        createdByUser: {
-          ...response.data.createdByUser,
-          createdAt: new Date(response.data.createdByUser.createdAt),
-          updatedAt: new Date(response.data.createdByUser.updatedAt),
-        },
-
-        workspace: {
-          ...response.data.workspace,
-          createdAt: new Date(response.data.workspace.createdAt),
-          updatedAt: new Date(response.data.workspace.updatedAt),
-        },
-
-        completedByUser: response.data.completedByUser
-          ? {
-              ...response.data.completedByUser,
-              createdAt: new Date(response.data.completedByUser.createdAt),
-              updatedAt: new Date(response.data.completedByUser.updatedAt),
-            }
-          : null,
-      };
+      const newTask = createTaskFromFetchedData(response.data);
 
       setTasks([...tasks, newTask]);
+
+      invalidateTasks(activeWorkspace!._id);
     },
 
     onSettled: () => {
