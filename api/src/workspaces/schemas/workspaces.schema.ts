@@ -48,16 +48,6 @@ export type TagDocument = HydratedDocument<Tag>;
 export const TagSchema = SchemaFactory.createForClass(Tag);
 
 TagSchema.index({ workspaceId: 1, color: 1 }, { unique: true });
-TagSchema.pre("save", async function () {
-  // Add tag to workspace's tagIds array
-  const workspace = this.model<WorkspaceDocument>(Workspace.name);
-
-  if (this.isNew && workspace) {
-    await workspace.updateOne({
-      $addToSet: { tagIds: this._id },
-    });
-  }
-});
 
 TagSchema.pre("findOneAndDelete", async function (next) {
   const doc = await this.model.findOne<TagDocument>(this.getFilter());

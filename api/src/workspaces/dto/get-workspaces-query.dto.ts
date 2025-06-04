@@ -10,7 +10,11 @@ export const getWorkspacesQueryDtoSchema = z
       .refine((value) => {
         if (!value) return true;
 
-        const includesArray = value.split(",").map((item) => item.trim());
+        const includesArray = value
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
+
         const isValid = includesArray.every((item) =>
           validIncludes.includes(item as (typeof validIncludes)[number]),
         );
@@ -19,7 +23,10 @@ export const getWorkspacesQueryDtoSchema = z
       })
       .transform((value) => {
         if (!value) return [];
-        return value.split(",").map((item) => item.trim());
+        return value
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
       }),
 
     fields: z
@@ -113,16 +120,20 @@ export const getWorkspacesQueryDtoSchema = z
     const membersIncluded = data.includes.includes("members");
     const ownerIncluded = data.includes.includes("owner");
 
-    if (membersIncluded && !data.fields.includes("memberIds")) {
-      data.fields.push("memberIds");
-    }
+    // Only include fields if the fields are presented
 
-    if (ownerIncluded && !data.fields.includes("ownerId")) {
-      data.fields.push("ownerId");
-    }
+    if (data.fields.length > 0) {
+      if (membersIncluded && !data.fields.includes("memberIds")) {
+        data.fields.push("memberIds");
+      }
 
-    if (tagsIncluded && !data.fields.includes("tagIds")) {
-      data.fields.push("tagIds");
+      if (ownerIncluded && !data.fields.includes("ownerId")) {
+        data.fields.push("ownerId");
+      }
+
+      if (tagsIncluded && !data.fields.includes("tagIds")) {
+        data.fields.push("tagIds");
+      }
     }
 
     return data;

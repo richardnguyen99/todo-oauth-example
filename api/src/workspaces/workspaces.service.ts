@@ -497,22 +497,42 @@ forbidden.",
     workspaceId: string,
     body: AddNewTagDto,
   ): Promise<WorkspaceDocument> {
-    // Check if the user is a member of the workspace
-    const isMember = await this.memberModel.findOne({
-      userId,
-      workspaceId,
+    const member = await this.memberModel.findOne({
+      userId: userId,
+      workspaceId: workspaceId,
     });
 
-    if (!isMember) {
-      throw new ForbiddenException(
-        `User with ID ${userId} is not a member of this workspace.`,
-      );
+    if (!member) {
+      throw new NotFoundException({
+        message: "Cannot query tags",
+        error: {
+          name: "NotFoundException",
+          message:
+            "\
+The current user is not allowed to access this workspace. Further actions are \
+forbidden.",
+        },
+      });
     }
 
-    const workspace = await this.findWorkspaceById(workspaceId);
+    const workspace = await this.workspaceModel.findOne({
+      $or: [
+        { _id: workspaceId, ownerId: userId },
+        { _id: workspaceId, memberIds: { $elemMatch: { $eq: member._id } } },
+      ],
+    });
 
     if (!workspace) {
-      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
+      throw new NotFoundException({
+        message: "Cannot query tags",
+        error: {
+          name: "NotFoundException",
+          message:
+            "\
+The current user is not allowed to access this workspace. Further actions are \
+forbidden.",
+        },
+      });
     }
 
     try {
@@ -529,9 +549,13 @@ forbidden.",
 
       return savedWorkspace;
     } catch (error) {
-      throw new BadRequestException(
-        `Error creating tag: ${(error as Error).message}`,
-      );
+      throw new BadRequestException({
+        message: "Error creating tag",
+        error: {
+          name: "BadRequestException",
+          message: `Error creating tag: ${(error as Error).message}`,
+        },
+      });
     }
   }
 
