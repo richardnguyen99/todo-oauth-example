@@ -4,6 +4,7 @@ import React, { type JSX } from "react";
 import { Calendar, X } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { AxiosError } from "axios";
 
 import api from "@/lib/axios";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,8 @@ import {
 } from "@/components/ui/tooltip";
 import { invalidateTasks } from "@/lib/fetch-tasks";
 import { invalidateTaskId } from "@/lib/fetch-task-id";
-import { TaskResponse } from "@/_types/task";
+import { UpdateTaskErrorResponse, UpdateTaskResponse } from "@/_types/task";
+import { createTaskFromFetchedData } from "@/lib/utils";
 
 type Props = Readonly<{
   disableClose?: boolean;
@@ -32,10 +34,14 @@ export default function TaskDueDate({
   const { task, setTask } = useTaskWithIdStore((s) => s);
   const { tasks, setTasks } = useTaskStore((s) => s);
 
-  const { mutate } = useMutation({
+  const { mutate } = useMutation<
+    UpdateTaskResponse,
+    AxiosError<UpdateTaskErrorResponse>,
+    Date | undefined
+  >({
     mutationKey: ["update-due-date", task._id, task.workspaceId],
     mutationFn: async (value: Date | undefined) => {
-      const response = await api.put<TaskResponse>(
+      const response = await api.put(
         `/tasks/${task._id}?workspace_id=${task.workspaceId}`,
         {
           dueDate: value || null, // Set dueDate to `null` to explicitly remove it
@@ -51,41 +57,16 @@ export default function TaskDueDate({
     },
 
     onSuccess: (data) => {
-      const newTask = {
-        ...data.data,
-        dueDate: data.data.dueDate ? new Date(data.data.dueDate) : null,
-        createdAt: new Date(data.data.createdAt),
-        updatedAt: new Date(data.data.updatedAt),
-
-        createdByUser: {
-          ...data.data.createdByUser,
-          createdAt: new Date(data.data.createdByUser.createdAt),
-          updatedAt: new Date(data.data.createdByUser.updatedAt),
-        },
-
-        workspace: {
-          ...data.data.workspace,
-          createdAt: new Date(data.data.workspace.createdAt),
-          updatedAt: new Date(data.data.workspace.updatedAt),
-        },
-
-        completedByUser: data.data.completedByUser
-          ? {
-              ...data.data.completedByUser,
-              createdAt: new Date(data.data.completedByUser.createdAt),
-              updatedAt: new Date(data.data.completedByUser.updatedAt),
-            }
-          : null,
-      };
+      const newTask = createTaskFromFetchedData(data.data);
       const updatedTasks = tasks.map((t) =>
         t._id === data.data._id ? newTask : t,
       );
 
-      invalidateTasks(task.workspaceId);
-      invalidateTaskId(task._id);
-
       setTask(newTask);
       setTasks(updatedTasks);
+
+      invalidateTasks(task.workspaceId);
+      invalidateTaskId(task._id);
     },
 
     onSettled: (_data, _error) => {},

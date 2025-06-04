@@ -83,5 +83,11 @@ export function createTaskFromFetchedData(data: FetchedTask): Task {
       createdAt: new Date(data.workspace.createdAt),
       updatedAt: new Date(data.workspace.updatedAt),
     },
+
+    tags: data.tags.map((tag) => ({
+      ...tag,
+      createdAt: new Date(tag.createdAt),
+      updatedAt: new Date(tag.updatedAt),
+    })),
   };
 }

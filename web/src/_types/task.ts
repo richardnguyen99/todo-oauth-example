@@ -1,4 +1,4 @@
-import { Tag } from "./tag";
+import { FetchedTag, Tag } from "./tag";
 import { FetchedUser, User } from "./user";
 import { FetchedWorkspace, Workspace } from "./workspace";
 
@@ -27,7 +27,6 @@ export type TaskBase = {
   items: Array<TaskItem>;
   completed: boolean;
   priority: "low" | "medium" | "high";
-  tags: Array<Tag>;
   createdBy: string;
   completedBy: string;
   workspaceId: string;
@@ -39,6 +38,7 @@ export type FetchedTask = TaskBase & {
   updatedAt: string;
   createdByUser: FetchedUser;
   completedByUser: FetchedUser | null;
+  tags: Array<FetchedTag>;
   workspace: FetchedTaskWorkspaceSchema;
 };
 
@@ -48,7 +48,7 @@ export type Task = TaskBase & {
   updatedAt: Date;
   createdByUser: User;
   completedByUser: User | null;
-
+  tags: Array<Tag>;
   workspace: TaskWorkspaceSchema;
 };
 

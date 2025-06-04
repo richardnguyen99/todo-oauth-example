@@ -41,7 +41,7 @@ export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
       return response.data;
     },
 
-    onSuccess: async (response) => {
+    onSuccess: (response) => {
       const updatedTask = createTaskFromFetchedData(response.data);
       const updatedTasks = tasks.map((t) => {
         if (t._id === updatedTask._id) {
@@ -53,8 +53,8 @@ export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
       setTasks(updatedTasks);
       setTask?.(updatedTask);
 
-      await invalidateTaskId(task._id);
-      await invalidateTasks(task.workspaceId);
+      invalidateTaskId(task._id);
+      invalidateTasks(task.workspaceId);
     },
 
     onError: (error) => {
