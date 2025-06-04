@@ -60,6 +60,8 @@ export default function TaskItemActionDropdown({
           <DropdownMenuItem asChild>
             <a
               href={`/dashboard/workspace/${task.workspaceId}/task/${task._id}`}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <CornerDownRight className="mr-1 h-4 w-4" />
               <span>View task</span>

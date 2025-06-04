@@ -54,14 +54,14 @@ export default function AddPanel(): JSX.Element {
       return res.data;
     },
 
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       const updatedWorkspace: Workspace = {
         ...activeWorkspace!,
         tagIds: data.data.tagIds,
         tags: data.data.tags.map((tag) => ({
-          _id: tag._id,
-          text: tag.text,
-          color: tag.color,
+          ...tag,
+          createdAt: new Date(tag.createdAt),
+          updatedAt: new Date(tag.updatedAt),
         })),
       };
 
@@ -78,9 +78,11 @@ export default function AddPanel(): JSX.Element {
         status: "loading",
       });
 
-      await invalidateWorkspaces();
-      await invalidateTasks(activeWorkspace!._id);
       setView("list");
+      setLoading(false);
+
+      invalidateWorkspaces();
+      invalidateTasks(activeWorkspace!._id);
     },
 
     onError: (error) => {

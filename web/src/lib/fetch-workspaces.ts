@@ -28,7 +28,7 @@ export const fetchWorkspaces = async (errorFn: (r: Response) => void) => {
     ].join(","),
     owner_field: ["username", "email", "emailVerified", "avatar"].join(","),
     includes: ["tags", "members", "owner"].join(","),
-    include_member_account: "true",
+    include_member_account: "false",
     include_shared_workspaces: "true",
   });
 

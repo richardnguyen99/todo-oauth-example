@@ -12,6 +12,7 @@ import { ErrorApiResponse } from "@/app/_types/response";
 import { invalidateTaskId } from "@/lib/fetch-task-id";
 import { UpdateTaskResponse } from "@/_types/task";
 import { invalidateTasks } from "@/lib/fetch-tasks";
+import { createTaskFromFetchedData } from "@/lib/utils";
 
 export default function TaskDescription(): JSX.Element {
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -37,14 +38,8 @@ export default function TaskDescription(): JSX.Element {
       return response.data;
     },
 
-    onSuccess: async (data) => {
-      const newTask = {
-        ...task,
-        dueDate: data.data.dueDate ? new Date(data.data.dueDate) : null,
-        createdAt: new Date(data.data.createdAt),
-        updatedAt: new Date(data.data.updatedAt),
-      };
-
+    onSuccess: (data) => {
+      const newTask = createTaskFromFetchedData(data.data);
       const updatedTasks = tasks.map((t) =>
         t._id === data.data._id ? newTask : t,
       );
@@ -52,8 +47,8 @@ export default function TaskDescription(): JSX.Element {
       setTask(newTask);
       setTasks(updatedTasks);
 
-      await invalidateTasks(task.workspaceId);
-      await invalidateTaskId(data.data._id);
+      invalidateTasks(task.workspaceId);
+      invalidateTaskId(data.data._id);
     },
 
     onSettled: (_data, _error) => {},
