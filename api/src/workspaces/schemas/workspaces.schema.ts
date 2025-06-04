@@ -47,6 +47,45 @@ export class Tag {
 export type TagDocument = HydratedDocument<Tag>;
 export const TagSchema = SchemaFactory.createForClass(Tag);
 
+TagSchema.index({ workspaceId: 1, color: 1 }, { unique: true });
+TagSchema.pre("save", async function () {
+  // Add tag to workspace's tagIds array
+  const workspace = this.model<WorkspaceDocument>(Workspace.name);
+
+  if (this.isNew && workspace) {
+    await workspace.updateOne({
+      $addToSet: { tagIds: this._id },
+    });
+  }
+});
+
+TagSchema.pre("findOneAndDelete", async function (next) {
+  const doc = await this.model.findOne<TagDocument>(this.getFilter());
+
+  if (doc) {
+    console.log("Tag deleted:", doc._id);
+
+    // Remove tag from workspace's tagIds array
+    await doc
+      .model<WorkspaceDocument>(Workspace.name)
+      .updateOne({ _id: doc.workspaceId }, { $pull: { tagIds: doc._id } });
+
+    // remove tag from all tasks referencing this tag
+    const taskModel = doc.model("Task");
+    await taskModel.updateMany(
+      { tags: { $elemMatch: { $eq: doc._id } } },
+      {
+        $pull: { tags: doc._id },
+      },
+      {
+        upsert: true,
+      },
+    );
+  }
+
+  next();
+});
+
 @Schema({
   collection: "members",
   id: false,

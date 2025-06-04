@@ -612,67 +612,31 @@ forbidden.",
     workspaceId: string,
     tagId: string,
   ): Promise<WorkspaceDocument> {
-    // Find member to check if the user is a member of the workspace
-    const member = await this.memberModel.findOne({
-      userId,
-      workspaceId,
+    const workspace = await this.workspaceModel.findOne({
+      $or: [
+        { _id: workspaceId, ownerId: userId },
+        { _id: workspaceId, memberIds: { $elemMatch: { $eq: userId } } },
+      ],
     });
 
-    if (!member) {
-      throw new ForbiddenException(
-        `User with ID ${userId} is not a member of this workspace.`,
-      );
+    if (!workspace) {
+      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
     }
 
-    // Remove the tag from the workspace's tags array
-    const updatedWorkspace = await this.workspaceModel.findOneAndUpdate(
-      {
-        _id: workspaceId,
-      },
-      {
-        $pull: { tags: tagId }, // Remove the tag from the tags array
-      },
-      {
-        new: true,
-      },
-    );
-
-    if (!updatedWorkspace) {
-      throw new NotFoundException(
-        `Workspace with ID ${workspaceId} not found or user is not a member.`,
-      );
-    }
-
-    const tagResult = await this.tagModel.findOneAndDelete(
-      {
-        _id: tagId,
-        workspaceId: updatedWorkspace._id,
-      },
-      {},
-    );
+    const tagResult = await this.tagModel.findOneAndDelete({
+      _id: tagId,
+      workspaceId: workspace._id,
+    });
 
     if (!tagResult) {
       throw new NotFoundException(`Tag with ID ${tagId} not found`);
     }
 
-    // Remove tag from tasks
-    await this.taskModel.findOneAndUpdate(
-      {
-        tags: {
-          $elemMatch: { $eq: tagResult._id },
-        },
-      },
-      {
-        $pull: {
-          tags: tagResult._id,
-        },
-      },
-      {
-        multi: true,
-      },
+    workspace.tagIds = workspace.tagIds.filter(
+      (tagId) => tagId.toString() !== tagResult._id.toString(),
     );
 
-    return updatedWorkspace;
+    return workspace;
   }
 
   async checkIfUserIsMember(
