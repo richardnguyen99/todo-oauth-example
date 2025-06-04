@@ -24,8 +24,7 @@ export type Workspace = {
     Member,
     "updatedAt" | "user"
   >)[];
-  tags: Pick<Tag, "_id" | "color" | "text">[];
-
+  tags: Array<Tag>;
   tasks: Task[];
 };
 

@@ -14,7 +14,7 @@ export const fetchWorkspaces = async (errorFn: (r: Response) => void) => {
       "createdAt",
       "updatedAt",
     ].join(","),
-    tag_fields: ["text", "color"].join(","),
+    tag_fields: ["text", "color", "createdAt", "updatedAt"].join(","),
     member_fields: [
       "_id",
       "userId",

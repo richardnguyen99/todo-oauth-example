@@ -55,14 +55,14 @@ export default function DeleteLabelButton({
     },
 
     onSuccess: async (data) => {
-      await invalidateWorkspaces();
-      await invalidateTasks(activeWorkspace!._id);
+      invalidateWorkspaces();
+      invalidateTasks(activeWorkspace!._id);
 
       for (const t of tasks) {
         const usedTag = t.tags.find((tag) => tag._id === editTag._id);
 
         if (usedTag) {
-          await invalidateTaskId(t._id);
+          invalidateTaskId(t._id);
         }
       }
 

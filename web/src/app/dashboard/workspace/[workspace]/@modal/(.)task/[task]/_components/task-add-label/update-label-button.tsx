@@ -15,6 +15,7 @@ import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/t
 import { UpdateTagErrorResponse, UpdateTagResponse } from "@/_types/tag";
 import { invalidateTaskId } from "@/lib/fetch-task-id";
 import { invalidateTasks } from "@/lib/fetch-tasks";
+import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
 
 type Props = Readonly<{
   text: string;
@@ -66,20 +67,33 @@ export default function UpdateLabelButton({
     },
 
     onSuccess: async (data) => {
-      await invalidateTasks(activeWorkspace!._id);
-      await invalidateTaskId(task._id);
-      await invalidateTasks(activeWorkspace!._id);
+      invalidateWorkspaces();
+      invalidateTasks(activeWorkspace!._id);
+
+      for (const t of tasks) {
+        const usedTag = t.tags.find((tag) => tag._id === editTag._id);
+
+        if (usedTag) {
+          invalidateTaskId(t._id);
+        }
+      }
 
       const updatedWorkspace = {
         ...activeWorkspace!,
+        updatedAt: new Date(data.data.updatedAt),
         tags: activeWorkspace!.tags.map((tag) => {
           if (tag._id === editTag._id) {
             return {
-              ...tag,
               text: data.data.text,
               color: data.data.color,
+              _id: data.data._id,
+              createdAt: new Date(data.data.createdAt),
+              updatedAt: new Date(data.data.updatedAt),
+              workspaceId: data.data.workspaceId,
+              createdBy: data.data.createdBy,
             };
           }
+
           return tag;
         }),
       };
@@ -93,20 +107,27 @@ export default function UpdateLabelButton({
 
       const updatedTask = {
         ...task,
+        updatedAt: new Date(data.data.updatedAt),
+        workspace: updatedWorkspace,
         tags: task.tags.map((tag) => {
           if (tag._id === editTag._id) {
             return {
-              ...tag,
               text: data.data.text,
               color: data.data.color,
+              _id: data.data._id,
+              createdAt: new Date(data.data.createdAt),
+              updatedAt: new Date(data.data.updatedAt),
+              workspaceId: data.data.workspaceId,
+              createdBy: data.data.createdBy,
             };
           }
+
           return tag;
         }),
       };
 
       const updatedTasks = tasks.map((t) => {
-        if (t._id === updatedTask._id) {
+        if (t._id === task._id) {
           return updatedTask;
         }
 
@@ -115,11 +136,16 @@ export default function UpdateLabelButton({
           tags: t.tags.map((tag) => {
             if (tag._id === editTag._id) {
               return {
-                ...tag,
                 text: data.data.text,
                 color: data.data.color,
+                _id: data.data._id,
+                createdAt: new Date(data.data.createdAt),
+                updatedAt: new Date(data.data.updatedAt),
+                workspaceId: data.data.workspaceId,
+                createdBy: data.data.createdBy,
               };
             }
+
             return tag;
           }),
         };
@@ -130,6 +156,7 @@ export default function UpdateLabelButton({
         activeWorkspace: updatedWorkspace,
         status: "success",
       });
+
       setTask(updatedTask);
       setTasks(updatedTasks);
 

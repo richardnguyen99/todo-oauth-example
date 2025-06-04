@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { AxiosError, AxiosResponse } from "axios";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
 import api from "@/lib/axios";
@@ -84,7 +84,6 @@ export default function UpdateWorkspaceDialog({
   onClose,
 }: Props): JSX.Element {
   const [loading, setLoading] = React.useState(false);
-  const queryClient = useQueryClient();
   const { setWorkspaces, workspaces } = useWorkspaceStore((s) => s);
 
   // Initialize the form with default values
@@ -115,16 +114,12 @@ export default function UpdateWorkspaceDialog({
     },
 
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["fetch-workspace"] });
-
       const newWorkspace = {
         ...workspace,
         title: data.data.title,
         color: data.data.color,
         icon: data.data.icon,
       };
-
-      console.log("Updated workspace:", newWorkspace);
 
       // Update the workspace in the store
       const newWorkspaces = workspaces.map((ws: Workspace) => {

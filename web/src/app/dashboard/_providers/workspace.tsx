@@ -38,6 +38,12 @@ export const WorkspaceStoreProvider = ({
           ...member,
           createdAt: new Date(member.createdAt),
         })),
+
+        tags: workspace.tags.map((tag) => ({
+          ...tag,
+          createdAt: new Date(tag.createdAt),
+          updatedAt: new Date(tag.updatedAt),
+        })),
       })),
       activeWorkspace: null,
       status: "loading",
