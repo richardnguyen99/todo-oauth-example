@@ -23,10 +23,17 @@ import {
 import { ResponsePayloadDto } from "src/dto/response.dto";
 import { TasksService } from "./tasks.service";
 import { TaskDocument } from "./schemas/tasks.schema";
-import { ZodValidationPipe } from "../zod-validation/zod-validation.pipe";
+import {
+  ZodQueryValidationPipe,
+  ZodValidationPipe,
+} from "../zod-validation/zod-validation.pipe";
 import { CreateTaskDto, createTaskDtoSchema } from "./dto/create-task.dto";
 import { respondWithError } from "src/utils/handle-error";
 import { UpdateTaskDto, updateTaskDtoSchema } from "./dto/update-task.dto";
+import {
+  GetTaskQueryDto,
+  getTaskQueryDtoSchema,
+} from "./dto/get-task-query.dto";
 
 @Controller("tasks")
 export class TasksController {
@@ -34,27 +41,18 @@ export class TasksController {
 
   @UseGuards(AuthGuard("jwt"))
   @Get()
+  @UsePipes(new ZodQueryValidationPipe(getTaskQueryDtoSchema))
   async getTasks(
     @Req() req: RequestType,
     @Res() res: ResponseType,
-    @Query("workspace_id") workspaceId?: string,
+    @Query() query: GetTaskQueryDto,
   ) {
-    if (!workspaceId) {
-      // If no workspace_id is provided, return an error
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: "workspace_id query parameter is required",
-        data: null,
-        count: 0,
-      } satisfies ResponsePayloadDto);
-    }
-
     let tasks: TaskDocument[];
 
     try {
       tasks = await this.tasksService.findTasksByWorkspaceId(
         req.user!["userId"],
-        workspaceId,
+        query,
       );
     } catch (e) {
       return respondWithError(e, res);

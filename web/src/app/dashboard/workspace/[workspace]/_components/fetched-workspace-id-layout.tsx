@@ -19,6 +19,7 @@ export default async function FetchedWorkspaceIdLayout({
   searchParams,
 }: Props): Promise<JSX.Element | never> {
   const searchParamsString = buildSearchParamsString(searchParams);
+  console.log("search params", searchParamsString);
 
   const data = await fetchTasks(workspaceId, searchParamsString, (res) => {
     if (res.status >= 400) {

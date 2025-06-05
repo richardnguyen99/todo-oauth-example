@@ -30,6 +30,13 @@ export const AccountSchema = SchemaFactory.createForClass(Account);
 @Schema({
   collection: "users",
   timestamps: true,
+  id: false,
+  toJSON: {
+    versionKey: false,
+  },
+  toObject: {
+    versionKey: false,
+  },
 })
 export class User {
   @Prop({ type: mongoose.Schema.Types.String, required: true })

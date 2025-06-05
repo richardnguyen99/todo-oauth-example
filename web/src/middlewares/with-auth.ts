@@ -55,19 +55,14 @@ export function withAuth(middleware: CustomMiddleware) {
             const newRefreshToken = refreshTokenData.data.refresh_token;
             const cookieOptions = refreshTokenData.data.cookie_options;
 
-            const newResponse = NextResponse.next();
-            newResponse.cookies.set(
-              "access_token",
-              newAccessToken,
-              cookieOptions,
-            );
-            newResponse.cookies.set(
+            response.cookies.set("access_token", newAccessToken, cookieOptions);
+            response.cookies.set(
               "refresh_token",
               newRefreshToken,
               cookieOptions,
             );
 
-            return middleware(request, event, newResponse);
+            return middleware(request, event, response);
           } else {
             const errorResponse = await refreshTokenResponse.json();
             return NextResponse.json({

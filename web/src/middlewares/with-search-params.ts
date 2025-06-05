@@ -7,9 +7,8 @@ export function withSearchParams(middleware: CustomMiddleware) {
   return async (
     request: NextRequest,
     event: NextFetchEvent,
-    _response: NextResponse,
+    response: NextResponse,
   ) => {
-    const response = NextResponse.next();
     const searchParams = request.nextUrl.searchParams.toString();
     response.headers.set("X-Search-Params", searchParams);
 

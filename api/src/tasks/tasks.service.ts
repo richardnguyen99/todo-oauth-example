@@ -16,6 +16,7 @@ import {
 import { CreateTaskDto } from "./dto/create-task.dto";
 import { isObjectId } from "src/utils/object-id";
 import { UpdateTaskDto } from "./dto/update-task.dto";
+import { GetTaskQueryDto } from "./dto/get-task-query.dto";
 
 @Injectable()
 export class TasksService {
@@ -34,38 +35,156 @@ export class TasksService {
 
   async findTasksByWorkspaceId(
     userId: string,
-    workspaceId: string,
+    query: GetTaskQueryDto,
   ): Promise<TaskDocument[]> {
     const [workspace] = await this._getWorkspaceWithMemberAccess(
       userId,
-      workspaceId,
+      query["workspace_id"],
     );
 
-    const tasks = (
-      await workspace.populate<{ taskIds: TaskDocument[] }>([
+    const populateOptions = [
+      {
+        path: "taskIds",
+        populate: [
+          {
+            path: "createdByUser",
+            select: "-workspaces -accounts",
+          },
+          {
+            path: "tags",
+          },
+          {
+            path: "completedByUser",
+            select: "-workspaces -accounts",
+          },
+          {
+            path: "workspace",
+          },
+        ],
+      },
+    ];
+
+    if (query.sort === "manual") {
+      const tasks = (
+        await workspace.populate<{ taskIds: TaskDocument[] }>(populateOptions)
+      ).taskIds;
+
+      return tasks;
+    }
+
+    console.log("query.sort", query.sort);
+
+    const sortMeta: mongoose.PipelineStage.Sort["$sort"] = {};
+
+    if (query.sort === "createdAt") {
+      sortMeta.createdAt = -1;
+    } else if (query.sort === "dueDate") {
+      sortMeta.nonNullDueDate = -1; // Sort by dueDate, treating nulls as the earliest date
+    }
+
+    const someTasks = await this.taskModel
+      .aggregate<TaskDocument>([
         {
-          path: "taskIds",
-          populate: [
-            {
-              path: "createdByUser",
-              select: "-workspaces -accounts",
+          $addFields: {
+            nonNullDueDate: {
+              $ifNull: ["$dueDate", new Date("1970-01-01")],
             },
-            {
-              path: "tags",
-            },
-            {
-              path: "completedByUser",
-              select: "-workspaces -accounts",
-            },
-            {
-              path: "workspace",
-            },
-          ],
+          },
         },
       ])
-    ).taskIds;
+      .sort(sortMeta)
+      .project({
+        nonNullDueDate: false,
+        __v: false, // Exclude the __v field if needed
+      })
+      .lookup({
+        from: "workspaces",
+        localField: "workspaceId",
+        foreignField: "_id",
+        let: { u: "$workspaceId" },
+        as: "workspace",
+        pipeline: [
+          {
+            $project: {
+              __v: false, // Exclude the __v field if needed
+            },
+          },
+        ],
+      })
+      .unwind({
+        path: "$workspace",
+        preserveNullAndEmptyArrays: true,
+      })
+      .lookup({
+        from: "users",
+        localField: "createdBy",
+        foreignField: "_id",
+        as: "createdByUser",
+        let: { u: "$createdBy" },
+        pipeline: [
+          // For every _id match the user with the createdBy field
+          {
+            $match: {
+              $expr: {
+                $eq: ["$_id", "$$u"],
+              },
+            },
+          },
+          // Exclude the accounts field from the user document
+          {
+            $project: {
+              accounts: false,
+              __v: false, // Exclude the __v field if needed
+            },
+          },
+        ],
+      })
+      .unwind({
+        path: "$createdByUser",
+        preserveNullAndEmptyArrays: true,
+      })
+      .lookup({
+        from: "users",
+        localField: "completedBy",
+        foreignField: "_id",
+        as: "completedByUser",
+        let: { i: "$completedBy" },
+        pipeline: [
+          // For every _id match the user with the completedBy field
+          {
+            $match: {
+              $expr: {
+                $eq: ["$_id", "$$i"],
+              },
+            },
+          },
+          // Exclude the accounts field from the user document
+          {
+            $project: {
+              accounts: false,
+              __v: false, // Exclude the __v field if needed
+            },
+          },
+        ],
+      })
+      .unwind({
+        path: "$completedByUser",
+        preserveNullAndEmptyArrays: true,
+      })
+      .addFields({
+        tagIds: "$tags", // Add a new field tagIds to the document
+      })
+      .project({
+        tags: false, // Exclude the tagIds field if needed
+      })
+      .lookup({
+        from: "tags",
+        localField: "tagIds",
+        foreignField: "_id",
+        as: "tags",
+      });
 
-    return tasks;
+    return someTasks;
   }
 
   async findTaskById(
