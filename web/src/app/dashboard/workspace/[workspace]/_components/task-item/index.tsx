@@ -1,7 +1,7 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -23,14 +23,19 @@ type Props = Readonly<
 
 export default function TaskItem({ task, ...rest }: Props): JSX.Element {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [deleteDialogShow, setDeleteDialogShow] = React.useState(false);
 
   const handleClick = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       e.preventDefault();
-      router.push(`/dashboard/workspace/${task.workspaceId}/task/${task._id}`);
+      router.push(
+        `/dashboard/workspace/${task.workspaceId}/task/${task._id}${
+          searchParams.size > 0 ? `?${searchParams.toString()}` : ""
+        }`,
+      );
     },
-    [router, task._id, task.workspaceId],
+    [router, task._id, task.workspaceId, searchParams],
   );
 
   return (

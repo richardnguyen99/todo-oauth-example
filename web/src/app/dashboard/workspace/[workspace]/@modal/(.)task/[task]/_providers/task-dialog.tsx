@@ -2,7 +2,7 @@
 
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { type JSX } from "react";
 
 type TaskDialogContextType = {
@@ -26,15 +26,18 @@ export default function TaskDialogProvider({ children }: Props): JSX.Element {
   const [dialogShow, setDialogShow] = React.useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { activeWorkspace } = useWorkspaceStore((s) => s);
 
   const handleChange = React.useCallback(
     (newOpen: boolean) => {
       if (!newOpen) {
-        router.push(`/dashboard/workspace/${activeWorkspace?._id}`);
+        router.push(
+          `/dashboard/workspace/${activeWorkspace?._id}${searchParams.size > 0 ? `?${searchParams.toString()}` : ""}`,
+        );
       }
     },
-    [activeWorkspace?._id, router],
+    [activeWorkspace?._id, router, searchParams],
   );
 
   React.useEffect(() => {
