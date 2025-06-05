@@ -111,7 +111,7 @@ export default async function WorkspacePage({
       </div>
 
       <div className="mx-auto mt-3 max-w-4xl px-3">
-        <TaskList />
+        <TaskList sort={sort} />
       </div>
     </div>
   );

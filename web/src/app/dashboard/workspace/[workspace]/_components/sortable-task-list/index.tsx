@@ -26,8 +26,14 @@ import {
 } from "@/_types/workspace";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import SortableTaskItem from "./sortable-task-item";
+import { WorkspaceIdSearchParams } from "../../_types/props";
+import { invalidateTasks } from "@/lib/fetch-tasks";
 
-export default function SortableTaskList(): JSX.Element {
+type Props = Readonly<{
+  sort: WorkspaceIdSearchParams["sort"];
+}>;
+
+export default function SortableTaskList({ sort }: Props): JSX.Element {
   const id = React.useId();
   const { tasks, setTasks } = useTaskStore((s) => s);
   const [, setLoading] = React.useState(false);
@@ -68,7 +74,9 @@ export default function SortableTaskList(): JSX.Element {
       setLoading(true);
     },
 
-    onSuccess: () => {},
+    onSuccess: () => {
+      invalidateTasks(activeWorkspace!._id);
+    },
 
     onError: () => {},
 
@@ -120,6 +128,7 @@ export default function SortableTaskList(): JSX.Element {
             onDragEnd={handleDragEnd}
           >
             <SortableContext
+              disabled={sort !== "manual"}
               items={tasks.map((tasks) => tasks._id)}
               strategy={verticalListSortingStrategy}
             >
