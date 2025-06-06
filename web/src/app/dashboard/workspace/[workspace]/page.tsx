@@ -8,6 +8,8 @@ type Props = Readonly<{
   searchParams: Promise<WorkspaceIdSearchParams>;
 }>;
 
+export const dynamic = "force-dynamic";
+
 export default async function WorkspacePage({
   searchParams,
 }: Props): Promise<JSX.Element> {

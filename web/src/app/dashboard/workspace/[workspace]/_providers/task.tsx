@@ -1,6 +1,11 @@
 "use client";
 
-import { type ReactNode, createContext, useRef, useContext } from "react";
+import React, {
+  type ReactNode,
+  createContext,
+  useRef,
+  useContext,
+} from "react";
 import { useStore } from "zustand";
 
 import { type TaskStore, createTaskStore } from "../_stores/task";
@@ -23,11 +28,12 @@ export const TaskStoreProvider = ({
   initialData,
 }: TaskStoreProviderProps) => {
   const storeRef = useRef<taskStoreApi | null>(null);
-  if (storeRef.current === null) {
-    const tasks: Task[] = initialData.map((task) =>
-      createTaskFromFetchedData(task),
-    );
 
+  const tasks: Task[] = initialData.map((task) =>
+    createTaskFromFetchedData(task),
+  );
+
+  if (storeRef.current === null) {
     storeRef.current = createTaskStore({
       tasks: tasks,
       activeTask: null,
@@ -35,6 +41,17 @@ export const TaskStoreProvider = ({
       error: null,
     });
   }
+
+  React.useEffect(() => {
+    if (storeRef.current) {
+      storeRef.current.setState(() => ({
+        tasks: [...tasks],
+        status: "success",
+        error: null,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData]);
 
   return (
     <TaskStoreContext.Provider value={storeRef.current}>

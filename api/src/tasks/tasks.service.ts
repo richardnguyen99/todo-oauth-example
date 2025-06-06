@@ -72,8 +72,6 @@ export class TasksService {
       return tasks;
     }
 
-    console.log("query.sort", query.sort);
-
     const sortMeta: mongoose.PipelineStage.Sort["$sort"] = {};
 
     if (query.sort === "createdAt") {

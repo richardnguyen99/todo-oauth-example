@@ -35,7 +35,7 @@ type Props = Readonly<{
 
 export default function SortableTaskList({ sort }: Props): JSX.Element {
   const id = React.useId();
-  const { tasks, setTasks } = useTaskStore((s) => s);
+  const { tasks, setTasks, status } = useTaskStore((s) => s);
   const [, setLoading] = React.useState(false);
   const { workspaces, activeWorkspace, setWorkspaces } = useWorkspaceStore(
     (s) => s,
@@ -119,7 +119,13 @@ export default function SortableTaskList({ sort }: Props): JSX.Element {
 
   return (
     <div>
-      <div className="space-y-1">
+      <div
+        className="space-y-1"
+        style={{
+          opacity: status === "loading" ? 0.5 : 1,
+          pointerEvents: status === "loading" ? "none" : "auto",
+        }}
+      >
         {tasks.length > 0 && (
           <DndContext
             id={id}
@@ -128,7 +134,7 @@ export default function SortableTaskList({ sort }: Props): JSX.Element {
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              disabled={sort !== "manual"}
+              disabled={sort !== "manual" || status === "loading"}
               items={tasks.map((tasks) => tasks._id)}
               strategy={verticalListSortingStrategy}
             >

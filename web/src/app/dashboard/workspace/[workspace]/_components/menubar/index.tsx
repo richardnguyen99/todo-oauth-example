@@ -1,6 +1,5 @@
 import React, { type JSX } from "react";
 import {
-  ChartBarIncreasing,
   CheckSquare,
   Columns2,
   Download,
@@ -26,6 +25,7 @@ import AddTaskDialog from "../add-task-dialog";
 import WorkspaceMenubarBreadcrumb from "./breadcrumb";
 import { WorkspaceIdSearchParams } from "../../_types/props";
 import WorkspaceMenubar from "../../../_components/workspace-menubar";
+import SortDropdown from "./sort-dropdown";
 
 type Props = Readonly<WorkspaceIdSearchParams>;
 
@@ -52,13 +52,7 @@ export default function WorkspaceIdMenubar({ sort }: Props): JSX.Element {
         <span>Filter</span>
       </Button>
 
-      <Button
-        variant={sort ? "secondary" : "outline"}
-        className="h-7 cursor-pointer"
-      >
-        <ChartBarIncreasing className="h-4 w-4" />
-        <span>Sort</span>
-      </Button>
+      <SortDropdown sort={sort} />
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
