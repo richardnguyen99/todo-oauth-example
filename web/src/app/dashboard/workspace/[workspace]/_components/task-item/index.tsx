@@ -63,7 +63,7 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
             >
               {task.title}
             </p>
-            {task.priority === "high" && (
+            {task.priority === 3 && (
               <Badge
                 variant="destructive"
                 className="h-4 px-1 py-0 text-[10px]"

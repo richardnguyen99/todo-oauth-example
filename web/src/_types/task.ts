@@ -26,7 +26,7 @@ export type TaskBase = {
   description: string | null;
   items: Array<TaskItem>;
   completed: boolean;
-  priority: "low" | "medium" | "high";
+  priority: number; // 1: low, 2: medium, 3: high
   createdBy: string;
   completedBy: string;
   workspaceId: string;

@@ -108,11 +108,11 @@ export class Task {
   dueDate?: Date;
 
   @Prop({
-    type: mongoose.Schema.Types.String,
-    enum: ["low", "medium", "high"],
-    default: "low",
+    type: mongoose.Schema.Types.Number,
+    enum: [1, 2, 3],
+    default: 1,
   })
-  priority: string;
+  priority: number;
 
   @Prop({
     type: mongoose.Schema.Types.Array,
