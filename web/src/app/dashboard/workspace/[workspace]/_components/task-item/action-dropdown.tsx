@@ -38,7 +38,7 @@ export default function TaskItemActionDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm">
           <span className="sr-only">Actions</span>
           <MoreHorizontal className="h-4 w-4" />
         </Button>

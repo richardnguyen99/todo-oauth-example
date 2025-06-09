@@ -84,7 +84,7 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
 
           <div className="flex h-6 min-w-0 flex-1 items-center gap-2">
             <p
-              className={cn(`line-clamp-1 font-medium`, {
+              className={cn(`line-clamp-1 font-medium break-all`, {
                 "text-muted-foreground line-through": task.completed,
               })}
             >
