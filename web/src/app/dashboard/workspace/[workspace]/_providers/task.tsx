@@ -12,9 +12,9 @@ import { type TaskStore, createTaskStore } from "../_stores/task";
 import { FetchedTask, Task } from "@/_types/task";
 import { createTaskFromFetchedData } from "@/lib/utils";
 
-export type taskStoreApi = ReturnType<typeof createTaskStore>;
+export type TaskStoreApi = ReturnType<typeof createTaskStore>;
 
-export const TaskStoreContext = createContext<taskStoreApi | undefined>(
+export const TaskStoreContext = createContext<TaskStoreApi | undefined>(
   undefined,
 );
 
@@ -27,7 +27,7 @@ export const TaskStoreProvider = ({
   children,
   initialData,
 }: TaskStoreProviderProps) => {
-  const storeRef = useRef<taskStoreApi | null>(null);
+  const storeRef = useRef<TaskStoreApi | null>(null);
 
   const tasks: Task[] = initialData.map((task) =>
     createTaskFromFetchedData(task),

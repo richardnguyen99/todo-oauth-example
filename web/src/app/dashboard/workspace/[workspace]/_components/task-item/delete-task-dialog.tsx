@@ -33,7 +33,7 @@ export default function TaskTabDeleteDialog({
   setShow,
 }: Props): JSX.Element {
   const [loading, setLoading] = React.useState(false);
-  const { tasks, setTasks } = useTaskStore((s) => s);
+  const { tasks, setTasks, setStatus: setTaskStatus } = useTaskStore((s) => s);
   const { mutate } = useMutation({
     mutationKey: ["task-delete", task._id],
     mutationFn: async () => {
@@ -50,9 +50,10 @@ export default function TaskTabDeleteDialog({
     },
 
     onSuccess: async () => {
-      setTasks(tasks.filter((t) => t._id !== task._id));
       await invalidateTasks(task.workspaceId);
 
+      setTasks(tasks.filter((t) => t._id !== task._id));
+      setTaskStatus("loading");
       setShow(false);
     },
 
