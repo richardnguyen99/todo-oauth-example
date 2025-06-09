@@ -31,7 +31,9 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
       e.preventDefault();
       router.push(
         `/dashboard/workspace/${task.workspaceId}/task/${task._id}${
-          searchParams.size > 0 ? `?${searchParams.toString()}` : ""
+          searchParams.size > 0
+            ? `?${searchParams.toString()}&fallback=true`
+            : "?fallback=true"
         }`,
       );
     },

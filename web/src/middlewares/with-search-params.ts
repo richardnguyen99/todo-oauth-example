@@ -9,7 +9,27 @@ export function withSearchParams(middleware: CustomMiddleware) {
     event: NextFetchEvent,
     response: NextResponse,
   ) => {
-    const searchParams = request.nextUrl.searchParams.toString();
+    const nextUrl = request.nextUrl;
+    const searchParams = nextUrl.searchParams.toString();
+    const url = request.url;
+    const referer = request.headers.get("referer");
+
+    if (
+      url.includes("/task/") &&
+      !referer &&
+      (nextUrl.searchParams.get("fallback") ||
+        nextUrl.searchParams.get("sort") ||
+        nextUrl.searchParams.get("filter"))
+    ) {
+      nextUrl.searchParams.delete("fallback");
+      nextUrl.searchParams.delete("sort");
+      nextUrl.searchParams.delete("filter");
+
+      const newResponse = NextResponse.redirect(nextUrl.href, {});
+
+      return newResponse;
+    }
+
     response.headers.set("X-Search-Params", searchParams);
 
     return middleware(request, event, response);

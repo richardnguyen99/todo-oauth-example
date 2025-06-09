@@ -29,15 +29,21 @@ export default function TaskDialogProvider({ children }: Props): JSX.Element {
   const searchParams = useSearchParams();
   const { activeWorkspace } = useWorkspaceStore((s) => s);
 
+  const newSearchParams = React.useMemo(() => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("fallback");
+    return params;
+  }, [searchParams]);
+
   const handleChange = React.useCallback(
     (newOpen: boolean) => {
       if (!newOpen) {
         router.push(
-          `/dashboard/workspace/${activeWorkspace?._id}${searchParams.size > 0 ? `?${searchParams.toString()}` : ""}`,
+          `/dashboard/workspace/${activeWorkspace?._id}${newSearchParams.size > 0 ? `?${newSearchParams.toString()}` : ""}`,
         );
       }
     },
-    [activeWorkspace?._id, router, searchParams],
+    [activeWorkspace?._id, router, newSearchParams],
   );
 
   React.useEffect(() => {
