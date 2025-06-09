@@ -29,33 +29,15 @@ export default function SortDropdown({ sort }: Props): JSX.Element {
   const { activeWorkspace } = useWorkspaceStore((s) => s);
   const { setStatus: setTaskStatus } = useTaskStore((s) => s);
 
-  const handleDueDateChecked = React.useCallback(
-    async (newValue: boolean) => {
+  const handleSortChecked = React.useCallback(
+    (sortKey: string) => async (newValue: boolean) => {
       await invalidateTasks(activeWorkspace!._id);
 
       router.push(
         `${pathname}?${new URLSearchParams(
           Object.entries({
             ...Object.fromEntries(searchParams.entries()),
-            sort: newValue ? "dueDate" : undefined,
-          }).filter(([_, v]) => v !== undefined) as [string, string][],
-        ).toString()}`,
-      );
-
-      setTaskStatus("loading");
-    },
-    [activeWorkspace, router, pathname, searchParams, setTaskStatus],
-  );
-
-  const handleCreatedAtChecked = React.useCallback(
-    async (newValue: boolean) => {
-      await invalidateTasks(activeWorkspace!._id);
-
-      router.push(
-        `${pathname}?${new URLSearchParams(
-          Object.entries({
-            ...Object.fromEntries(searchParams.entries()),
-            sort: newValue ? "createdAt" : undefined,
+            sort: newValue ? sortKey : undefined,
           }).filter(([_, v]) => v !== undefined) as [string, string][],
         ).toString()}`,
       );
@@ -84,7 +66,7 @@ export default function SortDropdown({ sort }: Props): JSX.Element {
 
         <DropdownMenuCheckboxItem
           checked={sort === "dueDate"}
-          onCheckedChange={handleDueDateChecked}
+          onCheckedChange={handleSortChecked("dueDate")}
           className="cursor-pointer"
         >
           Due Date
@@ -92,10 +74,18 @@ export default function SortDropdown({ sort }: Props): JSX.Element {
 
         <DropdownMenuCheckboxItem
           checked={sort === "createdAt"}
-          onCheckedChange={handleCreatedAtChecked}
+          onCheckedChange={handleSortChecked("createdAt")}
           className="cursor-pointer"
         >
           Created Date
+        </DropdownMenuCheckboxItem>
+
+        <DropdownMenuCheckboxItem
+          checked={sort === "priority"}
+          onCheckedChange={handleSortChecked("priority")}
+          className="cursor-pointer"
+        >
+          Priority
         </DropdownMenuCheckboxItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -29,7 +29,6 @@ export default function SortableTaskItem({
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform && { ...transform, x: 0 }), // Prevent horizontal movement
     transition,
-    zIndex: isDragging ? 10 : 1,
     opacity: isDragging ? 0.8 : 1,
     position: isDragging ? "relative" : "static",
   };

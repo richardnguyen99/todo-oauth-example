@@ -38,6 +38,31 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
     [router, task._id, task.workspaceId, searchParams],
   );
 
+  const createPriorityBadge = (priority: number) => {
+    switch (priority) {
+      case 1:
+        return (
+          <Badge className="h-4 bg-lime-300 px-1 py-0 text-[10px] dark:bg-lime-400">
+            Low
+          </Badge>
+        );
+      case 2:
+        return (
+          <Badge className="h-4 bg-amber-300 px-1 py-0 text-[10px] dark:bg-amber-400">
+            Medium
+          </Badge>
+        );
+      case 3:
+        return (
+          <Badge className="h-4 bg-red-300 px-1 py-0 text-[10px] dark:bg-red-400">
+            High
+          </Badge>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
       <div
@@ -63,14 +88,8 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
             >
               {task.title}
             </p>
-            {task.priority === 3 && (
-              <Badge
-                variant="destructive"
-                className="h-4 px-1 py-0 text-[10px]"
-              >
-                High
-              </Badge>
-            )}
+
+            {createPriorityBadge(task.priority)}
           </div>
 
           <TaskItemActionDropdown

@@ -76,7 +76,19 @@ export const noRefineCreateTaskDtoSchema = z.object({
       invalid_type_error: "Priority must be one of 'low', 'medium', or 'high'",
     })
     .optional()
-    .default("low"), // Default to 'low' if not provided
+    .default("low")
+    .transform((priority) => {
+      switch (priority) {
+        case "low":
+          return 1;
+        case "medium":
+          return 2;
+        case "high":
+          return 3;
+        default:
+          return 1; // Default to low priority if not specified
+      }
+    }),
 
   items: z
     .object({

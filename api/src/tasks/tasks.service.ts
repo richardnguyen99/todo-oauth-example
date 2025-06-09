@@ -78,6 +78,8 @@ export class TasksService {
       sortMeta.createdAt = -1;
     } else if (query.sort === "dueDate") {
       sortMeta.nonNullDueDate = -1; // Sort by dueDate, treating nulls as the earliest date
+    } else if (query.sort === "priority") {
+      sortMeta.priority = -1; // Sort by priority, assuming higher numbers are more important
     }
 
     const someTasks = await this.taskModel
@@ -281,7 +283,7 @@ export class TasksService {
       completed: createTaskDto.completed || false,
       items: items,
       dueDate,
-      priority: createTaskDto.priority || "low",
+      priority: createTaskDto.priority || 1,
       tags: createTaskDto.tags,
       workspaceId: workspace._id,
       createdBy: userId,

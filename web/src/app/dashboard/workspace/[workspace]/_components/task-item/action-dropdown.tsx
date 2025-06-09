@@ -44,12 +44,7 @@ export default function TaskItemActionDropdown({
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        className="w-64"
-        onClick={(e) => e.stopPropagation()}
-        side="bottom"
-        align="end"
-      >
+      <DropdownMenuContent className="w-64" side="bottom" align="end">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
         </DropdownMenuGroup>
@@ -72,13 +67,21 @@ export default function TaskItemActionDropdown({
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem onSelect={onCopySelect}>
+          <DropdownMenuItem
+            onClick={(e) => e.stopPropagation()}
+            onSelect={(e) => {
+              onCopySelect(e);
+            }}
+          >
             <Copy className="mr-1 h-4 w-4" />
             <span>Copy Task</span>
             <DropdownMenuShortcut>⌘C</DropdownMenuShortcut>
           </DropdownMenuItem>
 
-          <DropdownMenuItem onSelect={onMoveSelect}>
+          <DropdownMenuItem
+            onSelect={onMoveSelect}
+            onClick={(e) => e.stopPropagation()}
+          >
             <Move className="mr-1 h-4 w-4" />
             <span>Move Task</span>
             <DropdownMenuShortcut>⌘X</DropdownMenuShortcut>
@@ -88,7 +91,11 @@ export default function TaskItemActionDropdown({
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive" onSelect={onDeleteSelect}>
+          <DropdownMenuItem
+            variant="destructive"
+            onSelect={onDeleteSelect}
+            onClick={(e) => e.stopPropagation()}
+          >
             <Trash className="mr-1 h-4 w-4" />
             <span>Delete Task</span>
             <DropdownMenuShortcut>⌘C</DropdownMenuShortcut>

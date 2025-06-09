@@ -123,7 +123,6 @@ export default function SortableTaskList({ sort }: Props): JSX.Element {
         className="space-y-1"
         style={{
           opacity: status === "loading" ? 0.5 : 1,
-          pointerEvents: status === "loading" ? "none" : "auto",
         }}
       >
         {tasks.length > 0 && (
@@ -134,7 +133,7 @@ export default function SortableTaskList({ sort }: Props): JSX.Element {
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              disabled={sort !== "manual" || status === "loading"}
+              disabled={typeof sort !== "undefined" || status === "loading"}
               items={tasks.map((tasks) => tasks._id)}
               strategy={verticalListSortingStrategy}
             >

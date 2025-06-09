@@ -68,7 +68,7 @@ export default function AddTaskDialog({ children }: Props): JSX.Element {
   const [open, setOpen] = React.useState(false);
 
   const { activeWorkspace } = useWorkspaceStore((s) => s);
-  const { setTasks, tasks } = useTaskStore((s) => s);
+  const { setTasks, tasks, setStatus: setTasksStatus } = useTaskStore((s) => s);
 
   const { mutate } = useMutation({
     mutationKey: ["addTask", activeWorkspace?._id],
@@ -105,6 +105,7 @@ export default function AddTaskDialog({ children }: Props): JSX.Element {
       };
 
       setTasks([...tasks, newTask]);
+      setTasksStatus("loading");
       invalidateTasks(activeWorkspace!._id);
 
       setOpen(false);

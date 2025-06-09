@@ -12,7 +12,10 @@ export const getTaskQueryDtoSchema = z.object({
       message: "workspace_id must be a valid ObjectId",
     }),
 
-  sort: z.enum(["manual", "createdAt", "dueDate"]).optional().default("manual"),
+  sort: z
+    .enum(["manual", "createdAt", "dueDate", "priority"])
+    .optional()
+    .default("manual"),
 });
 
 export type GetTaskQueryDto = z.infer<typeof getTaskQueryDtoSchema>;
