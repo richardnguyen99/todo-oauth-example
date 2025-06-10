@@ -54,17 +54,17 @@ export default function WorkspaceIdMenubar({
           {
             label: "High",
             value: 3,
-            icon: () => <div className="h-4 w-4 rounded-full bg-red-500" />,
+            icon: () => <div className="size-3 rounded-full bg-red-500" />,
           },
           {
             label: "Medium",
             value: 2,
-            icon: () => <div className="h-4 w-4 rounded-full bg-yellow-500" />,
+            icon: () => <div className="size-3 rounded-full bg-yellow-500" />,
           },
           {
             label: "Low",
             value: 1,
-            icon: () => <div className="h-4 w-4 rounded-full bg-green-500" />,
+            icon: () => <div className="size-3 rounded-full bg-green-500" />,
           },
         ]}
       />

@@ -2,6 +2,7 @@ export type WorkspaceIdSearchParams = Readonly<{
   sort: "manual" | "dueDate" | "createdAt" | "priority" | undefined;
   filter: string | string[] | undefined;
   views: "list" | "board" | "calendar" | undefined;
+  priority: string | string[] | undefined;
 
   [key: string]: string | string[] | undefined;
 }>;

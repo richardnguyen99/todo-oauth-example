@@ -16,15 +16,46 @@ import WorkspaceIdMenubar from "../menubar";
 import TaskList from "../sortable-task-list";
 import { useTaskStore } from "../../_providers/task";
 import { Task } from "@/_types/task";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { z } from "zod";
 
 type Props = Readonly<{
   params: WorkspaceIdSearchParams;
 }>;
 
+const workspaceSchema = z.object({
+  priority: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((val) => {
+      if (val === null || val === undefined) return null;
+      return val.split(",").map((v) => parseInt(v, 10));
+    }),
+  sort: z
+    .enum(["manual", "dueDate", "createdAt", "priority"])
+    .nullable()
+    .optional(),
+});
 export default function WorkspaceView({ params }: Props): JSX.Element {
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
+  const searchParams = useSearchParams();
+  const parsedParams = React.useMemo(
+    () =>
+      workspaceSchema.parse({
+        priority: searchParams.get("priority"),
+        sort: searchParams.get("sort"),
+      }),
+    [searchParams],
   );
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
+    {
+      id: "priority",
+      value: parsedParams.priority ?? [],
+    },
+  ]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const columns = React.useMemo<ColumnDef<Task>[]>(
     () => [
@@ -76,8 +107,14 @@ export default function WorkspaceView({ params }: Props): JSX.Element {
     onColumnFiltersChange: (updater) => {
       const state =
         updater instanceof Function ? updater(columnFilters) : updater;
-      console.log("Column filters updated:", state);
+
       setColumnFilters(state);
+      console.log("Column filters changed:", state);
+      router.push(
+        `${pathname}?${new URLSearchParams([
+          ...state.map((f) => [f.id, f.value as string]),
+        ])}`,
+      );
     },
     getCoreRowModel: getCoreRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
