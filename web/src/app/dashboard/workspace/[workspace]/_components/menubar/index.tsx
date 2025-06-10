@@ -1,35 +1,35 @@
 import React, { type JSX } from "react";
-import {
-  CheckSquare,
-  Columns2,
-  Download,
-  Filter,
-  MoreHorizontal,
-  Plus,
-  RotateCcw,
-  Settings,
-  Upload,
-} from "lucide-react";
+import { Columns2, Plus } from "lucide-react";
+import { Table } from "@tanstack/react-table";
 
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import AddTaskDialog from "../add-task-dialog";
 import WorkspaceMenubarBreadcrumb from "./breadcrumb";
-import { WorkspaceIdSearchParams } from "../../_types/props";
 import WorkspaceMenubar from "../../../_components/workspace-menubar";
 import SortDropdown from "./sort-dropdown";
+import MoreDropdown from "./more-dropdown";
+import { Task } from "@/_types/task";
+import FilterDropdown from "./filter-dropdown";
 
-type Props = Readonly<WorkspaceIdSearchParams>;
+type Props = Readonly<{
+  table: Table<Task>;
+  sort: "manual" | "dueDate" | "createdAt" | "priority" | undefined;
+  filter: string | string[] | undefined;
+  views: "list" | "board" | "calendar" | undefined;
+}>;
 
-export default function WorkspaceIdMenubar({ sort }: Props): JSX.Element {
+export default function WorkspaceIdMenubar({
+  sort,
+  table,
+}: Props): JSX.Element {
+  React.useEffect(() => {
+    console.log(
+      "Table data updated",
+      table.getColumn("title")?.getFacetedUniqueValues(),
+    );
+  }, [table]);
+
   return (
     <WorkspaceMenubar>
       <Separator orientation="vertical" className="mr-2 !h-5" />
@@ -47,50 +47,31 @@ export default function WorkspaceIdMenubar({ sort }: Props): JSX.Element {
         <span>Views</span>
       </Button>
 
-      <Button variant="outline" className="h-7 cursor-pointer">
-        <Filter className="h-4 w-4" />
-        <span>Filter</span>
-      </Button>
+      <FilterDropdown
+        column={table.getColumn("priority")}
+        title="Priority"
+        options={[
+          {
+            label: "High",
+            value: 3,
+            icon: () => <div className="h-4 w-4 rounded-full bg-red-500" />,
+          },
+          {
+            label: "Medium",
+            value: 2,
+            icon: () => <div className="h-4 w-4 rounded-full bg-yellow-500" />,
+          },
+          {
+            label: "Low",
+            value: 1,
+            icon: () => <div className="h-4 w-4 rounded-full bg-green-500" />,
+          },
+        ]}
+      />
 
       <SortDropdown sort={sort} />
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-7 w-7 cursor-pointer"
-          >
-            <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">More options</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" sideOffset={8}>
-          <DropdownMenuLabel>Todo Options</DropdownMenuLabel>
-          <DropdownMenuItem>
-            <Download className="mr-2 h-4 w-4" />
-            <span>Export Tasks</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Upload className="mr-2 h-4 w-4" />
-            <span>Import Tasks</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <CheckSquare className="mr-2 h-4 w-4" />
-            <span>Mark All as Complete</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <RotateCcw className="mr-2 h-4 w-4" />
-            <span>Reset All Tasks</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Todo Settings</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <MoreDropdown />
     </WorkspaceMenubar>
   );
 }
