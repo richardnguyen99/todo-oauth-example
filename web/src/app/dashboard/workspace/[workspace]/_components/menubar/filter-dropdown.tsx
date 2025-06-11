@@ -20,6 +20,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DataTableFacetedFilterProps<
   TData,
@@ -29,7 +30,7 @@ interface DataTableFacetedFilterProps<
   column?: Column<TData, TValue>;
   title?: string;
   options: {
-    label: string;
+    label: string | React.ReactNode;
     value: TLabelValue;
     icon?: React.ComponentType<{ className?: string }>;
   }[];
@@ -42,6 +43,10 @@ export default function DataTableFacetedFilter<TData, TValue, TLabelValue>({
 }: DataTableFacetedFilterProps<TData, TValue, TLabelValue>) {
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as TLabelValue[]);
+
+  React.useEffect(() => {
+    console.log(column);
+  }, [column, title, options]);
 
   return (
     <Popover modal>
@@ -74,15 +79,19 @@ export default function DataTableFacetedFilter<TData, TValue, TLabelValue>({
                 ) : (
                   options
                     .filter((option) => selectedValues.has(option.value))
-                    .map((option) => (
-                      <Badge
-                        variant="outline"
-                        key={option.value as string}
-                        className="rounded-sm px-1 font-normal"
-                      >
-                        {option.label}
-                      </Badge>
-                    ))
+                    .map((option) =>
+                      typeof option.label === "string" ? (
+                        <Badge
+                          variant="outline"
+                          key={option.value as string}
+                          className="rounded-sm px-1 font-normal"
+                        >
+                          {option.label}
+                        </Badge>
+                      ) : (
+                        option.label
+                      ),
+                    )
                 )}
               </div>
             </>
@@ -94,47 +103,50 @@ export default function DataTableFacetedFilter<TData, TValue, TLabelValue>({
           <CommandInput placeholder={title} />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => {
-                const isSelected = selectedValues.has(option.value);
-                return (
-                  <CommandItem
-                    key={option.value as string}
-                    className="cursor-pointer"
-                    onSelect={() => {
-                      if (isSelected) {
-                        selectedValues.delete(option.value);
-                      } else {
-                        selectedValues.add(option.value);
-                      }
-                      const filterValues = Array.from(selectedValues);
-                      column?.setFilterValue(
-                        filterValues.length ? filterValues : undefined,
-                      );
-                    }}
-                  >
-                    <div
-                      className={cn(
-                        "flex size-4 items-center justify-center rounded-[4px] border",
-                        isSelected
-                          ? "bg-primary border-primary text-primary-foreground"
-                          : "border-input [&_svg]:invisible",
-                      )}
+            <CommandGroup className="[&>div]:flex [&>div]:w-full">
+              <ScrollArea className="max-h-60 w-full [&_[data-slot=scroll-area-scrollbar]]:!w-2">
+                {options.map((option) => {
+                  const isSelected = selectedValues.has(option.value);
+
+                  return (
+                    <CommandItem
+                      key={option.value as string}
+                      className="cursor-pointer"
+                      onSelect={() => {
+                        if (isSelected) {
+                          selectedValues.delete(option.value);
+                        } else {
+                          selectedValues.add(option.value);
+                        }
+                        const filterValues = Array.from(selectedValues);
+                        column?.setFilterValue(
+                          filterValues.length ? filterValues : undefined,
+                        );
+                      }}
                     >
-                      <Check className="text-primary-foreground size-3.5" />
-                    </div>
-                    {option.icon && (
-                      <option.icon className="text-muted-foreground size-4" />
-                    )}
-                    <span>{option.label}</span>
-                    {facets?.get(option.value) && (
-                      <span className="text-muted-foreground ml-auto flex size-4 items-center justify-center font-mono text-xs">
-                        {facets.get(option.value)}
-                      </span>
-                    )}
-                  </CommandItem>
-                );
-              })}
+                      <div
+                        className={cn(
+                          "flex size-4 items-center justify-center rounded-[4px] border",
+                          isSelected
+                            ? "bg-primary border-primary text-primary-foreground"
+                            : "border-input [&_svg]:invisible",
+                        )}
+                      >
+                        <Check className="text-primary-foreground size-3.5" />
+                      </div>
+                      {option.icon && (
+                        <option.icon className="text-muted-foreground size-4" />
+                      )}
+                      <span>{option.label}</span>
+                      {typeof facets?.get(option.value) === "number" && (
+                        <span className="text-muted-foreground ml-auto flex size-4 items-center justify-center font-mono text-xs">
+                          {facets.get(option.value)}
+                        </span>
+                      )}
+                    </CommandItem>
+                  );
+                })}
+              </ScrollArea>
             </CommandGroup>
             {selectedValues.size > 0 && (
               <>

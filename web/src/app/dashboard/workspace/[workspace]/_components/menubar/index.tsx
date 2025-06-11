@@ -11,9 +11,12 @@ import SortDropdown from "./sort-dropdown";
 import MoreDropdown from "./more-dropdown";
 import { Task } from "@/_types/task";
 import FilterDropdown from "./filter-dropdown";
+import TaskItemBadge from "../task-item/badge";
+import { Tag } from "@/_types/tag";
 
 type Props = Readonly<{
   table: Table<Task>;
+  tags: Tag[];
   sort: "manual" | "dueDate" | "createdAt" | "priority" | undefined;
   filter: string | string[] | undefined;
   views: "list" | "board" | "calendar" | undefined;
@@ -22,13 +25,53 @@ type Props = Readonly<{
 export default function WorkspaceIdMenubar({
   sort,
   table,
+  tags,
 }: Props): JSX.Element {
-  React.useEffect(() => {
-    console.log(
-      "Table data updated",
-      table.getColumn("tags")?.getFacetedUniqueValues(),
-    );
-  }, [table]);
+  const priorityOptions = React.useMemo(
+    () => [
+      {
+        label: "High",
+        value: 3,
+        icon: () => <div className="size-3 rounded-full bg-red-500" />,
+      },
+      {
+        label: "Medium",
+        value: 2,
+        icon: () => <div className="size-3 rounded-full bg-yellow-500" />,
+      },
+      {
+        label: "Low",
+        value: 1,
+        icon: () => <div className="size-3 rounded-full bg-green-500" />,
+      },
+    ],
+    [],
+  );
+
+  const tagOptions = React.useMemo(
+    () =>
+      table
+        .getColumn("tags")!
+        .getFacetedUniqueValues()
+        .keys()
+        .toArray()
+        .map((key) => {
+          const tag = tags.find((t) => t.text === key)!;
+
+          return {
+            label: (
+              <TaskItemBadge
+                disableClose
+                disableTooltip
+                tag={tag}
+                key={tag._id}
+              />
+            ),
+            value: key,
+          };
+        }),
+    [],
+  );
 
   return (
     <WorkspaceMenubar>
@@ -48,25 +91,15 @@ export default function WorkspaceIdMenubar({
       </Button>
 
       <FilterDropdown
+        column={table.getColumn("tags")}
+        title="Tags"
+        options={tagOptions}
+      />
+
+      <FilterDropdown
         column={table.getColumn("priority")}
         title="Priority"
-        options={[
-          {
-            label: "High",
-            value: 3,
-            icon: () => <div className="size-3 rounded-full bg-red-500" />,
-          },
-          {
-            label: "Medium",
-            value: 2,
-            icon: () => <div className="size-3 rounded-full bg-yellow-500" />,
-          },
-          {
-            label: "Low",
-            value: 1,
-            icon: () => <div className="size-3 rounded-full bg-green-500" />,
-          },
-        ]}
+        options={priorityOptions}
       />
 
       <SortDropdown sort={sort} />

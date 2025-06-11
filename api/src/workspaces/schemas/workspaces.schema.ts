@@ -47,7 +47,7 @@ export class Tag {
 export type TagDocument = HydratedDocument<Tag>;
 export const TagSchema = SchemaFactory.createForClass(Tag);
 
-TagSchema.index({ workspaceId: 1, color: 1 }, { unique: true });
+TagSchema.index({ workspaceId: 1, text: 1, color: 1 }, { unique: true });
 
 TagSchema.pre("findOneAndDelete", async function (next) {
   const doc = await this.model.findOne<TagDocument>(this.getFilter());

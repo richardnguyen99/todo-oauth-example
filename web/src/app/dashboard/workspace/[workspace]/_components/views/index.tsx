@@ -46,10 +46,8 @@ function getFacetedTagUniqueValues<TData extends RowData>(): (
 
         const facetedUniqueValues = new Map<string, number>();
 
-        console.log(workspaceTags);
-
         for (const tag of workspaceTags) {
-          const key = `${tag._id}/${tag.text}/${tag.color}`;
+          const key = tag.text;
 
           facetedUniqueValues.set(key, 0);
         }
@@ -62,7 +60,7 @@ function getFacetedTagUniqueValues<TData extends RowData>(): (
             const row = rows[j]!;
 
             for (const tag of row) {
-              const key = `${tag._id}/${tag.text}/${tag.color}`;
+              const key = tag.text;
 
               if (facetedUniqueValues.has(key)) {
                 facetedUniqueValues.set(
@@ -95,20 +93,30 @@ const workspaceSchema = z.object({
       if (val === null || val === undefined) return null;
       return val.split(",").map((v) => parseInt(v, 10));
     }),
+  tags: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((val) => {
+      if (val === null || val === undefined) return null;
+      return val.split(",");
+    }),
   sort: z
     .enum(["manual", "dueDate", "createdAt", "priority"])
     .nullable()
     .optional(),
 });
+
 export default function WorkspaceView({
   workspaceId,
   params,
 }: Props): JSX.Element {
   const searchParams = useSearchParams();
-  const parsedParams = React.useMemo(
+  const parsedParams = React.useMemo<z.infer<typeof workspaceSchema>>(
     () =>
       workspaceSchema.parse({
         priority: searchParams.get("priority"),
+        tags: searchParams.get("tags"),
         sort: searchParams.get("sort"),
       }),
     [searchParams],
@@ -120,6 +128,11 @@ export default function WorkspaceView({
     {
       id: "priority",
       value: parsedParams.priority ?? [],
+    },
+
+    {
+      id: "tags",
+      value: parsedParams.tags ?? [],
     },
   ]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -221,6 +234,7 @@ export default function WorkspaceView({
         filter={params.filter}
         views={params.views}
         table={table}
+        tags={activeWorkspace?.tags ?? []}
       />
 
       <div className="mx-auto mt-3 max-w-4xl px-3">
