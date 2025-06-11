@@ -18,9 +18,11 @@ import { useTaskStore } from "../../_providers/task";
 import { Task } from "@/_types/task";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
+import { invalidateTasks } from "@/lib/fetch-tasks";
 
 type Props = Readonly<{
   params: WorkspaceIdSearchParams;
+  workspaceId: string;
 }>;
 
 const workspaceSchema = z.object({
@@ -37,7 +39,10 @@ const workspaceSchema = z.object({
     .nullable()
     .optional(),
 });
-export default function WorkspaceView({ params }: Props): JSX.Element {
+export default function WorkspaceView({
+  workspaceId,
+  params,
+}: Props): JSX.Element {
   const searchParams = useSearchParams();
   const parsedParams = React.useMemo(
     () =>
@@ -92,7 +97,7 @@ export default function WorkspaceView({ params }: Props): JSX.Element {
     ],
     [],
   );
-  const { tasks } = useTaskStore((s) => s);
+  const { tasks, setStatus: setTaskStatus } = useTaskStore((s) => s);
 
   const table = useReactTable({
     data: tasks,
@@ -105,16 +110,18 @@ export default function WorkspaceView({ params }: Props): JSX.Element {
 
     onSortingChange: setSorting,
     onColumnFiltersChange: (updater) => {
+      invalidateTasks(workspaceId);
       const state =
         updater instanceof Function ? updater(columnFilters) : updater;
 
       setColumnFilters(state);
-      console.log("Column filters changed:", state);
       router.push(
         `${pathname}?${new URLSearchParams([
           ...state.map((f) => [f.id, f.value as string]),
         ])}`,
       );
+
+      setTaskStatus("loading");
     },
     getCoreRowModel: getCoreRowModel(),
     getFacetedRowModel: getFacetedRowModel(),

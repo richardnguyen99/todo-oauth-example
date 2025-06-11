@@ -4,15 +4,25 @@ import { WorkspaceIdSearchParams } from "./_types/props";
 import WorkspaceView from "./_components/views";
 
 type Props = Readonly<{
+  params: Promise<{
+    workspace: string;
+  }>;
   searchParams: Promise<WorkspaceIdSearchParams>;
 }>;
 
 export const dynamic = "force-dynamic";
 
 export default async function WorkspaceIdPage({
+  params,
   searchParams,
 }: Props): Promise<JSX.Element> {
-  const params = await searchParams;
+  const awaitedParams = await params;
+  const awaitedSearchParams = await searchParams;
 
-  return <WorkspaceView params={params} />;
+  return (
+    <WorkspaceView
+      workspaceId={awaitedParams.workspace}
+      params={awaitedSearchParams}
+    />
+  );
 }

@@ -19,11 +19,11 @@ export function withSearchParams(middleware: CustomMiddleware) {
       !referer &&
       (nextUrl.searchParams.get("fallback") ||
         nextUrl.searchParams.get("sort") ||
-        nextUrl.searchParams.get("filter"))
+        nextUrl.searchParams.get("priority"))
     ) {
       nextUrl.searchParams.delete("fallback");
       nextUrl.searchParams.delete("sort");
-      nextUrl.searchParams.delete("filter");
+      nextUrl.searchParams.delete("priority");
 
       const newResponse = NextResponse.redirect(nextUrl.href, {});
 

@@ -17,6 +17,8 @@ import {
 import { invalidateTasks } from "@/lib/fetch-tasks";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { useTaskStore } from "../../_providers/task";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 type Props = Readonly<{
   sort?: WorkspaceIdSearchParams["sort"];
@@ -52,10 +54,20 @@ export default function SortDropdown({ sort }: Props): JSX.Element {
       <DropdownMenuTrigger asChild>
         <Button
           variant={sort ? "secondary" : "outline"}
-          className="h-7 cursor-pointer"
+          size="sm"
+          className="h-8"
         >
           <ChartBarIncreasing className="h-4 w-4" />
           <span>Sort</span>
+
+          {sort ? (
+            <>
+              <Separator orientation="vertical" className="mx-2 h-4" />
+              <Badge variant="outline" className="rounded-sm px-1 font-normal">
+                {sort}
+              </Badge>
+            </>
+          ) : null}
         </Button>
       </DropdownMenuTrigger>
 
