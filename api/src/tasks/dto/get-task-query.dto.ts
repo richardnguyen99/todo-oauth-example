@@ -16,6 +16,13 @@ export const getTaskQueryDtoSchema = z.object({
     .enum(["manual", "createdAt", "dueDate", "priority"])
     .optional()
     .default("manual"),
+
+  priority: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((value) => (value ? value.split(",").map(Number) : []))
+    .pipe(z.array(z.number().int().gte(1).lte(3))),
 });
 
 export type GetTaskQueryDto = z.infer<typeof getTaskQueryDtoSchema>;
