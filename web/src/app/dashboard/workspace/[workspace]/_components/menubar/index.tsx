@@ -26,7 +26,7 @@ export default function WorkspaceIdMenubar({
   React.useEffect(() => {
     console.log(
       "Table data updated",
-      table.getColumn("title")?.getFacetedUniqueValues(),
+      table.getColumn("tags")?.getFacetedUniqueValues(),
     );
   }, [table]);
 
