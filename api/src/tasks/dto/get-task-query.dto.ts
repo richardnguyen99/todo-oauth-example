@@ -23,6 +23,16 @@ export const getTaskQueryDtoSchema = z.object({
     .optional()
     .transform((value) => (value ? value.split(",").map(Number) : []))
     .pipe(z.array(z.number().int().gte(1).lte(3))),
+
+  tags: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((val) => {
+      if (!val) return [];
+      const tags = val.split(",").map((tag) => tag.trim());
+      return tags.length > 0 ? tags : [];
+    }),
 });
 
 export type GetTaskQueryDto = z.infer<typeof getTaskQueryDtoSchema>;

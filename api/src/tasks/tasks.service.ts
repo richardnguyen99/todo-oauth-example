@@ -64,9 +64,11 @@ export class TasksService {
       },
     ];
 
-    console.log("Query:", query);
-
-    if (query.sort === "manual" && query.priority.length === 0) {
+    if (
+      query.sort === "manual" &&
+      query.priority.length === 0 &&
+      query.tags.length === 0
+    ) {
       const tasks = (
         await workspace.populate<{ taskIds: TaskDocument[] }>(populateOptions)
       ).taskIds;
@@ -129,7 +131,33 @@ export class TasksService {
       .unwind({
         path: "$workspace",
         preserveNullAndEmptyArrays: true,
+      });
+
+    someTasks
+      .addFields({
+        tagIds: "$tags", // Add a new field tagIds to the document
       })
+      .project({
+        tags: false, // Exclude the tagIds field if needed
+      })
+      .lookup({
+        from: "tags",
+        localField: "tagIds",
+        foreignField: "_id",
+        as: "tags",
+      });
+
+    if (query.tags && query.tags.length > 0) {
+      someTasks.match({
+        tags: {
+          $elemMatch: {
+            text: { $in: query.tags }, // Match any tag with text in the provided tags
+          },
+        },
+      });
+    }
+
+    someTasks
       .lookup({
         from: "users",
         localField: "createdBy",
@@ -185,18 +213,6 @@ export class TasksService {
       .unwind({
         path: "$completedByUser",
         preserveNullAndEmptyArrays: true,
-      })
-      .addFields({
-        tagIds: "$tags", // Add a new field tagIds to the document
-      })
-      .project({
-        tags: false, // Exclude the tagIds field if needed
-      })
-      .lookup({
-        from: "tags",
-        localField: "tagIds",
-        foreignField: "_id",
-        as: "tags",
       });
 
     return await someTasks.exec();
