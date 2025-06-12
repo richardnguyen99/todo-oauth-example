@@ -12,11 +12,11 @@ export function withSearchParams(middleware: CustomMiddleware) {
     const nextUrl = request.nextUrl;
     const searchParams = nextUrl.searchParams.toString();
     const url = request.url;
-    const referer = request.headers.get("referer");
+    const rscHeader = request.headers.get("Next-Url");
 
     if (
       url.includes("/task/") &&
-      !referer &&
+      !rscHeader &&
       (nextUrl.searchParams.get("fallback") ||
         nextUrl.searchParams.get("sort") ||
         nextUrl.searchParams.get("priority"))

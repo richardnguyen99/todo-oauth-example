@@ -201,9 +201,18 @@ export default function WorkspaceView({
         updater instanceof Function ? updater(columnFilters) : updater;
 
       setColumnFilters(state);
+
       router.push(
         `${pathname}?${new URLSearchParams([
-          ...state.map((f) => [f.id, f.value as string]),
+          ...state
+            .filter((f) => {
+              if (f.id === "priority" || f.id === "tags") {
+                return (f.value as string[]).length > 0;
+              }
+
+              return f.value !== undefined && f.value !== null;
+            })
+            .map((f) => [f.id, f.value as string]),
         ])}`,
       );
 

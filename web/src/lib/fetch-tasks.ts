@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 export const fetchTasks = async (
@@ -34,5 +34,5 @@ export const fetchTasks = async (
 
 export const invalidateTasks = async (workspaceId: string) => {
   revalidateTag(`fetch-tasks-${workspaceId}`);
-  revalidatePath(`/dashboard/workspace/${workspaceId}`);
+  // revalidatePath(`/dashboard/workspace/${workspaceId}`);
 };

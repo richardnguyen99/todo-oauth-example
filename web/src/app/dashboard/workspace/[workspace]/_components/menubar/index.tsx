@@ -10,9 +10,8 @@ import WorkspaceMenubar from "../../../_components/workspace-menubar";
 import SortDropdown from "./sort-dropdown";
 import MoreDropdown from "./more-dropdown";
 import { Task } from "@/_types/task";
-import FilterDropdown from "./filter-dropdown";
-import TaskItemBadge from "../task-item/badge";
 import { Tag } from "@/_types/tag";
+import FilterDropdown from "./filter-dropdown";
 
 type Props = Readonly<{
   table: Table<Task>;
@@ -27,51 +26,9 @@ export default function WorkspaceIdMenubar({
   table,
   tags,
 }: Props): JSX.Element {
-  const priorityOptions = React.useMemo(
-    () => [
-      {
-        label: "High",
-        value: 3,
-        icon: () => <div className="size-3 rounded-full bg-red-500" />,
-      },
-      {
-        label: "Medium",
-        value: 2,
-        icon: () => <div className="size-3 rounded-full bg-yellow-500" />,
-      },
-      {
-        label: "Low",
-        value: 1,
-        icon: () => <div className="size-3 rounded-full bg-green-500" />,
-      },
-    ],
-    [],
-  );
-
-  const tagOptions = React.useMemo(
-    () =>
-      table
-        .getColumn("tags")!
-        .getFacetedUniqueValues()
-        .keys()
-        .toArray()
-        .map((key) => {
-          const tag = tags.find((t) => t.text === key)!;
-
-          return {
-            label: (
-              <TaskItemBadge
-                disableClose
-                disableTooltip
-                tag={tag}
-                key={tag._id}
-              />
-            ),
-            value: key,
-          };
-        }),
-    [],
-  );
+  React.useEffect(() => {
+    console.log(table.getState().columnFilters);
+  }, [table]);
 
   return (
     <WorkspaceMenubar>
@@ -90,17 +47,7 @@ export default function WorkspaceIdMenubar({
         <span>Views</span>
       </Button>
 
-      <FilterDropdown
-        column={table.getColumn("tags")}
-        title="Tags"
-        options={tagOptions}
-      />
-
-      <FilterDropdown
-        column={table.getColumn("priority")}
-        title="Priority"
-        options={priorityOptions}
-      />
+      <FilterDropdown table={table} tags={tags} />
 
       <SortDropdown sort={sort} />
 

@@ -26,7 +26,6 @@ export function withAuth(middleware: CustomMiddleware) {
         `${process.env.NEXT_PUBLIC_API_URL}/auth/verify`,
         {
           method: "GET",
-          cache: "no-store",
           credentials: "include",
           headers: {
             Cookie: request.cookies.toString(),
