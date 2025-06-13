@@ -84,6 +84,115 @@ function getFacetedTagUniqueValues<TData extends RowData>(): (
     );
 }
 
+function getFacetedDueDateUniqueValues<TData extends RowData>(): (
+  table: Table<TData>,
+  columnId: string,
+) => () => Map<string, number> {
+  return (table, columnId) =>
+    memo(
+      () => [table.getColumn(columnId)?.getFacetedRowModel()],
+      (facetedRowModel) => {
+        if (!facetedRowModel) return new Map();
+
+        const facetedUniqueValues = new Map<string, number>();
+
+        const today = new Date();
+        const tomorrow = new Date();
+        const weekFromNow = new Date();
+        const monthFromNow = new Date();
+
+        // set today to the end of the day
+        today.setHours(23, 59, 59, 999);
+        tomorrow.setDate(today.getDate() + 1);
+        weekFromNow.setDate(today.getDate() + 7);
+        monthFromNow.setMonth(today.getMonth() + 1);
+
+        const dueDateCategories = [
+          "none",
+          "overdue",
+          "today",
+          "tomorrow",
+          "week",
+          "month",
+        ];
+
+        for (const category of dueDateCategories) {
+          facetedUniqueValues.set(category, 0);
+        }
+
+        for (let i = 0; i < facetedRowModel.flatRows.length; i++) {
+          const rows =
+            facetedRowModel.flatRows[i]!.getUniqueValues<Date>(columnId);
+
+          for (let j = 0; j < rows.length; j++) {
+            const dueDate = rows[j]!;
+
+            if (!dueDate) {
+              facetedUniqueValues.set(
+                "none",
+                (facetedUniqueValues.get("none") ?? 0) + 1,
+              );
+
+              continue;
+            }
+
+            if (dueDate.getDate() < today.getDate()) {
+              facetedUniqueValues.set(
+                "overdue",
+                (facetedUniqueValues.get("overdue") ?? 0) + 1,
+              );
+
+              continue;
+            }
+
+            if (dueDate.getDate() === today.getDate()) {
+              facetedUniqueValues.set(
+                "today",
+                (facetedUniqueValues.get("today") ?? 0) + 1,
+              );
+
+              continue;
+            }
+
+            if (dueDate.getDate() <= tomorrow.getDate()) {
+              facetedUniqueValues.set(
+                "tomorrow",
+                (facetedUniqueValues.get("tomorrow") ?? 0) + 1,
+              );
+
+              continue;
+            }
+
+            if (dueDate <= weekFromNow) {
+              facetedUniqueValues.set(
+                "week",
+                (facetedUniqueValues.get("week") ?? 0) + 1,
+              );
+
+              continue;
+            }
+
+            if (dueDate <= monthFromNow) {
+              facetedUniqueValues.set(
+                "month",
+                (facetedUniqueValues.get("month") ?? 0) + 1,
+              );
+
+              continue;
+            }
+          }
+        }
+
+        return facetedUniqueValues;
+      },
+      getMemoOptions(
+        table.options,
+        "debugTable",
+        `getFacetedUniqueValues_${columnId}`,
+      ),
+    );
+}
+
 const workspaceSchema = z.object({
   priority: z
     .string()
@@ -118,6 +227,11 @@ const workspaceSchema = z.object({
       return val === "true";
     }),
 
+  dueDate: z
+    .enum(["none", "overdue", "today", "tomorrow", "week", "month"])
+    .nullable()
+    .optional(),
+
   sort: z
     .enum(["manual", "dueDate", "createdAt", "priority"])
     .nullable()
@@ -136,6 +250,7 @@ export default function WorkspaceView({
         tags: searchParams.get("tags"),
         sort: searchParams.get("sort"),
         completed: searchParams.get("completed"),
+        dueDate: searchParams.get("dueDate"),
       }),
     [searchParams],
   );
@@ -156,6 +271,11 @@ export default function WorkspaceView({
     {
       id: "completed",
       value: parsedParams.completed ?? undefined,
+    },
+
+    {
+      id: "dueDate",
+      value: parsedParams.dueDate ?? undefined,
     },
   ]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -255,6 +375,10 @@ export default function WorkspaceView({
           columnId,
           activeWorkspace?.tags ?? [],
         );
+      }
+
+      if (columnId === "dueDate") {
+        return getFacetedDueDateUniqueValues<Task>()(table, columnId);
       }
 
       return getFacetedUniqueValues<Task>()(table, columnId);

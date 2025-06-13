@@ -2,7 +2,20 @@
 
 import React, { type JSX } from "react";
 import { Column, Table } from "@tanstack/react-table";
-import { CreditCard, Settings, User, Filter, Check, X } from "lucide-react";
+import {
+  CreditCard,
+  Settings,
+  User,
+  Filter,
+  Check,
+  X,
+  AlarmClockOff,
+  ClockAlert,
+  Clock12,
+  Clock3,
+  Clock6,
+  Clock5,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -119,13 +132,13 @@ function FilterSingleComboBox<TData, TValue, TLabelValue>({
           >
             <div
               className={cn(
-                "flex size-4 items-center justify-center rounded-[4px] border",
+                "flex size-4 items-center justify-center rounded-full border",
                 isSelected
-                  ? "bg-primary border-primary text-primary-foreground"
-                  : "border-input [&_svg]:invisible",
+                  ? "border-primary text-primary-foreground"
+                  : "border-input [&_div]:invisible",
               )}
             >
-              <Check className="text-primary-foreground size-3.5" />
+              <div className="bg-primary size-2.5 rounded-full" />
             </div>
             {option.icon && (
               <option.icon className="text-muted-foreground size-4" />
@@ -160,8 +173,8 @@ export default function FilterDropdown({ table, tags }: Props): JSX.Element {
       )
         return null;
 
-      if (filter.id === "completed") {
-        return [[filter.id, filter.value as boolean]];
+      if (filter.id === "completed" || filter.id === "dueDate") {
+        return [[filter.id, filter.value]];
       }
 
       const val = filter.value as unknown[];
@@ -217,6 +230,42 @@ export default function FilterDropdown({ table, tags }: Props): JSX.Element {
           };
         }),
     [table, tags],
+  );
+
+  const dueDateOptions = React.useMemo(
+    () => [
+      {
+        label: "No due date",
+        value: "none",
+        icon: AlarmClockOff,
+      },
+      {
+        label: "Overdue",
+        value: "overdue",
+        icon: ClockAlert,
+      },
+      {
+        label: "Today",
+        value: "today",
+        icon: Clock12,
+      },
+      {
+        label: "Tomorrow",
+        value: "tomorrow",
+        icon: Clock3,
+      },
+      {
+        label: "This week",
+        value: "week",
+        icon: Clock5,
+      },
+      {
+        label: "Next month",
+        value: "month",
+        icon: Clock6,
+      },
+    ],
+    [],
   );
 
   const completeOptions = React.useMemo(
@@ -281,23 +330,13 @@ export default function FilterDropdown({ table, tags }: Props): JSX.Element {
               options={tagOptions}
             />
 
-            <CommandGroup heading="Due date">
-              <CommandItem>
-                <User />
-                <span>Something 7</span>
-                <CommandShortcut>⌘P</CommandShortcut>
-              </CommandItem>
-              <CommandItem>
-                <CreditCard />
-                <span>Something 8</span>
-                <CommandShortcut>⌘B</CommandShortcut>
-              </CommandItem>
-              <CommandItem>
-                <Settings />
-                <span>Something 9</span>
-                <CommandShortcut>⌘S</CommandShortcut>
-              </CommandItem>
-            </CommandGroup>
+            <CommandSeparator />
+
+            <FilterSingleComboBox
+              column={table.getColumn("dueDate")}
+              title="Due date"
+              options={dueDateOptions}
+            />
           </CommandList>
         </Command>
       </PopoverContent>
