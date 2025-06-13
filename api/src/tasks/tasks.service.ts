@@ -67,7 +67,8 @@ export class TasksService {
     if (
       query.sort === "manual" &&
       query.priority.length === 0 &&
-      query.tags.length === 0
+      query.tags.length === 0 &&
+      query.completed === undefined
     ) {
       const tasks = (
         await workspace.populate<{ taskIds: TaskDocument[] }>(populateOptions)
@@ -94,17 +95,10 @@ export class TasksService {
         workspaceId: new mongoose.Types.ObjectId(query["workspace_id"]),
       });
 
-    if (query.sort !== "manual") {
-      const sortMeta: mongoose.PipelineStage.Sort["$sort"] = {};
-      if (query.sort === "createdAt") {
-        sortMeta.createdAt = -1;
-      } else if (query.sort === "dueDate") {
-        sortMeta.nonNullDueDate = -1; // Sort by dueDate, treating nulls as the earliest date
-      } else if (query.sort === "priority") {
-        sortMeta.priority = -1; // Sort by priority, assuming higher numbers are more important
-      }
-
-      someTasks.sort(sortMeta);
+    if (query.completed !== undefined) {
+      someTasks.match({
+        completed: query.completed,
+      });
     }
 
     if (query.priority && query.priority.length > 0) {
@@ -112,26 +106,6 @@ export class TasksService {
         priority: { $in: query.priority },
       });
     }
-
-    someTasks
-      .lookup({
-        from: "workspaces",
-        localField: "workspaceId",
-        foreignField: "_id",
-        let: { u: "$workspaceId" },
-        as: "workspace",
-        pipeline: [
-          {
-            $project: {
-              __v: false, // Exclude the __v field if needed
-            },
-          },
-        ],
-      })
-      .unwind({
-        path: "$workspace",
-        preserveNullAndEmptyArrays: true,
-      });
 
     someTasks
       .addFields({
@@ -156,6 +130,39 @@ export class TasksService {
         },
       });
     }
+
+    if (query.sort !== "manual") {
+      const sortMeta: mongoose.PipelineStage.Sort["$sort"] = {};
+      if (query.sort === "createdAt") {
+        sortMeta.createdAt = -1;
+      } else if (query.sort === "dueDate") {
+        sortMeta.nonNullDueDate = -1; // Sort by dueDate, treating nulls as the earliest date
+      } else if (query.sort === "priority") {
+        sortMeta.priority = -1; // Sort by priority, assuming higher numbers are more important
+      }
+
+      someTasks.sort(sortMeta);
+    }
+
+    someTasks
+      .lookup({
+        from: "workspaces",
+        localField: "workspaceId",
+        foreignField: "_id",
+        let: { u: "$workspaceId" },
+        as: "workspace",
+        pipeline: [
+          {
+            $project: {
+              __v: false, // Exclude the __v field if needed
+            },
+          },
+        ],
+      })
+      .unwind({
+        path: "$workspace",
+        preserveNullAndEmptyArrays: true,
+      });
 
     someTasks
       .lookup({
