@@ -69,7 +69,7 @@ export default function SidebarWorkspaceItem({
         )}
         tooltip={!open ? workspace.title : undefined}
       >
-        <Link href={`/dashboard/workspace/${workspace._id}`}>
+        <Link href={`/dashboard/workspace/${workspace._id}`} prefetch={false}>
           {renderIcon(workspace.icon, workspace.color)}
           <span>{workspace.title}</span>
         </Link>

@@ -78,7 +78,7 @@ export default function WorkspaceSidebar({
                       asChild
                       className="group-data-[collapsible=icon]:!p-0"
                     >
-                      <Link href={`/dashboard/workspace/`}>
+                      <Link href="#">
                         <div
                           className={cn(
                             "bg-accent flex aspect-square size-8 items-center justify-center rounded-md",
@@ -96,7 +96,7 @@ export default function WorkspaceSidebar({
                       asChild
                       className="group-data-[collapsible=icon]:!p-0"
                     >
-                      <Link href={`/dashboard/workspace/`}>
+                      <Link href="#">
                         <div
                           className={cn(
                             "bg-accent flex aspect-square size-8 items-center justify-center rounded-md",
@@ -114,7 +114,7 @@ export default function WorkspaceSidebar({
                       asChild
                       className="group-data-[collapsible=icon]:!p-0"
                     >
-                      <Link href={`/dashboard/workspace/`}>
+                      <Link href="#">
                         <div
                           className={cn(
                             "bg-accent flex aspect-square size-8 items-center justify-center rounded-md",

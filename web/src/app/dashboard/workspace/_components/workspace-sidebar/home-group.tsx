@@ -47,7 +47,10 @@ export default function SidebarHomeGroup({
             asChild
             className="group-data-[collapsible=icon]:!p-0"
           >
-            <Link href={`/dashboard/workspace/${activeWorkspaceId}/inbox`}>
+            <Link
+              href={`/dashboard/workspace/${activeWorkspaceId}/inbox`}
+              prefetch={false}
+            >
               <div
                 className={cn(
                   "bg-accent flex aspect-square size-8 items-center justify-center rounded-md",
@@ -65,7 +68,10 @@ export default function SidebarHomeGroup({
             asChild
             className="group-data-[collapsible=icon]:!p-0"
           >
-            <Link href={`/dashboard/workspace/${activeWorkspaceId}/members`}>
+            <Link
+              href={`/dashboard/workspace/${activeWorkspaceId}/members`}
+              prefetch={false}
+            >
               <div
                 className={cn(
                   "bg-accent flex aspect-square size-8 items-center justify-center rounded-md",

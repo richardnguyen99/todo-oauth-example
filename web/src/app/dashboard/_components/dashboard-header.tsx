@@ -37,6 +37,7 @@ export default function DashboardHeader({
           <Link
             href="/dashboard"
             className="flex items-center gap-2 text-xl font-bold"
+            prefetch={false}
           >
             <LucideReact.CheckCircle className="text-primary h-6 w-6" />
             <span>TaskMaster</span>
