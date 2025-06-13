@@ -93,6 +93,7 @@ const workspaceSchema = z.object({
       if (val === null || val === undefined) return null;
       return val.split(",").map((v) => parseInt(v, 10));
     }),
+
   tags: z
     .string()
     .nullable()
@@ -101,6 +102,22 @@ const workspaceSchema = z.object({
       if (val === null || val === undefined) return null;
       return val.split(",");
     }),
+
+  completed: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((val) => {
+      if (
+        val === null ||
+        val === undefined ||
+        (val !== "true" && val !== "false")
+      )
+        return null;
+
+      return val === "true";
+    }),
+
   sort: z
     .enum(["manual", "dueDate", "createdAt", "priority"])
     .nullable()
@@ -118,6 +135,7 @@ export default function WorkspaceView({
         priority: searchParams.get("priority"),
         tags: searchParams.get("tags"),
         sort: searchParams.get("sort"),
+        completed: searchParams.get("completed"),
       }),
     [searchParams],
   );
@@ -133,6 +151,11 @@ export default function WorkspaceView({
     {
       id: "tags",
       value: parsedParams.tags ?? [],
+    },
+
+    {
+      id: "completed",
+      value: parsedParams.completed ?? undefined,
     },
   ]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -171,6 +194,11 @@ export default function WorkspaceView({
       {
         accessorKey: "tags",
         header: "Tags",
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: "completed",
+        header: "Completed",
         cell: (info) => info.getValue(),
       },
     ],

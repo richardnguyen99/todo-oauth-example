@@ -2,16 +2,7 @@
 
 import React, { type JSX } from "react";
 import { Column, Table } from "@tanstack/react-table";
-import {
-  Calculator,
-  Calendar,
-  CreditCard,
-  Settings,
-  Smile,
-  User,
-  Filter,
-  Check,
-} from "lucide-react";
+import { CreditCard, Settings, User, Filter, Check, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -50,7 +41,7 @@ interface DataTableFacetedFilterProps<
   }[];
 }
 
-function FilterComboBox<TData, TValue, TLabelValue>({
+function FilterMultipleComboBox<TData, TValue, TLabelValue>({
   column,
   options,
   title,
@@ -105,6 +96,53 @@ function FilterComboBox<TData, TValue, TLabelValue>({
   );
 }
 
+function FilterSingleComboBox<TData, TValue, TLabelValue>({
+  column,
+  options,
+  title,
+}: DataTableFacetedFilterProps<TData, TValue, TLabelValue>): JSX.Element {
+  const facets = column?.getFacetedUniqueValues();
+  const selectedValue = column?.getFilterValue() as TLabelValue;
+
+  return (
+    <CommandGroup heading={title}>
+      {options.map((option) => {
+        const isSelected = selectedValue === option.value;
+
+        return (
+          <CommandItem
+            key={option.value as string}
+            className="cursor-pointer"
+            onSelect={() => {
+              column?.setFilterValue(isSelected ? undefined : option.value);
+            }}
+          >
+            <div
+              className={cn(
+                "flex size-4 items-center justify-center rounded-[4px] border",
+                isSelected
+                  ? "bg-primary border-primary text-primary-foreground"
+                  : "border-input [&_svg]:invisible",
+              )}
+            >
+              <Check className="text-primary-foreground size-3.5" />
+            </div>
+            {option.icon && (
+              <option.icon className="text-muted-foreground size-4" />
+            )}
+            <span>{option.label}</span>
+            {typeof facets?.get(option.value) === "number" && (
+              <span className="text-muted-foreground ml-auto flex size-4 items-center justify-center font-mono text-xs">
+                {facets.get(option.value)}
+              </span>
+            )}
+          </CommandItem>
+        );
+      })}
+    </CommandGroup>
+  );
+}
+
 type Props = Readonly<{
   table: Table<Task>;
   tags: Tag[];
@@ -115,7 +153,16 @@ export default function FilterDropdown({ table, tags }: Props): JSX.Element {
   const filters = table
     .getState()
     .columnFilters.map((filter) => {
-      if (!filter.id || !filter.value) return null;
+      if (
+        !filter.id ||
+        typeof filter.value === "undefined" ||
+        filter.value === null
+      )
+        return null;
+
+      if (filter.id === "completed") {
+        return [[filter.id, filter.value as boolean]];
+      }
 
       const val = filter.value as unknown[];
 
@@ -172,6 +219,22 @@ export default function FilterDropdown({ table, tags }: Props): JSX.Element {
     [table, tags],
   );
 
+  const completeOptions = React.useMemo(
+    () => [
+      {
+        label: "Completed",
+        value: true,
+        icon: Check,
+      },
+      {
+        label: "Not completed",
+        value: false,
+        icon: X,
+      },
+    ],
+    [],
+  );
+
   return (
     <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
@@ -195,26 +258,16 @@ export default function FilterDropdown({ table, tags }: Props): JSX.Element {
 
       <PopoverContent align="end" className="w-[450px] p-0">
         <Command className="rounded-lg border shadow-md md:min-w-[450px]">
-          <CommandInput placeholder="Type a command or search..." />
+          <CommandInput placeholder="Type a filter to search..." />
           <CommandList className="max-h-[500px]">
             <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup heading="Card completion">
-              <CommandItem>
-                <Calendar />
-                <span>Calendar</span>
-              </CommandItem>
-              <CommandItem>
-                <Smile />
-                <span>Search Emoji</span>
-              </CommandItem>
-              <CommandItem disabled>
-                <Calculator />
-                <span>Calculator</span>
-              </CommandItem>
-            </CommandGroup>
-            <CommandSeparator />
+            <FilterSingleComboBox
+              column={table.getColumn("completed")}
+              title="Card completion"
+              options={completeOptions}
+            />
 
-            <FilterComboBox
+            <FilterMultipleComboBox
               column={table.getColumn("priority")}
               title="Priority"
               options={priorityOptions}
@@ -222,7 +275,7 @@ export default function FilterDropdown({ table, tags }: Props): JSX.Element {
 
             <CommandSeparator />
 
-            <FilterComboBox
+            <FilterMultipleComboBox
               column={table.getColumn("tags")}
               title="Tags"
               options={tagOptions}
