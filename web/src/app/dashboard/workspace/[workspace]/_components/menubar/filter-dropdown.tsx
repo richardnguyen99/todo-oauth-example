@@ -33,6 +33,8 @@ import { cn } from "@/lib/utils";
 import { Task } from "@/_types/task";
 import { Tag } from "@/_types/tag";
 import TaskItemBadge from "../task-item/badge";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 interface DataTableFacetedFilterProps<
   TData,
@@ -110,6 +112,19 @@ type Props = Readonly<{
 
 export default function FilterDropdown({ table, tags }: Props): JSX.Element {
   const [open, setOpen] = React.useState(false);
+  const filters = table
+    .getState()
+    .columnFilters.map((filter) => {
+      if (!filter.id || !filter.value) return null;
+
+      const val = filter.value as unknown[];
+
+      if (val.length === 0) return null;
+
+      return val.map((v) => [filter.id, v]);
+    })
+    .filter((n) => n !== null)
+    .flatMap((n) => n);
 
   const priorityOptions = React.useMemo(
     () => [
@@ -160,9 +175,21 @@ export default function FilterDropdown({ table, tags }: Props): JSX.Element {
   return (
     <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8">
+        <Button
+          variant={filters.length > 0 ? "secondary" : "outline"}
+          size="sm"
+          className="h-8"
+        >
           <Filter />
           Filter
+          {filters.length > 0 && (
+            <>
+              <Separator orientation="vertical" className="mx-2 h-4" />
+              <Badge variant="outline" className="rounded-sm px-1 font-normal">
+                {filters.length} filter{filters.length > 1 ? "s" : ""}
+              </Badge>
+            </>
+          )}
         </Button>
       </PopoverTrigger>
 

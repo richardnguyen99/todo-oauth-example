@@ -26,10 +26,6 @@ export default function WorkspaceIdMenubar({
   table,
   tags,
 }: Props): JSX.Element {
-  React.useEffect(() => {
-    console.log(table.getState().columnFilters);
-  }, [table]);
-
   return (
     <WorkspaceMenubar>
       <Separator orientation="vertical" className="mr-2 !h-5" />
