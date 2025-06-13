@@ -136,49 +136,51 @@ function getFacetedDueDateUniqueValues<TData extends RowData>(): (
               continue;
             }
 
-            if (dueDate.getDate() < today.getDate()) {
+            if (dueDate < new Date(new Date().setHours(0, 0, 0, 0))) {
               facetedUniqueValues.set(
                 "overdue",
                 (facetedUniqueValues.get("overdue") ?? 0) + 1,
               );
-
-              continue;
             }
 
-            if (dueDate.getDate() === today.getDate()) {
+            if (
+              dueDate >= new Date(new Date().setHours(0, 0, 0, 0)) &&
+              dueDate <= today
+            ) {
               facetedUniqueValues.set(
                 "today",
                 (facetedUniqueValues.get("today") ?? 0) + 1,
               );
-
-              continue;
             }
 
-            if (dueDate.getDate() <= tomorrow.getDate()) {
+            if (
+              dueDate >= new Date(new Date().setHours(0, 0, 0, 0)) &&
+              dueDate <= new Date(tomorrow.setHours(23, 59, 59, 999))
+            ) {
               facetedUniqueValues.set(
                 "tomorrow",
                 (facetedUniqueValues.get("tomorrow") ?? 0) + 1,
               );
-
-              continue;
             }
 
-            if (dueDate <= weekFromNow) {
+            if (
+              dueDate >= new Date(new Date().setHours(0, 0, 0, 0)) &&
+              dueDate <= new Date(weekFromNow.setHours(23, 59, 59, 999))
+            ) {
               facetedUniqueValues.set(
                 "week",
                 (facetedUniqueValues.get("week") ?? 0) + 1,
               );
-
-              continue;
             }
 
-            if (dueDate <= monthFromNow) {
+            if (
+              dueDate >= new Date(new Date().setHours(0, 0, 0, 0)) &&
+              dueDate <= new Date(monthFromNow.setHours(23, 59, 59, 999))
+            ) {
               facetedUniqueValues.set(
                 "month",
                 (facetedUniqueValues.get("month") ?? 0) + 1,
               );
-
-              continue;
             }
           }
         }

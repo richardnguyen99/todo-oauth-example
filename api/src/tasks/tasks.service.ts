@@ -68,7 +68,8 @@ export class TasksService {
       query.sort === "manual" &&
       query.priority.length === 0 &&
       query.tags.length === 0 &&
-      query.completed === undefined
+      query.completed === undefined &&
+      query.dueDate === undefined
     ) {
       const tasks = (
         await workspace.populate<{ taskIds: TaskDocument[] }>(populateOptions)
@@ -129,6 +130,57 @@ export class TasksService {
           },
         },
       });
+    }
+
+    if (query.dueDate) {
+      const today = new Date();
+      const tomorrow = new Date();
+      const weekFromNow = new Date();
+      const monthFromNow = new Date();
+
+      // set today to the end of the day
+      today.setHours(23, 59, 59, 999);
+      tomorrow.setDate(today.getDate() + 1);
+      weekFromNow.setDate(today.getDate() + 7);
+      monthFromNow.setMonth(today.getMonth() + 1);
+
+      if (query.dueDate === "none") {
+        someTasks.match({
+          dueDate: null,
+        });
+      } else if (query.dueDate === "overdue") {
+        someTasks.match({
+          dueDate: { $lt: new Date(new Date().setHours(0, 0, 0, 0)) },
+        });
+      } else if (query.dueDate === "today") {
+        someTasks.match({
+          dueDate: {
+            $gte: new Date(new Date().setHours(0, 0, 0, 0)),
+            $lte: new Date(new Date().setHours(23, 59, 59, 999)),
+          },
+        });
+      } else if (query.dueDate === "tomorrow") {
+        someTasks.match({
+          dueDate: {
+            $gte: new Date(new Date().setHours(0, 0, 0, 0)),
+            $lte: new Date(tomorrow.setHours(23, 59, 59, 999)),
+          },
+        });
+      } else if (query.dueDate === "week") {
+        someTasks.match({
+          dueDate: {
+            $gte: new Date(new Date().setHours(0, 0, 0, 0)),
+            $lte: new Date(weekFromNow.setHours(23, 59, 59, 999)),
+          },
+        });
+      } else if (query.dueDate === "month") {
+        someTasks.match({
+          dueDate: {
+            $gte: new Date(new Date().setHours(0, 0, 0, 0)),
+            $lte: new Date(monthFromNow.setHours(23, 59, 59, 999)),
+          },
+        });
+      }
     }
 
     if (query.sort !== "manual") {

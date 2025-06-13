@@ -42,6 +42,10 @@ export const getTaskQueryDtoSchema = z.object({
       if (val === "false") return false;
       return undefined;
     }),
+
+  dueDate: z
+    .enum(["none", "overdue", "today", "tomorrow", "week", "month"])
+    .optional(),
 });
 
 export type GetTaskQueryDto = z.infer<typeof getTaskQueryDtoSchema>;

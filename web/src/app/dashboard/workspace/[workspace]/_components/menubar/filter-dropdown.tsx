@@ -3,9 +3,6 @@
 import React, { type JSX } from "react";
 import { Column, Table } from "@tanstack/react-table";
 import {
-  CreditCard,
-  Settings,
-  User,
   Filter,
   Check,
   X,
@@ -26,7 +23,6 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
 import {
   Popover,
