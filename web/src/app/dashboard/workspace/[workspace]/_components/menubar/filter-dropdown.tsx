@@ -285,16 +285,21 @@ export default function FilterDropdown({ table, tags }: Props): JSX.Element {
       <PopoverTrigger asChild>
         <Button
           variant={filters.length > 0 ? "secondary" : "outline"}
-          size="sm"
-          className="h-8"
+          size={filters.length > 0 ? "sm" : "icon"}
+          className={cn("h-7", {
+            "w-7": filters.length === 0,
+          })}
         >
-          <Filter />
-          Filter
+          <Filter
+            className={cn({
+              "stroke-sky-400 dark:stroke-sky-300": filters.length > 0,
+            })}
+          />
           {filters.length > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
-              <Badge variant="outline" className="rounded-sm px-1 font-normal">
-                {filters.length} filter{filters.length > 1 ? "s" : ""}
+              <Badge variant="outline" className="rounded-full font-normal">
+                {filters.length}
               </Badge>
             </>
           )}

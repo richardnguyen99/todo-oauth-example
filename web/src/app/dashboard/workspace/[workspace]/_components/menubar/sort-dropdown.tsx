@@ -17,8 +17,7 @@ import {
 import { invalidateTasks } from "@/lib/fetch-tasks";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { useTaskStore } from "../../_providers/task";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 type Props = Readonly<{
   sort?: WorkspaceIdSearchParams["sort"];
@@ -49,25 +48,21 @@ export default function SortDropdown({ sort }: Props): JSX.Element {
     [activeWorkspace, router, pathname, searchParams, setTaskStatus],
   );
 
+  console.log("sort", sort);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant={sort ? "secondary" : "outline"}
-          size="sm"
-          className="h-8"
+          size={!sort ? "sm" : "icon"}
+          className={cn("h-7 w-7")}
         >
-          <ChartBarIncreasing className="h-4 w-4" />
-          <span>Sort</span>
-
-          {sort ? (
-            <>
-              <Separator orientation="vertical" className="mx-2 h-4" />
-              <Badge variant="outline" className="rounded-sm px-1 font-normal">
-                {sort}
-              </Badge>
-            </>
-          ) : null}
+          <ChartBarIncreasing
+            className={cn({
+              "stroke-sky-400 dark:stroke-sky-300": sort,
+            })}
+          />
         </Button>
       </DropdownMenuTrigger>
 

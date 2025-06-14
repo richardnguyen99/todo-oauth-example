@@ -38,9 +38,8 @@ export default function WorkspaceIdMenubar({
         </Button>
       </AddTaskDialog>
 
-      <Button variant="outline" className="h-7 cursor-pointer">
+      <Button variant="outline" size="icon" className="size-7 cursor-pointer">
         <Columns2 className="h-4 w-4" />
-        <span>Views</span>
       </Button>
 
       <FilterDropdown table={table} tags={tags} />
