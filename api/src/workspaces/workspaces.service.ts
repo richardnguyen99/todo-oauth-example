@@ -729,6 +729,7 @@ forbidden.",
       }
 
       if (params.member_fields && params.member_fields.length > 0) {
+        console.log(params.member_fields);
         const memberFields = params.member_fields
           .filter((field) => !field.startsWith("user."))
           .join(" ");
