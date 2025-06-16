@@ -87,8 +87,8 @@ export default function MemberItem({ member }: Props): JSX.Element {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon" className="size-7 rounded-md">
+              <MoreHorizontal className="size-4" />
             </Button>
           </DropdownMenuTrigger>
 

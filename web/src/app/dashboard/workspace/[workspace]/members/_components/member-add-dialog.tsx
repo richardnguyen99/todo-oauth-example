@@ -5,6 +5,7 @@ import { Check, ChevronsUpDown, UserPlus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useDebounce } from "@uidotdev/usehooks";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +39,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { useQuery } from "@tanstack/react-query";
 
 const FormSchema = z.object({
   language: z.string({
@@ -46,6 +48,11 @@ const FormSchema = z.object({
 });
 
 type FormData = z.infer<typeof FormSchema>;
+
+type ComboBoxItem = {
+  label: string;
+  value: string;
+};
 
 const languages = [
   { label: "English", value: "en" },
@@ -60,18 +67,36 @@ const languages = [
 ] as const;
 
 export default function MemberAddDialog(): JSX.Element {
-  const [loading] = React.useState(false);
-  const [open, setOpen] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const [loading, setLoading] = React.useState(false);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [popoverOpen, setPopoverOpen] = React.useState(false);
+  const [items, setItems] = React.useState<ComboBoxItem[]>([]);
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
   });
 
-  const onSubmit = React.useCallback((data: FormData) => {
-    console.log(data);
-  }, []);
+  const { data, isFetching } = useQuery({
+    queryKey: ["members", debouncedSearchTerm],
+    queryFn: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const data = languages.filter((language) =>
+        language.label
+          .toLowerCase()
+          .includes(debouncedSearchTerm.toLowerCase()),
+      );
+
+      setItems(data);
+      return data;
+    },
+    enabled: Boolean(debouncedSearchTerm),
+  });
+
+  const onSubmit = React.useCallback((data: FormData) => {}, []);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <DialogTrigger asChild>
@@ -93,7 +118,11 @@ export default function MemberAddDialog(): JSX.Element {
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Language</FormLabel>
-                  <Popover>
+                  <Popover
+                    modal
+                    open={popoverOpen}
+                    onOpenChange={setPopoverOpen}
+                  >
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -115,15 +144,33 @@ export default function MemberAddDialog(): JSX.Element {
                     </PopoverTrigger>
 
                     <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                      <Command>
+                      <Command shouldFilter={false}>
                         <CommandInput
                           placeholder="Search framework..."
                           className="h-9"
+                          value={searchTerm}
+                          onValueChange={setSearchTerm}
                         />
-                        <CommandList>
+                        <CommandList
+                          className={cn({
+                            "[&_[cmdk-empty]]:opacity-50":
+                              debouncedSearchTerm !== searchTerm || isFetching,
+                            "[&_[cmdk-empty]]:opacity-100":
+                              debouncedSearchTerm === searchTerm && !isFetching,
+                          })}
+                        >
                           <CommandEmpty>No framework found.</CommandEmpty>
-                          <CommandGroup>
-                            {languages.map((language) => (
+                          <CommandGroup
+                            className={cn({
+                              "opacity-50":
+                                debouncedSearchTerm !== searchTerm ||
+                                isFetching,
+                              "opacity-100":
+                                debouncedSearchTerm === searchTerm &&
+                                !isFetching,
+                            })}
+                          >
+                            {items.map((language) => (
                               <CommandItem
                                 value={language.label}
                                 key={language.value}
@@ -158,7 +205,7 @@ export default function MemberAddDialog(): JSX.Element {
             <DialogFooter>
               <Button
                 onClick={() => {
-                  setOpen(false);
+                  setDialogOpen(false);
                   form.reset();
                 }}
               >
