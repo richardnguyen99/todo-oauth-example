@@ -48,8 +48,6 @@ export default function SortDropdown({ sort }: Props): JSX.Element {
     [activeWorkspace, router, pathname, searchParams, setTaskStatus],
   );
 
-  console.log("sort", sort);
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
