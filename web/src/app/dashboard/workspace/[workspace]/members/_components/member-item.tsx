@@ -21,13 +21,13 @@ type Props = Readonly<{
 const getRoleColor = (role: Props["member"]["role"]) => {
   switch (role) {
     case "owner":
-      return "bg-purple-100 text-purple-800 bg-purple-800 dark:bg-purple-950/50 dark:text-purple-500 hover:bg-purple-500";
+      return "bg-purple-100 text-purple-800 border-purple-800 dark:bg-purple-950/50 dark:text-purple-500 hover:bg-purple-500";
     case "admin":
-      return "bg-blue-100 text-blue-800 bg-blue-800 dark:bg-blue-950/50 dark:text-blue-500 hover:bg-blue-500";
+      return "bg-blue-100 text-blue-800 border-blue-800 dark:bg-blue-950/50 dark:text-blue-500 hover:bg-blue-500";
     case "member":
-      return "bg-green-100 text-green-800 bg-green-800 dark:bg-green-950/50 dark:text-green-500 hover:bg-green-500";
+      return "bg-green-100 text-green-800 border-green-800 dark:bg-green-950/50 dark:text-green-500 hover:bg-green-500";
     default:
-      return "bg-gray-100 text-gray-800 bg-gray-800 dark:bg-gray-950/50 dark:text-gray-500 hover:bg-gray-500";
+      return "bg-gray-100 text-gray-800 border-gray-800 dark:bg-gray-950/50 dark:text-gray-500 hover:bg-gray-500";
   }
 };
 
