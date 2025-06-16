@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   UseGuards,
+  Query,
 } from "@nestjs/common";
 import {
   type Response as ExpressResponse,
@@ -15,6 +16,9 @@ import {
 
 import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "src/auth/guards/jwt.guard";
+import { UserDocument } from "./schemas/user.schema";
+import { respondWithError } from "src/utils/handle-error";
+import { ResponsePayloadDto } from "src/dto/response.dto";
 
 @Controller("users")
 export class UsersController {
@@ -52,6 +56,28 @@ export class UsersController {
       message: "OK",
       data: user,
     });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("search")
+  async searchUser(
+    @Res() res: ExpressResponse,
+    @Query("query") search: string,
+  ) {
+    let users: UserDocument[];
+
+    try {
+      users = await this.userService.searchUsers(search);
+    } catch (e) {
+      respondWithError(e, res);
+      return;
+    }
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "OK",
+      data: users,
+    } satisfies ResponsePayloadDto);
   }
 
   @UseGuards(JwtAuthGuard)

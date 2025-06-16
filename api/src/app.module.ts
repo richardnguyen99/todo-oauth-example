@@ -45,7 +45,7 @@ import { LoggerMiddleware } from "./middlewares/logger/logger.middleware";
           password: configService.get<string>("MONGODB_PASSWORD"),
         },
         dbName: configService.get<string>("MONGODB_DBNAME"),
-        directConnection: true,
+        // directConnection: true,
       }),
       inject: [ConfigService],
     }),

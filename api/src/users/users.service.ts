@@ -104,6 +104,26 @@ export class UsersService {
     }
   }
 
+  async searchUsers(searchTerm: string): Promise<UserDocument[]> {
+    if (!searchTerm) {
+      return [];
+    }
+
+    // Required for MongoDB Atlas Search to work, otherwise it will throw an error
+    try {
+      return await this.userModel.aggregate().search({
+        index: "username_email",
+        text: {
+          query: searchTerm,
+          path: ["username", "email"],
+        },
+      });
+    } catch (error) {
+      console.error("Error searching users:", error);
+      return [];
+    }
+  }
+
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
