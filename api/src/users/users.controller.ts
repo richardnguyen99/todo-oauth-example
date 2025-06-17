@@ -19,6 +19,8 @@ import { JwtAuthGuard } from "src/auth/guards/jwt.guard";
 import { UserDocument } from "./schemas/user.schema";
 import { respondWithError } from "src/utils/handle-error";
 import { ResponsePayloadDto } from "src/dto/response.dto";
+import { JwtUser } from "src/decorators/user/user.decorator";
+import { JwtUserPayload } from "src/decorators/types/user";
 
 @Controller("users")
 export class UsersController {
@@ -63,11 +65,12 @@ export class UsersController {
   async searchUser(
     @Res() res: ExpressResponse,
     @Query("query") search: string,
+    @JwtUser() user: JwtUserPayload,
   ) {
     let users: UserDocument[];
 
     try {
-      users = await this.userService.searchUsers(search);
+      users = await this.userService.searchUsers(user, search);
     } catch (e) {
       respondWithError(e, res);
       return;

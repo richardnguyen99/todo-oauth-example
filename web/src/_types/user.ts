@@ -15,3 +15,15 @@ export type User = UserBase & {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type UserResponse = {
+  statusCode: number;
+  message: string;
+  data: FetchedUser | null;
+};
+
+export type UsersResponse = {
+  statusCode: number;
+  message: string;
+  data: FetchedUser[];
+};

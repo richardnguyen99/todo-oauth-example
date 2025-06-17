@@ -1,7 +1,7 @@
 "use client";
 
 import React, { type JSX } from "react";
-import { Check, ChevronsUpDown, UserPlus } from "lucide-react";
+import { ChevronsUpDown, UserPlus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,35 +36,20 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandInput,
-  CommandItem,
   CommandList,
 } from "@/components/ui/command";
 import { useQuery } from "@tanstack/react-query";
+import api from "@/lib/axios";
+import { FetchedUser, UsersResponse } from "@/_types/user";
+import MemberSearchResultItem from "./member-search-result-item";
 
 const FormSchema = z.object({
-  language: z.string({
+  userId: z.string({
     required_error: "Please select a language.",
   }),
 });
 
 type FormData = z.infer<typeof FormSchema>;
-
-type ComboBoxItem = {
-  label: string;
-  value: string;
-};
-
-const languages = [
-  { label: "English", value: "en" },
-  { label: "French", value: "fr" },
-  { label: "German", value: "de" },
-  { label: "Spanish", value: "es" },
-  { label: "Portuguese", value: "pt" },
-  { label: "Russian", value: "ru" },
-  { label: "Japanese", value: "ja" },
-  { label: "Korean", value: "ko" },
-  { label: "Chinese", value: "zh" },
-] as const;
 
 export default function MemberAddDialog(): JSX.Element {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -72,25 +57,33 @@ export default function MemberAddDialog(): JSX.Element {
   const [loading, setLoading] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [popoverOpen, setPopoverOpen] = React.useState(false);
-  const [items, setItems] = React.useState<ComboBoxItem[]>([]);
+  const [items, setItems] = React.useState<FetchedUser[]>([]);
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
   });
+  const [selectedItem, setSelectedItem] = React.useState<FetchedUser | null>(
+    null,
+  );
 
-  const { data, isFetching } = useQuery({
+  const { isFetching } = useQuery<FetchedUser[]>({
     queryKey: ["members", debouncedSearchTerm],
     queryFn: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const data = languages.filter((language) =>
-        language.label
-          .toLowerCase()
-          .includes(debouncedSearchTerm.toLowerCase()),
+      if (!debouncedSearchTerm || debouncedSearchTerm.trim() === "") {
+        setItems([]);
+        return [];
+      }
+
+      const response = await api.get<UsersResponse>(
+        `/users/search?query=${debouncedSearchTerm}`,
       );
 
-      setItems(data);
-      return data;
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch users");
+      }
+
+      setItems(response.data.data);
+      return response.data.data;
     },
-    enabled: Boolean(debouncedSearchTerm),
   });
 
   const onSubmit = React.useCallback((data: FormData) => {}, []);
@@ -114,14 +107,16 @@ export default function MemberAddDialog(): JSX.Element {
 
             <FormField
               control={form.control}
-              name="language"
+              name="userId"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Language</FormLabel>
                   <Popover
                     modal
                     open={popoverOpen}
-                    onOpenChange={setPopoverOpen}
+                    onOpenChange={(newValue) => {
+                      setPopoverOpen(newValue);
+                    }}
                   >
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -133,11 +128,9 @@ export default function MemberAddDialog(): JSX.Element {
                             !field.value && "text-muted-foreground",
                           )}
                         >
-                          {field.value
-                            ? languages.find(
-                                (language) => language.value === field.value,
-                              )?.label
-                            : "Select language"}
+                          {selectedItem
+                            ? selectedItem.email
+                            : "Type to search for a user..."}
                           <ChevronsUpDown className="opacity-50" />
                         </Button>
                       </FormControl>
@@ -159,7 +152,11 @@ export default function MemberAddDialog(): JSX.Element {
                               debouncedSearchTerm === searchTerm && !isFetching,
                           })}
                         >
-                          <CommandEmpty>No framework found.</CommandEmpty>
+                          <CommandEmpty>
+                            {debouncedSearchTerm
+                              ? "No results found."
+                              : "Type to search..."}
+                          </CommandEmpty>
                           <CommandGroup
                             className={cn({
                               "opacity-50":
@@ -170,24 +167,17 @@ export default function MemberAddDialog(): JSX.Element {
                                 !isFetching,
                             })}
                           >
-                            {items.map((language) => (
-                              <CommandItem
-                                value={language.label}
-                                key={language.value}
-                                onSelect={() => {
-                                  form.setValue("language", language.value);
+                            {items.map((user) => (
+                              <MemberSearchResultItem
+                                key={user._id}
+                                user={user}
+                                handleSelect={(userId) => {
+                                  setSelectedItem(user);
+                                  form.setValue("userId", userId);
+                                  setPopoverOpen(false);
                                 }}
-                              >
-                                {language.label}
-                                <Check
-                                  className={cn(
-                                    "ml-auto",
-                                    language.value === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0",
-                                  )}
-                                />
-                              </CommandItem>
+                                checked={selectedItem?._id === user._id}
+                              />
                             ))}
                           </CommandGroup>
                         </CommandList>
@@ -195,7 +185,8 @@ export default function MemberAddDialog(): JSX.Element {
                     </PopoverContent>
                   </Popover>
                   <FormDescription>
-                    This is the language that will be used in the dashboard.
+                    This user will be invited to work with you in your
+                    workspace.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -204,6 +195,7 @@ export default function MemberAddDialog(): JSX.Element {
 
             <DialogFooter>
               <Button
+                variant="secondary"
                 onClick={() => {
                   setDialogOpen(false);
                   form.reset();

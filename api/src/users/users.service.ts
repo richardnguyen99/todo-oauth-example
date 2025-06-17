@@ -13,6 +13,8 @@ import {
 } from "./dto/create-user.dto";
 import { Account, User, UserDocument } from "./schemas/user.schema";
 import { OauthUserDto } from "./dto/oauth-user.dto";
+import { JwtUserPayload } from "src/decorators/types/user";
+import { ObjectId } from "mongodb";
 
 @Injectable()
 export class UsersService {
@@ -104,20 +106,53 @@ export class UsersService {
     }
   }
 
-  async searchUsers(searchTerm: string): Promise<UserDocument[]> {
+  async searchUsers(
+    user: JwtUserPayload,
+    searchTerm: string,
+  ): Promise<UserDocument[]> {
     if (!searchTerm) {
       return [];
     }
 
-    // Required for MongoDB Atlas Search to work, otherwise it will throw an error
+    // Require MongoDB Atlas Search for `search` aggregation stage to work,
+    // otherwise fallback to regex search in local MongoDB instance.
     try {
-      return await this.userModel.aggregate().search({
-        index: "username_email",
-        text: {
-          query: searchTerm,
-          path: ["username", "email"],
-        },
-      });
+      if (process.env.NODE_ENV === "production") {
+        return await this.userModel
+          .aggregate()
+          .search({
+            index: "username_email", // replace with search index name created in Atlas
+            text: {
+              query: searchTerm,
+              path: ["username", "email"],
+            },
+          })
+          .match({
+            _id: {
+              $nin: [new ObjectId(user.userId)],
+            },
+          })
+          .project({
+            __v: 0,
+            accounts: 0, // Exclude accounts from the result
+          });
+      }
+
+      return await this.userModel
+        .find({
+          $or: [
+            { username: { $regex: searchTerm, $options: "i" } },
+            { email: { $regex: searchTerm, $options: "i" } },
+          ],
+        })
+        .where("_id")
+        .ne(new ObjectId(user.userId))
+        .select("-__v -accounts") // Exclude __v and accounts from the result
+        .exec()
+        .catch((error) => {
+          console.error("Error searching users:", error);
+          return [];
+        });
     } catch (error) {
       console.error("Error searching users:", error);
       return [];

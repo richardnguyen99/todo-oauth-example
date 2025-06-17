@@ -53,8 +53,6 @@ TagSchema.pre("findOneAndDelete", async function (next) {
   const doc = await this.model.findOne<TagDocument>(this.getFilter());
 
   if (doc) {
-    console.log("Tag deleted:", doc._id);
-
     // Remove tag from workspace's tagIds array
     await doc
       .model<WorkspaceDocument>(Workspace.name)
