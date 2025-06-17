@@ -44,6 +44,7 @@ import { FetchedUser, UsersResponse } from "@/_types/user";
 import MemberSearchResultItem from "./member-search-result-item";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
+import { FetchedMember } from "@/_types/member";
 
 const FormSchema = z.object({
   userId: z.string({
@@ -118,7 +119,7 @@ export default function MemberAddDialog(): JSX.Element {
 
       const newActiveWorkspace = {
         ...activeWorkspace!,
-        members: res.data.data.members.map((member) => ({
+        members: res.data.data.members.map((member: FetchedMember) => ({
           _id: member._id,
           userId: member.userId,
           workspaceId: member.workspaceId,
