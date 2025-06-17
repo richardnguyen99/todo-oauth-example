@@ -33,6 +33,8 @@ export default function MemberList(): JSX.Element {
     );
   }
 
+  console.log("Active workspace", activeWorkspace.members);
+
   return (
     <div>
       <div className="mb-6 flex items-center space-x-2">

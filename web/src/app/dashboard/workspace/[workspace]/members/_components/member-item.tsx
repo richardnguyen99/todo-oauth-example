@@ -46,6 +46,7 @@ const formatDate = (date: Date) => {
 };
 
 export default function MemberItem({ member }: Props): JSX.Element {
+  console.log("Member item rendered", member);
   return (
     <div
       key={member._id}

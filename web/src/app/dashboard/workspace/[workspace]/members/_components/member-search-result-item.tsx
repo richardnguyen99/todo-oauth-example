@@ -1,10 +1,10 @@
 "use client";
 
 import React, { type JSX } from "react";
+import { Check } from "lucide-react";
 
 import { FetchedUser } from "@/_types/user";
 import { CommandItem } from "@/components/ui/command";
-import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -12,20 +12,25 @@ type Props = Readonly<{
   user: FetchedUser;
   handleSelect: (userId: string) => void;
   checked?: boolean;
+  disabled?: boolean;
 }>;
 
 export default function MemberSearchResultItem({
   user,
   handleSelect,
   checked,
+  disabled = false,
 }: Props): JSX.Element {
   return (
     <CommandItem
+      disabled={disabled}
       value={user._id}
       key={user._id}
       onSelect={() => {
         handleSelect(user._id);
       }}
+      aria-disabled={disabled}
+      title={disabled ? "This user is already a member" : undefined}
     >
       <Avatar>
         <AvatarImage

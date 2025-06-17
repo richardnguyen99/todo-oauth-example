@@ -38,10 +38,12 @@ import {
   CommandInput,
   CommandList,
 } from "@/components/ui/command";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "@/lib/axios";
 import { FetchedUser, UsersResponse } from "@/_types/user";
 import MemberSearchResultItem from "./member-search-result-item";
+import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
+import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
 
 const FormSchema = z.object({
   userId: z.string({
@@ -63,6 +65,13 @@ export default function MemberAddDialog(): JSX.Element {
   });
   const [selectedItem, setSelectedItem] = React.useState<FetchedUser | null>(
     null,
+  );
+  const { activeWorkspace, workspaces, setWorkspaces } = useWorkspaceStore(
+    (s) => s,
+  );
+  const existingUserIds = React.useMemo(
+    () => activeWorkspace?.members.map((member) => member.userId) || [],
+    [activeWorkspace],
   );
 
   const { isFetching } = useQuery<FetchedUser[]>({
@@ -86,20 +95,115 @@ export default function MemberAddDialog(): JSX.Element {
     },
   });
 
-  const onSubmit = React.useCallback((data: FormData) => {}, []);
+  const { mutate } = useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await api.post(
+        `/workspaces/${activeWorkspace!._id}/members`,
+        {
+          newMemberId: userId,
+          role: "member",
+        },
+      );
+
+      return response;
+    },
+
+    onMutate: () => {
+      setLoading(true);
+    },
+
+    onSuccess: async (res) => {
+      await invalidateWorkspaces();
+      form.reset();
+
+      const newActiveWorkspace = {
+        ...activeWorkspace!,
+        members: res.data.data.members.map((member) => ({
+          _id: member._id,
+          userId: member.userId,
+          workspaceId: member.workspaceId,
+          role: member.role,
+          isActive: member.isActive,
+          createdAt: new Date(member.createdAt),
+          user: {
+            _id: member.user._id,
+            username: member.user.username,
+            email: member.user.email,
+            emailVerified: member.user.emailVerified,
+            avatar: member.user.avatar,
+          },
+        })),
+        memberIds: res.data.data.memberIds,
+
+        updatedAt: new Date(res.data.data.updatedAt),
+      };
+
+      const newWorkspaces = workspaces.map((workspace) =>
+        workspace._id === activeWorkspace!._id ? newActiveWorkspace : workspace,
+      );
+
+      console.log("Old active workspace:", activeWorkspace);
+      console.log("New active workspace:", newActiveWorkspace);
+
+      setWorkspaces({
+        workspaces: newWorkspaces,
+        activeWorkspace: newActiveWorkspace,
+        status: "success",
+      });
+
+      setDialogOpen(false);
+    },
+
+    onSettled: () => {
+      setLoading(false);
+    },
+  });
+
+  const onSubmit = React.useCallback(
+    (data: FormData) => {
+      console.log("Form submitted with data:", data);
+      mutate(data.userId);
+    },
+    [mutate],
+  );
+
+  const filteredItems = React.useMemo(() => {
+    const [nonExisting, existing] = items.reduce(
+      (acc, user) => {
+        if (existingUserIds.includes(user._id)) {
+          acc[1].push(user);
+        } else {
+          acc[0].push(user);
+        }
+        return acc;
+      },
+      [[], []] as [FetchedUser[], FetchedUser[]],
+    );
+
+    return { nonExisting, existing };
+  }, [existingUserIds, items]);
+
+  if (!activeWorkspace) {
+    return (
+      <Button variant="secondary" className="p-2">
+        <UserPlus className="h-4 w-4 sm:mr-1" />
+        <span className="hidden sm:inline">Invite Member</span>
+      </Button>
+    );
+  }
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <DialogTrigger asChild>
-            <Button variant="secondary" className="p-2">
-              <UserPlus className="h-4 w-4 sm:mr-1" />
-              <span className="hidden sm:inline">Invite Member</span>
-            </Button>
-          </DialogTrigger>
+      <DialogTrigger asChild>
+        <Button variant="secondary" className="p-2">
+          <UserPlus className="h-4 w-4 sm:mr-1" />
+          <span className="hidden sm:inline">Invite Member</span>
+        </Button>
+      </DialogTrigger>
 
-          <DialogContent>
+      <DialogContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <DialogTitle>Invite Member</DialogTitle>
             <DialogDescription>
               Invite new members to your workspace to work with you.
@@ -110,7 +214,7 @@ export default function MemberAddDialog(): JSX.Element {
               name="userId"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Language</FormLabel>
+                  <FormLabel>Member</FormLabel>
                   <Popover
                     modal
                     open={popoverOpen}
@@ -157,29 +261,62 @@ export default function MemberAddDialog(): JSX.Element {
                               ? "No results found."
                               : "Type to search..."}
                           </CommandEmpty>
-                          <CommandGroup
-                            className={cn({
-                              "opacity-50":
-                                debouncedSearchTerm !== searchTerm ||
-                                isFetching,
-                              "opacity-100":
-                                debouncedSearchTerm === searchTerm &&
-                                !isFetching,
-                            })}
-                          >
-                            {items.map((user) => (
-                              <MemberSearchResultItem
-                                key={user._id}
-                                user={user}
-                                handleSelect={(userId) => {
-                                  setSelectedItem(user);
-                                  form.setValue("userId", userId);
-                                  setPopoverOpen(false);
-                                }}
-                                checked={selectedItem?._id === user._id}
-                              />
-                            ))}
-                          </CommandGroup>
+
+                          {filteredItems.nonExisting.length > 0 && (
+                            <CommandGroup
+                              heading="Invite New Members"
+                              className={cn({
+                                "opacity-50":
+                                  debouncedSearchTerm !== searchTerm ||
+                                  isFetching,
+                                "opacity-100":
+                                  debouncedSearchTerm === searchTerm &&
+                                  !isFetching,
+                              })}
+                            >
+                              {filteredItems.nonExisting.map((user) => (
+                                <MemberSearchResultItem
+                                  key={user._id}
+                                  user={user}
+                                  handleSelect={(userId) => {
+                                    setSelectedItem(user);
+                                    form.setValue("userId", userId);
+                                    setPopoverOpen(false);
+                                  }}
+                                  checked={selectedItem?._id === user._id}
+                                  disabled={false}
+                                />
+                              ))}
+                            </CommandGroup>
+                          )}
+
+                          {filteredItems.existing.length > 0 && (
+                            <CommandGroup
+                              heading="Existing Members"
+                              className={cn({
+                                "opacity-50":
+                                  debouncedSearchTerm !== searchTerm ||
+                                  isFetching,
+                                "opacity-100":
+                                  debouncedSearchTerm === searchTerm &&
+                                  !isFetching,
+                              })}
+                            >
+                              {filteredItems.existing.map((user) => (
+                                <MemberSearchResultItem
+                                  key={user._id}
+                                  user={user}
+                                  handleSelect={(userId) => {
+                                    setSelectedItem(user);
+                                    form.setValue("userId", userId);
+                                    setPopoverOpen(false);
+                                  }}
+                                  checked={selectedItem?._id === user._id}
+                                  disabled
+                                />
+                              ))}
+                            </CommandGroup>
+                          )}
                         </CommandList>
                       </Command>
                     </PopoverContent>
@@ -195,6 +332,7 @@ export default function MemberAddDialog(): JSX.Element {
 
             <DialogFooter>
               <Button
+                type="reset"
                 variant="secondary"
                 onClick={() => {
                   setDialogOpen(false);
@@ -207,9 +345,9 @@ export default function MemberAddDialog(): JSX.Element {
                 Submit
               </Button>
             </DialogFooter>
-          </DialogContent>
-        </form>
-      </Form>
+          </form>
+        </Form>
+      </DialogContent>
     </Dialog>
   );
 }

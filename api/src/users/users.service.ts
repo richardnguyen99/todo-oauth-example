@@ -135,7 +135,8 @@ export class UsersService {
           .project({
             __v: 0,
             accounts: 0, // Exclude accounts from the result
-          });
+          })
+          .limit(10); // Limit results to 10
       }
 
       return await this.userModel
@@ -148,6 +149,7 @@ export class UsersService {
         .where("_id")
         .ne(new ObjectId(user.userId))
         .select("-__v -accounts") // Exclude __v and accounts from the result
+        .limit(10) // Limit results to 10
         .exec()
         .catch((error) => {
           console.error("Error searching users:", error);
