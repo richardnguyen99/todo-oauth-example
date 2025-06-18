@@ -353,8 +353,8 @@ export class WorkspacesService {
 
     // Check if the user is a member of the workspace
     const existingMember = await this.memberModel.findOne({
-      userId: memberId,
-      workspaceId,
+      _id: new ObjectId(memberId),
+      workspaceId: new ObjectId(workspaceId),
     });
 
     if (!existingMember) {

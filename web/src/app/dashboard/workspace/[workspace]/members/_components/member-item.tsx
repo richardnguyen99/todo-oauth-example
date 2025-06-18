@@ -111,6 +111,7 @@ function MemberItem({ member }: Props): JSX.Element {
   const [updateDialogOpen, setUpdateDialogOpen] = React.useState(false);
   const [alertDialogOpen, setAlertDialogOpen] = React.useState(false);
   const [updateLoading, setUpdateLoading] = React.useState(false);
+  const [deleteLoading, setDeleteLoading] = React.useState(false);
   const { user } = useUserStore((s) => s);
   const { activeWorkspace, workspaces, setWorkspaces } = useWorkspaceStore(
     (s) => s,
@@ -146,7 +147,7 @@ function MemberItem({ member }: Props): JSX.Element {
     return false;
   }, [activeWorkspace?.members, activeWorkspace?.ownerId, member, user?.id]);
 
-  const { mutate } = useMutation({
+  const { mutate: updateMutate } = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       const res = await api.put(
         `/workspaces/${member.workspaceId}/members/${member._id}`,
@@ -201,6 +202,46 @@ function MemberItem({ member }: Props): JSX.Element {
     },
   });
 
+  const { mutate: deleteMutate } = useMutation({
+    mutationFn: async () => {
+      const res = await api.delete(
+        `/workspaces/${member.workspaceId}/members/${member._id}`,
+      );
+
+      return res.data;
+    },
+
+    onMutate: () => {
+      setDeleteLoading(true);
+    },
+
+    onSuccess: async () => {
+      await invalidateWorkspaces();
+
+      const newActiveWorkspace = {
+        ...activeWorkspace!,
+        members: activeWorkspace!.members.filter((m) => m._id !== member._id),
+      };
+
+      const newWorkspaces = workspaces.map((workspace) => {
+        if (workspace._id === activeWorkspace?._id) {
+          return newActiveWorkspace;
+        }
+        return workspace;
+      });
+
+      setWorkspaces({
+        workspaces: newWorkspaces,
+        activeWorkspace: newActiveWorkspace,
+        status: "success",
+      });
+
+      setDeleteLoading(false);
+      setAlertDialogOpen(false);
+      form.reset();
+    },
+  });
+
   const renderTooltipContent = () => {
     if (user?.id === activeWorkspace?.ownerId) {
       if (member.role === "owner") {
@@ -245,7 +286,11 @@ function MemberItem({ member }: Props): JSX.Element {
   };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    mutate(values);
+    updateMutate(values);
+  };
+
+  const onDeleteSelect = () => {
+    deleteMutate();
   };
 
   return (
@@ -425,7 +470,16 @@ function MemberItem({ member }: Props): JSX.Element {
 
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button variant="destructive">Delete</Button>
+            <Button
+              variant="destructive"
+              onClick={onDeleteSelect}
+              disabled={deleteLoading}
+            >
+              {deleteLoading ? (
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+              ) : null}
+              Delete
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
