@@ -123,6 +123,29 @@ function MemberItem({ member }: Props): JSX.Element {
     },
   });
 
+  const canRemoveMembers = React.useMemo(() => {
+    // is the current user the owner of the workspace
+    if (user?.id === activeWorkspace?.ownerId) {
+      return member.role !== "owner";
+    }
+
+    // is the current user the member themselves
+    if (user?.id === member.userId) {
+      return true;
+    }
+
+    // is the current user an admin
+    if (
+      activeWorkspace?.members.find(
+        (m) => m.userId === user?.id && m.role === "admin",
+      )
+    ) {
+      return member.role !== "owner" && member.role !== "admin";
+    }
+
+    return false;
+  }, [activeWorkspace?.members, activeWorkspace?.ownerId, member, user?.id]);
+
   const { mutate } = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       const res = await api.put(
@@ -282,6 +305,7 @@ function MemberItem({ member }: Props): JSX.Element {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 variant="destructive"
+                disabled={!canRemoveMembers}
                 onSelect={() => setAlertDialogOpen(true)}
               >
                 <Trash className="size-4" />
