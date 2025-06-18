@@ -143,9 +143,6 @@ export default function MemberAddDialog(): JSX.Element {
         workspace._id === activeWorkspace!._id ? newActiveWorkspace : workspace,
       );
 
-      console.log("Old active workspace:", activeWorkspace);
-      console.log("New active workspace:", newActiveWorkspace);
-
       setWorkspaces({
         workspaces: newWorkspaces,
         activeWorkspace: newActiveWorkspace,
@@ -162,7 +159,6 @@ export default function MemberAddDialog(): JSX.Element {
 
   const onSubmit = React.useCallback(
     (data: FormData) => {
-      console.log("Form submitted with data:", data);
       mutate(data.userId);
     },
     [mutate],

@@ -21,6 +21,7 @@ export const fetchWorkspaces = async (errorFn: (r: Response) => void) => {
       "role",
       "isActive",
       "createdAt",
+      "workspaceId",
       "user.username",
       "user.email",
       "user.emailVerified",

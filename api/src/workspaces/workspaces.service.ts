@@ -30,6 +30,7 @@ import { AddNewTagDto } from "./dto/add-new-tag.dto";
 import { UpdateTagDto } from "./dto/update-tag.dto";
 import { GetWorkspacesQueryDto } from "./dto/get-workspaces-query.dto";
 import { TasksService } from "src/tasks/tasks.service";
+import { ObjectId } from "mongodb";
 
 @Injectable()
 export class WorkspacesService {
@@ -310,8 +311,8 @@ export class WorkspacesService {
 
     const existingMember = await this.memberModel.findOneAndUpdate(
       {
-        userId: memberId,
-        workspaceId: workspace._id,
+        _id: new ObjectId(memberId),
+        workspaceId: new ObjectId(workspace._id),
       },
       {
         $set: updateMemberDto,

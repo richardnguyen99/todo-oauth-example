@@ -5,6 +5,7 @@ import {
   Calendar,
   CircleHelp,
   CornerDownRight,
+  Loader2,
   Mail,
   MoreHorizontal,
   Trash,
@@ -13,6 +14,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
@@ -65,6 +67,8 @@ import {
 } from "@/components/ui/tooltip";
 import { useUserStore } from "@/providers/user-store-provider";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
+import api from "@/lib/axios";
+import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
 
 type Props = Readonly<{
   member: Workspace["members"][number];
@@ -103,16 +107,74 @@ const formSchema = z.object({
   }),
 });
 
-export default function MemberItem({ member }: Props): JSX.Element {
+function MemberItem({ member }: Props): JSX.Element {
   const [updateDialogOpen, setUpdateDialogOpen] = React.useState(false);
   const [alertDialogOpen, setAlertDialogOpen] = React.useState(false);
+  const [updateLoading, setUpdateLoading] = React.useState(false);
   const { user } = useUserStore((s) => s);
-  const { activeWorkspace } = useWorkspaceStore((s) => s);
+  const { activeWorkspace, workspaces, setWorkspaces } = useWorkspaceStore(
+    (s) => s,
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       role: member.role,
+    },
+  });
+
+  const { mutate } = useMutation({
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
+      const res = await api.put(
+        `/workspaces/${member.workspaceId}/members/${member._id}`,
+        {
+          role: values.role,
+        },
+      );
+
+      return res.data;
+    },
+
+    onMutate: () => {
+      setUpdateLoading(true);
+    },
+
+    onSuccess: async (data) => {
+      await invalidateWorkspaces();
+
+      const newActiveWorkspace = {
+        ...activeWorkspace!,
+        members: activeWorkspace!.members.map((m) => {
+          if (m._id === member._id) {
+            return {
+              ...data.data,
+              createdAt: new Date(data.data.createdAt),
+              updatedAt: new Date(data.data.updatedAt),
+            };
+          }
+
+          return m;
+        }),
+      };
+
+      const newWorkspaces = workspaces.map((workspace) => {
+        if (workspace._id === activeWorkspace?._id) {
+          return newActiveWorkspace;
+        }
+        return workspace;
+      });
+
+      setWorkspaces({
+        workspaces: newWorkspaces,
+        activeWorkspace: newActiveWorkspace,
+        status: "success",
+      });
+
+      setUpdateDialogOpen(false);
+      setUpdateLoading(false);
+      form.reset({
+        role: data.data.role,
+      });
     },
   });
 
@@ -160,15 +222,12 @@ export default function MemberItem({ member }: Props): JSX.Element {
   };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    mutate(values);
   };
 
   return (
-    <>
-      <div
-        key={member._id}
-        className="flex items-center justify-between rounded-lg border p-4 transition-colors"
-      >
+    <React.Fragment key={member._id}>
+      <div className="flex items-center justify-between rounded-lg border p-4 transition-colors">
         <div className="flex items-center space-x-4">
           <Avatar className="bg-accent h-10 w-10">
             <AvatarImage src={member.user.avatar} alt={member.user.username} />
@@ -233,7 +292,13 @@ export default function MemberItem({ member }: Props): JSX.Element {
         </div>
       </div>
 
-      <Dialog open={updateDialogOpen} onOpenChange={setUpdateDialogOpen}>
+      <Dialog
+        open={updateDialogOpen}
+        onOpenChange={(val) => {
+          setUpdateDialogOpen(val);
+          form.reset();
+        }}
+      >
         <DialogContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -310,7 +375,16 @@ export default function MemberItem({ member }: Props): JSX.Element {
                 <DialogClose asChild>
                   <Button variant="outline">Cancel</Button>
                 </DialogClose>
-                <Button type="submit">Save Changes</Button>
+                <Button
+                  type={form.formState.isDirty ? "submit" : "button"}
+                  variant={form.formState.isDirty ? "default" : "outline"}
+                  disabled={updateLoading}
+                >
+                  {updateLoading ? (
+                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                  ) : null}
+                  Save Changes
+                </Button>
               </DialogFooter>
             </form>
           </Form>
@@ -331,6 +405,18 @@ export default function MemberItem({ member }: Props): JSX.Element {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </React.Fragment>
   );
 }
+
+const MemoMemberItem = React.memo(MemberItem, (prevProps, nextProps) => {
+  return (
+    prevProps.member._id === nextProps.member._id &&
+    prevProps.member.role === nextProps.member.role &&
+    prevProps.member.isActive === nextProps.member.isActive &&
+    prevProps.member.userId === nextProps.member.userId &&
+    prevProps.member.workspaceId === nextProps.member.workspaceId
+  );
+});
+
+export default MemoMemberItem;
