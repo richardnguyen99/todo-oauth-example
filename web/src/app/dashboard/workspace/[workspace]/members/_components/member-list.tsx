@@ -11,6 +11,13 @@ export default function MemberList(): JSX.Element {
   const [searchTerm, setSearchTerm] = React.useState("");
   const activeWorkspace = useWorkspaceStore((s) => s.activeWorkspace);
 
+  const filteredMembers =
+    activeWorkspace?.members.filter(
+      (member) =>
+        member.user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.user.email.toLowerCase().includes(searchTerm.toLowerCase()),
+    ) || [];
+
   if (!activeWorkspace) {
     return (
       <div>
@@ -48,19 +55,19 @@ export default function MemberList(): JSX.Element {
       </div>
 
       <div className="space-y-4">
-        {activeWorkspace.members.map((member) => (
+        {filteredMembers.map((member) => (
           <MemberItem key={member._id} member={member} />
         ))}
 
-        {activeWorkspace.members.length === 0 && (
+        {filteredMembers.length === 0 && (
           <p className="text-center text-sm text-gray-500">No members found.</p>
         )}
       </div>
 
       <div className="mt-6 border-t pt-4">
         <p className="text-sm text-gray-500">
-          {activeWorkspace.members.length} of {activeWorkspace.members.length}{" "}
-          members shown
+          {filteredMembers.length} of {activeWorkspace.members.length} members
+          shown
         </p>
       </div>
     </div>
