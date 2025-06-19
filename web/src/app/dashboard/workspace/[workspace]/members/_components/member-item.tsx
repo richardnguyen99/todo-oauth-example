@@ -69,6 +69,7 @@ import { useUserStore } from "@/providers/user-store-provider";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import api from "@/lib/axios";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
+import { useRouter } from "next/navigation";
 
 type Props = Readonly<{
   member: Workspace["members"][number];
@@ -108,6 +109,7 @@ const formSchema = z.object({
 });
 
 function MemberItem({ member }: Props): JSX.Element {
+  const router = useRouter();
   const [updateDialogOpen, setUpdateDialogOpen] = React.useState(false);
   const [alertDialogOpen, setAlertDialogOpen] = React.useState(false);
   const [updateLoading, setUpdateLoading] = React.useState(false);
@@ -218,27 +220,40 @@ function MemberItem({ member }: Props): JSX.Element {
     onSuccess: async () => {
       await invalidateWorkspaces();
 
-      const newActiveWorkspace = {
-        ...activeWorkspace!,
-        members: activeWorkspace!.members.filter((m) => m._id !== member._id),
-      };
+      // if the current user is the member being deleted
 
-      const newWorkspaces = workspaces.map((workspace) => {
-        if (workspace._id === activeWorkspace?._id) {
-          return newActiveWorkspace;
-        }
-        return workspace;
-      });
+      if (user?.id === member.userId) {
+        // reset the active workspace to null
+        setWorkspaces({
+          workspaces: workspaces.filter((w) => w._id !== activeWorkspace?._id),
+          activeWorkspace: null,
+          status: "success",
+        });
 
-      setWorkspaces({
-        workspaces: newWorkspaces,
-        activeWorkspace: newActiveWorkspace,
-        status: "success",
-      });
+        router.push("/dashboard/workspace");
+      } else {
+        const newActiveWorkspace = {
+          ...activeWorkspace!,
+          members: activeWorkspace!.members.filter((m) => m._id !== member._id),
+        };
 
-      setDeleteLoading(false);
-      setAlertDialogOpen(false);
-      form.reset();
+        const newWorkspaces = workspaces.map((workspace) => {
+          if (workspace._id === activeWorkspace?._id) {
+            return newActiveWorkspace;
+          }
+          return workspace;
+        });
+
+        setWorkspaces({
+          workspaces: newWorkspaces,
+          activeWorkspace: newActiveWorkspace,
+          status: "success",
+        });
+
+        setDeleteLoading(false);
+        setAlertDialogOpen(false);
+        form.reset();
+      }
     },
   });
 
@@ -354,7 +369,9 @@ function MemberItem({ member }: Props): JSX.Element {
                 onSelect={() => setAlertDialogOpen(true)}
               >
                 <Trash className="size-4" />
-                Remove from Team
+                {user?.id === member.userId
+                  ? "Leave Workspace"
+                  : "Remove Member"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -478,7 +495,7 @@ function MemberItem({ member }: Props): JSX.Element {
               {deleteLoading ? (
                 <Loader2 className="mr-1 h-4 w-4 animate-spin" />
               ) : null}
-              Delete
+              {user?.id === member.userId ? "Leave" : "Remove"}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
