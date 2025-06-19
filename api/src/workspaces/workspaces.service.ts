@@ -380,18 +380,21 @@ export class WorkspacesService {
       );
     }
 
-    // Forbid removing members as members
-    if (currentUserMember.role === "member") {
-      throw new ForbiddenException(
-        `User with ID ${currentUserId} does not have permission to remove members from this workspace.`,
-      );
-    }
+    // Check if the current user is trying to remove others
+    if (currentUserMember.userId.toString() !== member.userId.toString()) {
+      // Forbid removing members as members
+      if (currentUserMember.role === "member") {
+        throw new ForbiddenException(
+          `User with ID ${currentUserId} does not have permission to remove members from this workspace.`,
+        );
+      }
 
-    // Forbid removing admins as admins
-    if (currentUserMember.role === "admin" && member.role === "admin") {
-      throw new ForbiddenException(
-        `User with ID ${currentUserId} does not have permission to remove other admins from this workspace.`,
-      );
+      // Forbid removing admins as admins
+      if (currentUserMember.role === "admin" && member.role === "admin") {
+        throw new ForbiddenException(
+          `User with ID ${currentUserId} does not have permission to remove other admins from this workspace.`,
+        );
+      }
     }
 
     await member.deleteOne();

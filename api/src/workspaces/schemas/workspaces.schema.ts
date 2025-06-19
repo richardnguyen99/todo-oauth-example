@@ -137,8 +137,6 @@ MemberSchema.pre(
 
     if (doc) {
       // Remove member from workspace's memberIds array
-      console.log("Deleting member from workspace", doc);
-
       await doc
         .model<WorkspaceDocument>(Workspace.name)
         .updateOne({ _id: doc.workspaceId }, { $pull: { memberIds: doc._id } });
