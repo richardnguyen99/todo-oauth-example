@@ -116,6 +116,37 @@ export type MemberDocument = HydratedDocument<Member>;
 export const MemberSchema = SchemaFactory.createForClass(Member);
 MemberSchema.index({ userId: 1, workspaceId: 1 }, { unique: true });
 
+MemberSchema.pre("findOneAndDelete", async function (next) {
+  const doc = await this.model.findOne<MemberDocument>(this.getFilter());
+
+  if (doc) {
+    // Remove member from workspace's memberIds array
+    await doc
+      .model<WorkspaceDocument>(Workspace.name)
+      .updateOne({ _id: doc.workspaceId }, { $pull: { memberIds: doc._id } });
+  }
+
+  next();
+});
+
+MemberSchema.pre(
+  "deleteOne",
+  { query: true, document: false },
+  async function (next) {
+    const doc = await this.model.findOne<MemberDocument>(this.getFilter());
+
+    if (doc) {
+      // Remove member from workspace's memberIds array
+      console.log("Deleting member from workspace", doc);
+
+      await doc
+        .model<WorkspaceDocument>(Workspace.name)
+        .updateOne({ _id: doc.workspaceId }, { $pull: { memberIds: doc._id } });
+    }
+    next();
+  },
+);
+
 @Schema({
   collection: "workspaces",
   timestamps: true,

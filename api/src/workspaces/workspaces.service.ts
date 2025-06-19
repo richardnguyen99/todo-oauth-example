@@ -341,36 +341,60 @@ export class WorkspacesService {
   }
 
   async removeMemberFromWorkspace(
-    ownerId: string,
+    currentUserId: string,
     workspaceId: string,
     memberId: string,
   ): Promise<void> {
-    // Check if the workspace exists
-    const workspace = await this._getWorkspaceWithAdminAccess(
-      ownerId,
-      workspaceId,
-    );
+    const currentUserObjectId = new ObjectId(currentUserId);
+    const workspaceObjectId = new ObjectId(workspaceId);
+    const memberObjectId = new ObjectId(memberId);
 
-    // Check if the user is a member of the workspace
-    const existingMember = await this.memberModel.findOne({
-      _id: new ObjectId(memberId),
-      workspaceId: new ObjectId(workspaceId),
+    // Check if the current user is a member of the workspace
+    const currentUserMember = await this.memberModel.findOne({
+      userId: currentUserObjectId,
+      workspaceId: workspaceObjectId,
     });
 
-    if (!existingMember) {
-      throw new BadRequestException(
-        `User with ID ${memberId} is not a member of this workspace.`,
+    if (!currentUserMember) {
+      throw new ForbiddenException(
+        `User with ID ${currentUserId} is not a member of this workspace.`,
       );
     }
 
-    // Remove the member from the workspace's members array
-    await this.memberModel.deleteOne({ _id: existingMember._id });
+    // Check if the member exists
+    const member = await this.memberModel.findOne({
+      _id: memberObjectId,
+      workspaceId: workspaceObjectId,
+    });
 
-    workspace.memberIds = workspace.memberIds.filter(
-      (memberId) => memberId.toString() !== existingMember._id.toString(),
-    );
+    if (!member) {
+      throw new NotFoundException(
+        `Member with ID ${memberId} not found in this workspace.`,
+      );
+    }
 
-    await workspace.save();
+    // Forbid removing the owner of the workspace
+    if (member.role === "owner") {
+      throw new ForbiddenException(
+        `Cannot remove the owner of the workspace. Please transfer ownership first.`,
+      );
+    }
+
+    // Forbid removing members as members
+    if (currentUserMember.role === "member") {
+      throw new ForbiddenException(
+        `User with ID ${currentUserId} does not have permission to remove members from this workspace.`,
+      );
+    }
+
+    // Forbid removing admins as admins
+    if (currentUserMember.role === "admin" && member.role === "admin") {
+      throw new ForbiddenException(
+        `User with ID ${currentUserId} does not have permission to remove other admins from this workspace.`,
+      );
+    }
+
+    await member.deleteOne();
   }
 
   async updateWorkspace(
@@ -668,13 +692,10 @@ forbidden.",
     userId: string,
     workspaceId: string,
   ): Promise<boolean> {
-    // Check if the workspace exists
-    const workspace = await this.findWorkspaceById(workspaceId);
-
     // Check if the user is a member of the workspace
     const existingMember = await this.memberModel.findOne({
       userId,
-      workspaceId: workspace._id,
+      workspaceId: workspaceId,
       isActive: true, // Only consider active members
     });
 
