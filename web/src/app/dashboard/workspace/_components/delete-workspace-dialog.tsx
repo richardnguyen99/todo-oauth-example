@@ -62,13 +62,14 @@ export default function DeleteWorkspaceDialog({
     },
 
     onSuccess: async () => {
+      await invalidateWorkspaces();
+
       const newWorkspaces = workspaces.filter(
         (ws: Workspace) => ws._id !== workspace._id,
       );
 
-      await invalidateWorkspaces();
-
       if (newWorkspaces.length === 0) {
+        console.log("No workspaces left, redirecting to workspace page");
         setWorkspaces({
           workspaces: [],
           activeWorkspace: null,

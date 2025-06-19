@@ -211,7 +211,11 @@ export default function FilterDropdown({ table, tags }: Props): JSX.Element {
         .keys()
         .toArray()
         .map((key) => {
-          const tag = tags.find((t) => t.text === key)!;
+          const tag = tags.find((t) => t.text === key);
+
+          if (!tag) {
+            return null;
+          }
 
           return {
             label: (
@@ -224,7 +228,8 @@ export default function FilterDropdown({ table, tags }: Props): JSX.Element {
             ),
             value: key,
           };
-        }),
+        })
+        .filter((tag) => tag !== null),
     [table, tags],
   );
 

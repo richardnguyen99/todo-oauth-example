@@ -19,6 +19,8 @@ export default async function WorkspaceIdPage({
   const awaitedParams = await params;
   const awaitedSearchParams = await searchParams;
 
+  console.log("WorkspaceIdPage", awaitedParams, awaitedSearchParams);
+
   return (
     <WorkspaceView
       workspaceId={awaitedParams.workspace}

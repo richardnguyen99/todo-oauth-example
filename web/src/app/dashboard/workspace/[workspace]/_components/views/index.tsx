@@ -390,6 +390,14 @@ export default function WorkspaceView({
     manualFiltering: true,
   });
 
+  React.useEffect(() => {
+    console.log(table.getState());
+
+    return () => {
+      console.log("Cleaning up table state");
+    };
+  }, [table]);
+
   return (
     <div>
       <WorkspaceIdMenubar
