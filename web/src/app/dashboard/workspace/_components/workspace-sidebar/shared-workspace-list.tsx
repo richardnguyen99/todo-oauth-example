@@ -51,6 +51,12 @@ function SidebarSharedWorkspaceList({
               </SidebarMenuButton>
             </SidebarMenuItem>
           )}
+
+          {workspaces.length === 0 && (
+            <SidebarGroupLabel className="text-muted-foreground italic">
+              No shared workspaces.
+            </SidebarGroupLabel>
+          )}
         </SidebarMenu>
       </SidebarGroup>
     </>

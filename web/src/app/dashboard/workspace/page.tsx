@@ -15,8 +15,8 @@ export default function Page(): JSX.Element {
   const redirectWorkspace = React.useMemo(() => {
     const sharedWorkspaces: Workspace[] = [];
     const ownedWorkspaces = workspaces.filter((ws) => {
-      if (user) {
-        return user.id === ws.ownerId;
+      if (user && ws.ownerId === user.id) {
+        return true;
       }
 
       sharedWorkspaces.push(ws);

@@ -68,6 +68,12 @@ function SidebarWorkspaceList({
         {workspaces.length > 5 && (
           <SidebarMoreWorkspaceSheet workspaces={workspaces} />
         )}
+
+        {workspaces.length === 0 && (
+          <SidebarGroupLabel className="text-muted-foreground italic">
+            No owned workspaces.
+          </SidebarGroupLabel>
+        )}
       </SidebarMenu>
     </SidebarGroup>
   );
