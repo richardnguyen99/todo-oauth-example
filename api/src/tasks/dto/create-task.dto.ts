@@ -160,6 +160,44 @@ export const noRefineCreateTaskDtoSchema = z.object({
     )
     .optional()
     .default([]),
+
+  assignedMembers: z
+    .string({
+      invalid_type_error: "Assigned members must be a string",
+    })
+    .optional()
+    .default("")
+    .transform((tags) => {
+      if (!tags) {
+        return [];
+      }
+      return tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0);
+    })
+    .or(
+      z
+        .array(
+          z
+            .string({
+              invalid_type_error: "Each assigned member must be a string",
+            })
+            .min(1, "Each assigned member must be at least 1 character long"),
+        )
+        .optional()
+        .default([])
+        .transform((tagsArray) => {
+          if (!tagsArray || tagsArray.length === 0) {
+            return [];
+          }
+          return tagsArray
+            .map((tag) => tag.trim())
+            .filter((tag) => tag.length > 0);
+        }),
+    )
+    .optional()
+    .default([]),
 });
 
 export const createTaskDtoSchema = noRefineCreateTaskDtoSchema.refine(

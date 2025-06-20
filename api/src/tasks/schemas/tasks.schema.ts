@@ -142,6 +142,14 @@ export class Task {
     required: true,
   })
   workspaceId: mongoose.Types.ObjectId;
+
+  @Prop({
+    type: mongoose.Schema.Types.Array,
+    of: mongoose.Schema.Types.ObjectId,
+    ref: "Member",
+    default: [],
+  })
+  assignedMemberIds: Array<mongoose.Types.ObjectId | TagDocument>;
 }
 
 export type TaskDocument = HydratedDocument<Task>;

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  forwardRef,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -50,7 +51,7 @@ export class WorkspacesService {
     @InjectModel(Task.name)
     private taskModel: Model<Task>,
 
-    @Inject()
+    @Inject(forwardRef(() => TasksService))
     private readonly taskService: TasksService,
   ) {}
 
@@ -226,6 +227,37 @@ export class WorkspacesService {
     ]);
 
     return workspaceWithMembers.members;
+  }
+
+  async getWorkspaceMemberById(
+    userId: string,
+    workspaceId: string,
+    memberId: string,
+  ): Promise<MemberDocument> {
+    // Check if the user is a member of the workspace
+    const isMember = await this.checkIfUserIsMember(userId, workspaceId);
+
+    if (!isMember) {
+      throw new ForbiddenException(
+        `User with ID ${userId} is not a member of this workspace.`,
+      );
+    }
+
+    // Find the member in the workspace
+    const member = await this.memberModel
+      .findOne({
+        _id: new ObjectId(memberId),
+        workspaceId: new ObjectId(workspaceId),
+      })
+      .populate("user", "-accounts -createdAt -updatedAt -workspaces");
+
+    if (!member) {
+      throw new NotFoundException(
+        `Member with ID ${memberId} not found in this workspace.`,
+      );
+    }
+
+    return member;
   }
 
   async addMemberToWorkspace(

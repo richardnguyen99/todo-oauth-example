@@ -1,13 +1,15 @@
 import {
   BadRequestException,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 
 import { Task, TaskDocument } from "./schemas/tasks.schema";
-import { InjectModel } from "@nestjs/mongoose";
 import {
   MemberDocument,
   Workspace,
@@ -17,12 +19,15 @@ import { CreateTaskDto } from "./dto/create-task.dto";
 import { isObjectId } from "src/utils/object-id";
 import { UpdateTaskDto } from "./dto/update-task.dto";
 import { GetTaskQueryDto } from "./dto/get-task-query.dto";
+import { WorkspacesService } from "src/workspaces/workspaces.service";
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectModel(Task.name) private taskModel: Model<Task>,
     @InjectModel(Workspace.name) private workspaceModel: Model<Workspace>,
+    @Inject(forwardRef(() => WorkspacesService))
+    private readonly workspacesService: WorkspacesService,
   ) {}
 
   async findTasksByUserId(userId: string): Promise<TaskDocument[]> {
@@ -523,6 +528,28 @@ export class TasksService {
       } else if (action === "REMOVE") {
         updateQuery.$pull = {
           tags: tagObjectId,
+        };
+      }
+    }
+
+    if (updateTaskDto.assignedMember) {
+      const { action, memberId } = updateTaskDto.assignedMember;
+      const memberObjectId = new mongoose.Types.ObjectId(memberId);
+
+      if (action === "ADD") {
+        // Check if the member exists in the workspace
+        const member = await this.workspacesService.getWorkspaceMemberById(
+          userId,
+          workspaceId,
+          memberId,
+        );
+
+        updateQuery.$addToSet = {
+          assignedMemberIds: member._id,
+        };
+      } else if (action === "REMOVE") {
+        updateQuery.$pull = {
+          assignedMemberIds: memberObjectId,
         };
       }
     }

@@ -19,7 +19,7 @@ import { User, UserSchema } from "src/users/schemas/user.schema";
 
 @Module({
   controllers: [TasksController],
-  providers: [TasksService, WorkspacesService, ConfigService, JwtStrategy],
+  providers: [WorkspacesService, TasksService, ConfigService, JwtStrategy],
   imports: [
     MongooseModule.forFeatureAsync([
       {

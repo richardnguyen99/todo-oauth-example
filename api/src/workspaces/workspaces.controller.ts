@@ -289,6 +289,35 @@ export class WorkspacesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get("/:workspace_id/members/:member_id")
+  @Header("Content-Type", "application/json")
+  async getMemberInWorkspace(
+    @Res() res: ExpressResponse,
+    @Param("workspace_id") workspaceId: string,
+    @Param("member_id") memberId: string,
+    @JwtUser() user: JwtUserPayload,
+  ) {
+    let member: MemberDocument;
+
+    try {
+      member = await this.workspaceService.getWorkspaceMemberById(
+        user.userId as string,
+        workspaceId as string,
+        memberId as string,
+      );
+    } catch (e) {
+      respondWithError(e, res);
+      return;
+    }
+
+    res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: "OK",
+      data: member,
+    } satisfies ResponsePayloadDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Put("/:workspace_id/members/:member_id")
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodValidationPipe(updateMemberDtoSchema))

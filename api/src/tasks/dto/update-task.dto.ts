@@ -112,6 +112,21 @@ export const noRefineUpdateTaskDtoSchema = noRefineCreateTaskDtoSchema
         })
         .refine((value) => isObjectId(value)),
     }),
+
+    assignedMember: z.object({
+      action: z.enum(["ADD", "REMOVE"], {
+        required_error: "Action is required",
+        invalid_type_error: "Action must be either `ADD` or `REMOVE`",
+      }),
+      memberId: z
+        .string({
+          required_error: "Member ID is required",
+          invalid_type_error: "Member ID must be a string",
+        })
+        .refine((value) => isObjectId(value), {
+          message: "Member ID must be a valid ObjectId",
+        }),
+    }),
   })
   .partial();
 
