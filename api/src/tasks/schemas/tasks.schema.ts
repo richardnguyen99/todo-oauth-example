@@ -1,7 +1,8 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory, Virtual } from "@nestjs/mongoose";
 
 import mongoose, { HydratedDocument } from "mongoose";
 import {
+  MemberDocument,
   Workspace,
   WorkspaceDocument,
 } from "src/workspaces/schemas/workspaces.schema";
@@ -144,12 +145,21 @@ export class Task {
   workspaceId: mongoose.Types.ObjectId;
 
   @Prop({
-    type: mongoose.Schema.Types.Array,
-    of: mongoose.Schema.Types.ObjectId,
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "Member",
     default: [],
   })
-  assignedMemberIds: Array<mongoose.Types.ObjectId | TagDocument>;
+  assignedMemberIds: Array<mongoose.Types.ObjectId>;
+
+  @Virtual({
+    options: {
+      ref: "Member",
+      localField: "assignedMemberIds",
+      foreignField: "_id",
+      justOne: false,
+    },
+  })
+  assignedMembers: mongoose.Types.Array<MemberDocument>;
 }
 
 export type TaskDocument = HydratedDocument<Task>;

@@ -11,6 +11,7 @@ import mongoose, { Model } from "mongoose";
 
 import { Task, TaskDocument } from "./schemas/tasks.schema";
 import {
+  Member,
   MemberDocument,
   Workspace,
   WorkspaceDocument,
@@ -24,8 +25,15 @@ import { WorkspacesService } from "src/workspaces/workspaces.service";
 @Injectable()
 export class TasksService {
   constructor(
-    @InjectModel(Task.name) private taskModel: Model<Task>,
-    @InjectModel(Workspace.name) private workspaceModel: Model<Workspace>,
+    @InjectModel(Task.name)
+    private taskModel: Model<Task>,
+
+    @InjectModel(Workspace.name)
+    private workspaceModel: Model<Workspace>,
+
+    @InjectModel(Member.name)
+    private memberModel: Model<MemberDocument>,
+
     @Inject(forwardRef(() => WorkspacesService))
     private readonly workspacesService: WorkspacesService,
   ) {}
@@ -317,6 +325,10 @@ export class TasksService {
       {
         path: "tags",
         select: "text color createdBy",
+      },
+      {
+        path: "assignedMembers",
+        select: "-workspaces -accounts",
       },
     ]);
 

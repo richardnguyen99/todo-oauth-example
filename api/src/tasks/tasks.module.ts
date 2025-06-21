@@ -69,6 +69,12 @@ import { User, UserSchema } from "src/users/schemas/user.schema";
             justOne: true,
           });
 
+          // schema.virtual("assignedMembers", {
+          // localField: "assignedMemberIds",
+          // foreignField: "_id",
+          // ref: Member.name,
+          // });
+
           return schema;
         },
       },
