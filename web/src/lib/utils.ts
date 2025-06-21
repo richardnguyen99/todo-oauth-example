@@ -64,6 +64,13 @@ export function createTaskFromFetchedData(data: FetchedTask): Task {
     createdAt: new Date(data.createdAt),
     updatedAt: new Date(data.updatedAt),
 
+    assignedMembers:
+      data.assignedMembers?.map((member) => ({
+        ...member,
+        createdAt: new Date(member.createdAt),
+        updatedAt: new Date(member.updatedAt),
+      })) || [],
+
     createdByUser: {
       ...data.createdByUser,
       createdAt: new Date(data.createdByUser.createdAt),

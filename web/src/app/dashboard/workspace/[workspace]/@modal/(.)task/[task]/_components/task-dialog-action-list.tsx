@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import TaskDueDate from "./task-due-date";
 import TaskAddLabel from "./task-add-label";
+import TaskAssignMember from "./task-assign-member";
 
 export default function TaskDialogActionList(): JSX.Element {
   return (
@@ -34,10 +35,7 @@ export default function TaskDialogActionList(): JSX.Element {
           Show Activities
         </Button>
 
-        <Button variant="secondary" className="w-full justify-start text-xs">
-          <Users className="h-4 w-4" />
-          Assign Members
-        </Button>
+        <TaskAssignMember />
       </div>
     </div>
   );

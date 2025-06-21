@@ -30,6 +30,7 @@ export type TaskBase = {
   createdBy: string;
   completedBy: string;
   workspaceId: string;
+  assignedMemberIds: Array<string>;
 };
 
 export type FetchedTask = TaskBase & {
@@ -40,6 +41,7 @@ export type FetchedTask = TaskBase & {
   completedByUser: FetchedUser | null;
   tags: Array<FetchedTag>;
   workspace: FetchedTaskWorkspaceSchema;
+  assignedMembers: Array<FetchedUser>;
 };
 
 export type Task = TaskBase & {
@@ -50,6 +52,7 @@ export type Task = TaskBase & {
   completedByUser: User | null;
   tags: Array<Tag>;
   workspace: TaskWorkspaceSchema;
+  assignedMembers: Array<User>;
 };
 
 export type TaskResponse = {

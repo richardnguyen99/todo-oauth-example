@@ -12,6 +12,7 @@ import TaskDialogActionList from "./_components/task-dialog-action-list";
 
 export default async function TaskInterceptingPage(): Promise<JSX.Element> {
   await new Promise((resolve) => setTimeout(resolve, 100));
+
   return (
     <div className="flex h-full w-full flex-col gap-0 overflow-hidden">
       <DialogHeader className="border-b py-5 text-left">
