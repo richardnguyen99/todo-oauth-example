@@ -69,7 +69,6 @@ export default function DeleteWorkspaceDialog({
       );
 
       if (newWorkspaces.length === 0) {
-        console.log("No workspaces left, redirecting to workspace page");
         setWorkspaces({
           workspaces: [],
           activeWorkspace: null,

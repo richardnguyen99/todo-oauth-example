@@ -34,8 +34,6 @@ export const TaskWithIdStoreProvider = ({
       status: "success",
       error: null,
     });
-
-    console.debug("task ref", storeRef.current);
   }
 
   React.useEffect(() => {

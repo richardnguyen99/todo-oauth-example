@@ -1,3 +1,4 @@
+import { FetchedMember, Member } from "./member";
 import { FetchedTag, Tag } from "./tag";
 import { FetchedUser, User } from "./user";
 import { FetchedWorkspace, Workspace } from "./workspace";
@@ -41,7 +42,7 @@ export type FetchedTask = TaskBase & {
   completedByUser: FetchedUser | null;
   tags: Array<FetchedTag>;
   workspace: FetchedTaskWorkspaceSchema;
-  assignedMembers: Array<FetchedUser>;
+  assignedMembers: Array<FetchedMember>;
 };
 
 export type Task = TaskBase & {
@@ -52,7 +53,7 @@ export type Task = TaskBase & {
   completedByUser: User | null;
   tags: Array<Tag>;
   workspace: TaskWorkspaceSchema;
-  assignedMembers: Array<User>;
+  assignedMembers: Array<Member>;
 };
 
 export type TaskResponse = {
