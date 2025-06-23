@@ -24,6 +24,20 @@ import { WorkspacesService } from "src/workspaces/workspaces.service";
 
 @Injectable()
 export class TasksService {
+  private readonly allowedMemberOperations = [
+    "completed",
+    "completedBy",
+    "dueDate",
+    "priority",
+    "title",
+    "description",
+    "items",
+    "addItems",
+    "updateItems",
+    "deleteItems",
+    "tag", // For adding/removing tags
+  ];
+
   constructor(
     @InjectModel(Task.name)
     private taskModel: Model<Task>,
@@ -428,13 +442,12 @@ export class TasksService {
 
     if (member.role === "member") {
       // Forbid member from updating task fields except `completed` and `completedBy`
-      const allowedFields = ["completed"];
       const updateKeys = Object.keys(updateTaskDto);
 
       for (const key of updateKeys) {
-        if (!allowedFields.includes(key)) {
+        if (!this.allowedMemberOperations.includes(key)) {
           throw new ForbiddenException(
-            `Members can only update the following fields: ${allowedFields.join(
+            `Members can only update the following fields: ${this.allowedMemberOperations.join(
               ", ",
             )}. Attempted to update: ${key}`,
           );
