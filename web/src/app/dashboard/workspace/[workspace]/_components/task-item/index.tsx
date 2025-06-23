@@ -163,16 +163,15 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
               .slice(0, 3)
               .reverse()
               .map((m) => (
-                <TaskItemAvatar
-                  key={m._id}
-                  content={`Created by ${m.user.username || "username"}`}
-                >
+                <TaskItemAvatar key={m._id} content={m.user.username}>
                   <Avatar className="bg-accent ml-auto h-6 w-6">
                     <AvatarImage
                       src={m.user.avatar}
                       alt={m.user.username}
                     ></AvatarImage>
-                    <AvatarFallback>{m.user.username}</AvatarFallback>
+                    <AvatarFallback>
+                      {m.user.username.charAt(0).toLowerCase()}
+                    </AvatarFallback>
                   </Avatar>
                 </TaskItemAvatar>
               ))}

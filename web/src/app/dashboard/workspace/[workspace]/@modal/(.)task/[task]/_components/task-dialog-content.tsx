@@ -10,6 +10,7 @@ import {
   Tags,
   Text,
   Trash2,
+  Users,
 } from "lucide-react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -17,13 +18,43 @@ import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_
 import TaskDueDate from "./task-due-date";
 import TaskDescription from "./task-description";
 import TaskDialogBadge from "./task-add-label/badge";
+import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
+import TaskDialogAvatar from "./task-dialog-avatar";
 
 export default function TaskDialogContent(): JSX.Element {
   const { task } = useTaskWithIdStore((s) => s);
+  const { activeWorkspace } = useWorkspaceStore((s) => s);
+
+  const taskMembers = React.useMemo(() => {
+    if (!activeWorkspace) {
+      return [];
+    }
+
+    return activeWorkspace.members.filter((member) =>
+      task.assignedMemberIds.includes(member._id),
+    );
+  }, [activeWorkspace, task]);
 
   return (
     <ScrollArea className="w-full md:w-3/4 [&>div>div]:!block">
       <div className="flex flex-col gap-8 pt-3">
+        {taskMembers.length > 0 && (
+          <div className="min-h-[64px] w-full">
+            <div className="flex items-center gap-3 pl-5 text-lg leading-none font-semibold">
+              <Users className="h-6 w-6" />
+              <p>Task members</p>
+            </div>
+
+            <div className="mt-2 w-full pl-5 md:pl-14">
+              <div className="flex w-full flex-wrap items-center gap-2 pr-4">
+                {taskMembers.map((member) => (
+                  <TaskDialogAvatar key={member._id} member={member} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {task.tags.length > 0 && (
           <div className="min-h-[64px] w-full">
             <div className="flex items-center gap-3 pl-5 text-lg leading-none font-semibold">
