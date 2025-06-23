@@ -53,7 +53,7 @@ export type Task = TaskBase & {
   completedByUser: User | null;
   tags: Array<Tag>;
   workspace: TaskWorkspaceSchema;
-  assignedMembers: Array<Member>;
+  assignedMembers: Array<Omit<Member, "user">>;
 };
 
 export type TaskResponse = {

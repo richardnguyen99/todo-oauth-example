@@ -7,6 +7,16 @@ import { CommandItem } from "@/components/ui/command";
 import { Workspace } from "@/_types/workspace";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import api from "@/lib/axios";
+import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
+import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
+import { UpdateTaskResponse } from "@/_types/task";
+import { createTaskFromFetchedData } from "@/lib/utils";
+import { invalidateTasks } from "@/lib/fetch-tasks";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Props = Readonly<{
   member: Workspace["members"][number];
@@ -21,9 +31,13 @@ export default function TaskAssignMemberItem({
   taskId,
   type,
 }: Props): JSX.Element {
-  const {} = useMutation({
+  const { setTask } = useTaskWithIdStore((s) => s);
+  const { tasks, setTasks, status, setStatus } = useTaskStore((s) => s);
+
+  const { mutate } = useMutation({
     mutationFn: async () => {
-      const res = await api.put(
+      setStatus("loading");
+      const res = await api.put<UpdateTaskResponse>(
         `/tasks/${taskId}?workspace_id=${workspaceId}`,
         {
           assignedMember: {
@@ -42,9 +56,22 @@ export default function TaskAssignMemberItem({
 
     onMutate: () => {},
 
-    onSuccess: (data) => {},
+    onSuccess: async (data) => {
+      await invalidateTasks(workspaceId);
+      await invalidateTasks(taskId);
 
-    onSettled: () => {},
+      const updatedTask = createTaskFromFetchedData(data.data);
+      const updatedTasks = tasks.map((t) =>
+        t._id === updatedTask._id ? updatedTask : t,
+      );
+
+      setTask(updatedTask);
+      setTasks(updatedTasks);
+    },
+
+    onSettled: () => {
+      setStatus("success");
+    },
 
     onError: (error) => {
       console.error("Error assigning member to task:", error);
@@ -52,16 +79,28 @@ export default function TaskAssignMemberItem({
   });
 
   return (
-    <CommandItem key={member._id}>
-      <Avatar className="size-6">
-        <AvatarImage src={member.user.avatar} />
-        <AvatarFallback>
-          {member.user.username.charAt(0).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
-      <span className="line-clamp-1 flex w-full items-center gap-2">
-        {member.user.username}
-      </span>
+    <CommandItem
+      key={member._id}
+      onSelect={() => mutate()}
+      className="cursor-pointer"
+    >
+      <Tooltip>
+        <TooltipTrigger disabled={status === "loading"} asChild>
+          <div className="flex w-full items-center gap-2">
+            <Avatar className="size-6">
+              <AvatarImage src={member.user.avatar} />
+              <AvatarFallback>
+                {member.user.username.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="line-clamp-1 flex w-full items-center gap-2">
+              {member.user.username}
+            </span>
+          </div>
+        </TooltipTrigger>
+
+        <TooltipContent>{member.user.username}</TooltipContent>
+      </Tooltip>
     </CommandItem>
   );
 }

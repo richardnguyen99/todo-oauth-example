@@ -599,6 +599,9 @@ export class TasksService {
       },
       { path: "completedByUser", select: "-workspaces -accounts" },
       "tags",
+      {
+        path: "assignedMembers",
+      },
     ]);
 
     return populatedTask;

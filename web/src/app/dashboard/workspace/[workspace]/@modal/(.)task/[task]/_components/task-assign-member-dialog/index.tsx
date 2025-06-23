@@ -20,9 +20,12 @@ import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { Workspace } from "@/_types/workspace";
 import TaskAssignMemberItem from "./task-assign-member-item";
+import { cn } from "@/lib/utils";
+import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
 
 export default function TaskAssignMember(): JSX.Element {
   const { task } = useTaskWithIdStore((s) => s);
+  const { status } = useTaskStore((s) => s);
   const { activeWorkspace } = useWorkspaceStore((s) => s);
   const [taskMembers, workspaceMembers] = React.useMemo(() => {
     if (!task || !activeWorkspace) {
@@ -59,7 +62,11 @@ export default function TaskAssignMember(): JSX.Element {
       <PopoverContent className="w-72 p-0" align="end">
         <Command>
           <CommandInput placeholder="Search filter" />
-          <CommandList>
+          <CommandList
+            className={cn({
+              "opacity-50": status === "loading",
+            })}
+          >
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Task members">
               {taskMembers.map((m) => (
@@ -68,8 +75,15 @@ export default function TaskAssignMember(): JSX.Element {
                   member={m}
                   workspaceId={activeWorkspace._id}
                   taskId={task._id}
+                  type="REMOVE"
                 />
               ))}
+
+              {taskMembers.length === 0 && (
+                <div className="text-muted-foreground px-3 py-2 text-xs italic">
+                  No members assigned to this task.
+                </div>
+              )}
             </CommandGroup>
 
             <CommandGroup heading="Workspace members">
@@ -79,8 +93,15 @@ export default function TaskAssignMember(): JSX.Element {
                   member={m}
                   workspaceId={activeWorkspace._id}
                   taskId={task._id}
+                  type="ADD"
                 />
               ))}
+
+              {workspaceMembers.length === 0 && (
+                <div className="text-muted-foreground px-3 py-2 text-xs italic">
+                  No members available to assign.
+                </div>
+              )}
             </CommandGroup>
           </CommandList>
         </Command>
