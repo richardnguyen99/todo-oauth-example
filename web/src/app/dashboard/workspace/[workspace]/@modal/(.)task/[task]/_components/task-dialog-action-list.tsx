@@ -1,11 +1,11 @@
 import React, { type JSX } from "react";
-import { AlarmClockIcon, SquareCheckBig, History, Users } from "lucide-react";
+import { AlarmClockIcon, SquareCheckBig, History } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import TaskDueDate from "./task-due-date";
 import TaskAddLabel from "./task-add-label";
-import TaskAssignMember from "./task-assign-member";
+import TaskAssignMemberDialog from "./task-assign-member-dialog";
 
 export default function TaskDialogActionList(): JSX.Element {
   return (
@@ -35,7 +35,7 @@ export default function TaskDialogActionList(): JSX.Element {
           Show Activities
         </Button>
 
-        <TaskAssignMember />
+        <TaskAssignMemberDialog />
       </div>
     </div>
   );

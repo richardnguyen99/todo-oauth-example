@@ -14,34 +14,12 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandInput,
-  CommandItem,
   CommandList,
 } from "@/components/ui/command";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { Workspace } from "@/_types/workspace";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { AvatarFallback } from "@radix-ui/react-avatar";
-
-function TaskAssignMemberItem({
-  member,
-}: {
-  member: Workspace["members"][number];
-}): JSX.Element {
-  return (
-    <CommandItem key={member._id}>
-      <Avatar className="size-6">
-        <AvatarImage src={member.user.avatar} />
-        <AvatarFallback>
-          {member.user.username.charAt(0).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
-      <span className="line-clamp-1 flex w-full items-center gap-2">
-        {member.user.username}
-      </span>
-    </CommandItem>
-  );
-}
+import TaskAssignMemberItem from "./task-assign-member-item";
 
 export default function TaskAssignMember(): JSX.Element {
   const { task } = useTaskWithIdStore((s) => s);
@@ -85,13 +63,23 @@ export default function TaskAssignMember(): JSX.Element {
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Task members">
               {taskMembers.map((m) => (
-                <TaskAssignMemberItem key={m._id} member={m} />
+                <TaskAssignMemberItem
+                  key={m._id}
+                  member={m}
+                  workspaceId={activeWorkspace._id}
+                  taskId={task._id}
+                />
               ))}
             </CommandGroup>
 
             <CommandGroup heading="Workspace members">
               {workspaceMembers.map((m) => (
-                <TaskAssignMemberItem key={m._id} member={m} />
+                <TaskAssignMemberItem
+                  key={m._id}
+                  member={m}
+                  workspaceId={activeWorkspace._id}
+                  taskId={task._id}
+                />
               ))}
             </CommandGroup>
           </CommandList>
