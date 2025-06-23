@@ -14,6 +14,7 @@ import TaskItemAvatar from "./avatar";
 import DeleteTaskDialog from "./delete-task-dialog";
 import TaskItemActionDropdown from "./action-dropdown";
 import { Task } from "@/_types/task";
+import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 
 type Props = Readonly<
   {
@@ -25,6 +26,17 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [deleteDialogShow, setDeleteDialogShow] = React.useState(false);
+  const { activeWorkspace } = useWorkspaceStore((s) => s);
+
+  const taskMembers = React.useMemo(() => {
+    if (!activeWorkspace) {
+      return [];
+    }
+
+    return activeWorkspace.members.filter((member) =>
+      task.assignedMemberIds.includes(member._id),
+    );
+  }, [activeWorkspace, task]);
 
   const handleClick = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -108,7 +120,7 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
           </div>
         </div>
 
-        <div className="mt-2 flex flex-nowrap items-center gap-2 px-3">
+        <div className="mt-2 flex flex-nowrap items-center gap-2 pl-3">
           <div className="flex shrink basis-auto items-center gap-2 overflow-hidden pl-5">
             {task.dueDate && (
               <TaskItemDueDate
@@ -136,18 +148,34 @@ export default function TaskItem({ task, ...rest }: Props): JSX.Element {
             )}
           </div>
 
-          <div className="text-muted-foreground ml-auto inline-flex w-6 text-xs">
-            <TaskItemAvatar
-              content={`Created by ${task.createdByUser?.username || "username"}`}
-            >
-              <Avatar className="bg-accent ml-auto h-6 w-6">
-                <AvatarImage
-                  src={task.createdByUser?.avatar}
-                  alt={task.createdByUser?.username}
-                ></AvatarImage>
-                <AvatarFallback>{task.createdByUser?.username}</AvatarFallback>
-              </Avatar>
-            </TaskItemAvatar>
+          <div className="text-muted-foreground ml-auto flex gap-1">
+            {taskMembers.length > 3 && (
+              <TaskItemAvatar
+                content={`${taskMembers.length - 3} more members`}
+              >
+                <Avatar className="bg-accent h-6 w-6 text-xs">
+                  <AvatarFallback>+{taskMembers.length - 3}</AvatarFallback>
+                </Avatar>
+              </TaskItemAvatar>
+            )}
+
+            {taskMembers
+              .slice(0, 3)
+              .reverse()
+              .map((m) => (
+                <TaskItemAvatar
+                  key={m._id}
+                  content={`Created by ${m.user.username || "username"}`}
+                >
+                  <Avatar className="bg-accent ml-auto h-6 w-6">
+                    <AvatarImage
+                      src={m.user.avatar}
+                      alt={m.user.username}
+                    ></AvatarImage>
+                    <AvatarFallback>{m.user.username}</AvatarFallback>
+                  </Avatar>
+                </TaskItemAvatar>
+              ))}
           </div>
         </div>
       </div>

@@ -99,7 +99,9 @@ export default function TaskAssignMemberItem({
           </div>
         </TooltipTrigger>
 
-        <TooltipContent>{member.user.username}</TooltipContent>
+        <TooltipContent>
+          {type.charAt(0) + type.slice(1).toLowerCase()} {member.user.username}
+        </TooltipContent>
       </Tooltip>
     </CommandItem>
   );
