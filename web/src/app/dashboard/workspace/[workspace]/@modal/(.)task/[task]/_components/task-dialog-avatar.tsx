@@ -3,6 +3,7 @@
 import React, { type JSX } from "react";
 import { MapPin, Calendar } from "lucide-react";
 import { formatDate } from "date-fns";
+import { useMutation } from "@tanstack/react-query";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -18,9 +19,18 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Workspace } from "@/_types/workspace";
+import { useTaskWithIdStore } from "../../../../task/_providers/task";
+import { useTaskStore } from "../../../../_providers/task";
+import { UpdateTaskResponse } from "@/_types/task";
+import api from "@/lib/axios";
+import { invalidateTasks } from "@/lib/fetch-tasks";
+import { invalidateTaskId } from "@/lib/fetch-task-id";
+import { createTaskFromFetchedData } from "@/lib/utils";
 
 type Props = Readonly<{
   member: Workspace["members"][number];
+  taskId: string;
+  workspaceId: string;
 }>;
 
 const getRoleColor = (role: Props["member"]["role"]) => {
@@ -36,8 +46,58 @@ const getRoleColor = (role: Props["member"]["role"]) => {
   }
 };
 
-export default function TaskDialogAvatar({ member }: Props): JSX.Element {
+export default function TaskDialogAvatar({
+  member,
+  taskId,
+  workspaceId,
+}: Props): JSX.Element {
   const [open, setOpen] = React.useState(false);
+  const { setTask } = useTaskWithIdStore((s) => s);
+  const { tasks, setTasks, setStatus } = useTaskStore((s) => s);
+
+  const { mutate } = useMutation({
+    mutationFn: async () => {
+      setStatus("loading");
+      const res = await api.put<UpdateTaskResponse>(
+        `/tasks/${taskId}?workspace_id=${workspaceId}`,
+        {
+          assignedMember: {
+            action: "REMOVE",
+            memberId: member._id,
+          },
+        },
+      );
+
+      if (res.status !== 200) {
+        throw new Error("Failed to assign member to task");
+      }
+
+      return res.data;
+    },
+
+    onMutate: () => {},
+
+    onSuccess: async (data) => {
+      await invalidateTasks(workspaceId);
+      await invalidateTaskId(taskId);
+
+      const updatedTask = createTaskFromFetchedData(data.data);
+      const updatedTasks = tasks.map((t) =>
+        t._id === updatedTask._id ? updatedTask : t,
+      );
+
+      setTask(updatedTask);
+      setTasks(updatedTasks);
+    },
+
+    onSettled: () => {
+      setStatus("success");
+    },
+
+    onError: (error) => {
+      console.error("Error assigning member to task:", error);
+    },
+  });
 
   const user = {
     name: member.user.username,
@@ -143,6 +203,9 @@ export default function TaskDialogAvatar({ member }: Props): JSX.Element {
                 variant="destructive"
                 size="sm"
                 className="text-foreground flex-1 bg-white"
+                onClick={() => {
+                  mutate();
+                }}
               >
                 Remove Member
               </Button>

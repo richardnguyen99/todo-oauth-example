@@ -35,6 +35,10 @@ export default function TaskDialogContent(): JSX.Element {
     );
   }, [activeWorkspace, task]);
 
+  if (activeWorkspace === null || task === null) {
+    return <div className="p-4">Loading...</div>;
+  }
+
   return (
     <ScrollArea className="w-full md:w-3/4 [&>div>div]:!block">
       <div className="flex flex-col gap-8 pt-3">
@@ -48,7 +52,12 @@ export default function TaskDialogContent(): JSX.Element {
             <div className="mt-2 w-full pl-5 md:pl-14">
               <div className="flex w-full flex-wrap items-center gap-2 pr-4">
                 {taskMembers.map((member) => (
-                  <TaskDialogAvatar key={member._id} member={member} />
+                  <TaskDialogAvatar
+                    key={member._id}
+                    member={member}
+                    workspaceId={activeWorkspace._id}
+                    taskId={task._id}
+                  />
                 ))}
               </div>
             </div>

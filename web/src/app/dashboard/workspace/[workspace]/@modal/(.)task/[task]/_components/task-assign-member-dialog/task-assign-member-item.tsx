@@ -17,6 +17,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { invalidateTaskId } from "@/lib/fetch-task-id";
 
 type Props = Readonly<{
   member: Workspace["members"][number];
@@ -58,7 +59,7 @@ export default function TaskAssignMemberItem({
 
     onSuccess: async (data) => {
       await invalidateTasks(workspaceId);
-      await invalidateTasks(taskId);
+      await invalidateTaskId(taskId);
 
       const updatedTask = createTaskFromFetchedData(data.data);
       const updatedTasks = tasks.map((t) =>
