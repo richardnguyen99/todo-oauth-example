@@ -19,13 +19,15 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Workspace } from "@/_types/workspace";
-import { useTaskWithIdStore } from "../../../../task/_providers/task";
-import { useTaskStore } from "../../../../_providers/task";
+import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
+import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
 import { UpdateTaskResponse } from "@/_types/task";
 import api from "@/lib/axios";
 import { invalidateTasks } from "@/lib/fetch-tasks";
 import { invalidateTaskId } from "@/lib/fetch-task-id";
 import { createTaskFromFetchedData } from "@/lib/utils";
+import { useUserStore } from "@/providers/user-store-provider";
+import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 
 type Props = Readonly<{
   member: Workspace["members"][number];
@@ -54,6 +56,8 @@ export default function TaskDialogAvatar({
   const [open, setOpen] = React.useState(false);
   const { setTask } = useTaskWithIdStore((s) => s);
   const { tasks, setTasks, setStatus } = useTaskStore((s) => s);
+  const { activeWorkspace } = useWorkspaceStore((s) => s);
+  const { user: currentUser } = useUserStore((s) => s);
 
   const { mutate } = useMutation({
     mutationFn: async () => {
@@ -98,6 +102,30 @@ export default function TaskDialogAvatar({
       console.error("Error assigning member to task:", error);
     },
   });
+
+  const getDisabled = React.useCallback(() => {
+    if (!activeWorkspace || !currentUser) return false;
+
+    // Is the current user the owner of the workspace
+    if (activeWorkspace.ownerId === currentUser?.id) {
+      return false;
+    }
+
+    const workspaceMember = activeWorkspace.members.find(
+      (m) => m.userId === currentUser.id,
+    )!;
+
+    if (workspaceMember.role === "admin") {
+      if (member.role === "member" || workspaceMember._id === member._id) {
+        console.log(
+          "Admin can only remove members, not owners or other admins",
+        );
+        return false;
+      }
+    }
+
+    return true;
+  }, [activeWorkspace, currentUser, member]);
 
   const user = {
     name: member.user.username,
@@ -202,7 +230,8 @@ export default function TaskDialogAvatar({
               <Button
                 variant="destructive"
                 size="sm"
-                className="text-foreground flex-1 bg-white"
+                className="text-foreground flex-1"
+                disabled={getDisabled()}
                 onClick={() => {
                   mutate();
                 }}
