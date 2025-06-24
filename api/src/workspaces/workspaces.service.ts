@@ -271,7 +271,7 @@ export class WorkspacesService {
       workspaceId,
     );
 
-    const { newMemberId, role } = addNewMemberDto; // Destructure to get newMemberId and role
+    const { newMemberId, role } = addNewMemberDto;
 
     // Check if the user to be added exists
     const user = await this.userModel.findById(newMemberId);
