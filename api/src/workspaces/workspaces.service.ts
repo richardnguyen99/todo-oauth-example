@@ -433,17 +433,40 @@ export class WorkspacesService {
   }
 
   async updateWorkspace(
-    ownerId: string,
+    userId: string,
     workspaceId: string,
     updateData: UpdateWorkspaceDto,
   ): Promise<WorkspaceDocument> {
+    const member = await this.memberModel.findOne({
+      userId: userId,
+      workspaceId: workspaceId,
+    });
+
+    if (!member) {
+      throw new NotFoundException(
+        `User with ID ${userId} is not a member of workspace with ID ${workspaceId}.`,
+      );
+    }
+
     const updateQuery: mongoose.UpdateQuery<WorkspaceDocument> = {};
 
     if (updateData.title) {
+      if (member.role !== "owner") {
+        throw new ForbiddenException(
+          `User with ID ${userId} is not allowed to update the workspace title.`,
+        );
+      }
+
       updateQuery["title"] = updateData.title;
     }
 
     if (updateData.icon) {
+      if (member.role !== "owner") {
+        throw new ForbiddenException(
+          `User with ID ${userId} is not allowed to update the workspace icon.`,
+        );
+      }
+
       updateQuery["icon"] = updateData.icon;
     }
 
@@ -462,7 +485,10 @@ export class WorkspacesService {
     const workspace = await this.workspaceModel.findOneAndUpdate(
       {
         _id: workspaceId,
-        ownerId,
+        $or: [
+          { ownerId: userId },
+          { memberIds: { $elemMatch: { $eq: member?._id } } },
+        ],
       },
       {
         $set: updateQuery,
