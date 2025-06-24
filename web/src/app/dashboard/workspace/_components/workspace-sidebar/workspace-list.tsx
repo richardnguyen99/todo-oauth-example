@@ -62,6 +62,7 @@ function SidebarWorkspaceList({
             key={ws._id}
             workspace={ws}
             isActive={ws._id === activeWorkspace?._id}
+            owned={ws.ownerId === activeWorkspace?.ownerId}
           />
         ))}
 

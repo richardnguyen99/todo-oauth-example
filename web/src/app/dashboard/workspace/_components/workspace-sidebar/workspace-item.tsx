@@ -28,12 +28,14 @@ type Props = Readonly<
   {
     workspace: Workspace;
     isActive: boolean;
+    owned?: boolean;
   } & React.ComponentProps<typeof SidebarMenuItem>
 >;
 
 export default function SidebarWorkspaceItem({
   workspace,
   isActive,
+  owned = false,
   ...props
 }: Props): JSX.Element {
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
@@ -94,28 +96,35 @@ export default function SidebarWorkspaceItem({
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem onSelect={() => setUpdateDialogOpen(true)}>
-            <LucideIcons.Pen className="text-muted-foreground" />
-            <span>Update</span>
-          </DropdownMenuItem>
+          {owned && (
+            <>
+              <DropdownMenuItem onSelect={() => setUpdateDialogOpen(true)}>
+                <LucideIcons.Pen className="text-muted-foreground" />
+                <span>Update</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <LucideIcons.SquarePen className="text-muted-foreground" />
+                <span>Rename</span>
+              </DropdownMenuItem>
+            </>
+          )}
 
           <DropdownMenuItem>
             <LucideIcons.Copy className="text-muted-foreground" />
             <span>Duplicate</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <LucideIcons.SquarePen className="text-muted-foreground" />
-            <span>Rename</span>
-          </DropdownMenuItem>
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem onSelect={() => setDeleteDialogOpen(true)}>
-            <LucideIcons.Trash2 className="text-muted-foreground" />
-            <span>Delete</span>
-          </DropdownMenuItem>
-
-          <DropdownMenuSeparator />
+          {owned && (
+            <>
+              <DropdownMenuItem onSelect={() => setDeleteDialogOpen(true)}>
+                <LucideIcons.Trash2 className="text-muted-foreground" />
+                <span>Delete</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
 
           <DropdownMenuItem className="text-xs" disabled>
             Last modified:{" "}
