@@ -21,8 +21,9 @@ import {
   Workspace,
 } from "@/_types/workspace";
 import api from "@/lib/axios";
-import { useWorkspaceStore } from "../../_providers/workspace";
+import { useWorkspaceStore } from "../../../_providers/workspace";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
+import { toastSuccess } from "@/lib/toast";
 
 type Props = Readonly<{
   show: boolean;
@@ -95,6 +96,10 @@ export default function DeleteWorkspaceDialog({
           status: "loading",
         });
       }
+      toastSuccess("Workspace deleted successfully", {
+        description: "The workspace has been removed from your account.",
+      });
+
       router.refresh();
       onClose?.();
     },

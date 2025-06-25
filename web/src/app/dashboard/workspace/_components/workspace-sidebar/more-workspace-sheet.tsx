@@ -34,8 +34,8 @@ import { Workspace } from "@/_types/workspace";
 import { Color } from "@/_types/color";
 import { colorMap } from "../../_constants/colors";
 import { cn } from "@/lib/utils";
-import DeleteWorkspaceDialog from "../delete-workspace-dialog";
-import UpdateWorkspaceDialog from "../update-workspace-dialog";
+import DeleteWorkspaceDialog from "./delete-workspace-dialog";
+import UpdateWorkspaceDialog from "./update-workspace-dialog";
 
 type Props = Readonly<{
   workspaces: Workspace[];

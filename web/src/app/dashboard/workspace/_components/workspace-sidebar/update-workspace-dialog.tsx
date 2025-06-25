@@ -29,9 +29,9 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { colorList, colorMap } from "../_constants/colors";
-import { icons } from "../_constants/icons";
-import { useWorkspaceStore } from "../../_providers/workspace";
+import { colorList, colorMap } from "../../_constants/colors";
+import { icons } from "../../_constants/icons";
+import { useWorkspaceStore } from "../../../_providers/workspace";
 import {
   UpdateWorkspaceErrorResponse,
   UpdateWorkspaceResponse,
@@ -45,6 +45,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
+import { toastSuccess } from "@/lib/toast";
 
 const [firstColor, ...otherColors] = Object.keys(
   colorMap,
@@ -114,6 +115,8 @@ export default function UpdateWorkspaceDialog({
     },
 
     onSuccess: (data) => {
+      invalidateWorkspaces();
+
       const newWorkspace = {
         ...workspace,
         title: data.data.title,
@@ -137,7 +140,9 @@ export default function UpdateWorkspaceDialog({
         status: "loading",
       });
 
-      invalidateWorkspaces();
+      toastSuccess("Workspace updated successfully", {
+        description: "Your workspace details have been updated.",
+      });
       setShow(false);
       onClose?.();
     },
@@ -164,7 +169,7 @@ export default function UpdateWorkspaceDialog({
     colorList.find((c) => c.name === watchedValues.color)?.name || "Color";
 
   return (
-    <Dialog open={show} onOpenChange={setShow}>
+    <Dialog open={show} onOpenChange={setShow} modal>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Update Workspace</DialogTitle>
