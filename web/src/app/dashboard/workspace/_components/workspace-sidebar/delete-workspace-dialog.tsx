@@ -23,7 +23,7 @@ import {
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "../../../_providers/workspace";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
-import { toastSuccess } from "@/lib/toast";
+import { toastError, toastSuccess } from "@/lib/toast";
 
 type Props = Readonly<{
   show: boolean;
@@ -111,6 +111,10 @@ export default function DeleteWorkspaceDialog({
 
     onError: (error) => {
       console.error("Error deleting workspace:", error);
+
+      toastError("Failed to delete workspace", {
+        description: `${error.error || "An error occurred while deleting the workspace."}`,
+      });
     },
   });
 

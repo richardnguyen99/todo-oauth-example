@@ -45,7 +45,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
-import { toastSuccess } from "@/lib/toast";
+import { toastError, toastSuccess } from "@/lib/toast";
 
 const [firstColor, ...otherColors] = Object.keys(
   colorMap,
@@ -152,11 +152,16 @@ export default function UpdateWorkspaceDialog({
     },
 
     onError: (error: AxiosError<UpdateWorkspaceErrorResponse>) => {
+      const errorMessage = `${error.response?.data.message}: ${(error.response?.data.error as { message: string }).message}`;
+
       form.setError("root.badRequest", {
         type: "400",
-        message: error.response?.data.message,
+        message: errorMessage,
       });
-      console.error("Error creating workspace:", error);
+
+      toastError("Failed to update workspace", {
+        description: errorMessage,
+      });
     },
   });
 
@@ -167,6 +172,10 @@ export default function UpdateWorkspaceDialog({
   // Get the selected color name for display
   const selectedColorName =
     colorList.find((c) => c.name === watchedValues.color)?.name || "Color";
+
+  const onSubmit = (values: FormValues) => {
+    mutate(values, { onSuccess: () => form.reset() });
+  };
 
   return (
     <Dialog open={show} onOpenChange={setShow} modal>
@@ -180,12 +189,7 @@ export default function UpdateWorkspaceDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit((values) =>
-              mutate(values, { onSuccess: () => form.reset() }),
-            )}
-            className="space-y-6"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="title"

@@ -45,7 +45,7 @@ import { icons } from "../../_constants/icons";
 import { colorList, colorMap } from "../../_constants/colors";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
-import { toastSuccess } from "@/lib/toast";
+import { toastError, toastSuccess } from "@/lib/toast";
 
 const [defaultColor, ...otherColors] = Object.keys(
   colorMap,
@@ -157,9 +157,15 @@ export default function SidebarAddWorkspaceDialog({
     onSettled: () => {},
 
     onError: (error: AxiosError<UpdateWorkspaceErrorResponse>) => {
+      const errorMessage = `${error.response?.data.message}: ${(error.response?.data.error as { message: string }).message}`;
+
       form.setError("root.badRequest", {
         type: "400",
-        message: error.response?.data.message,
+        message: errorMessage,
+      });
+
+      toastError("Failed to create workspace", {
+        description: errorMessage,
       });
     },
   });
