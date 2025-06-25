@@ -45,6 +45,7 @@ import { icons } from "../../_constants/icons";
 import { colorList, colorMap } from "../../_constants/colors";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
+import { toastSuccess } from "@/lib/toast";
 
 const [defaultColor, ...otherColors] = Object.keys(
   colorMap,
@@ -114,6 +115,16 @@ export default function SidebarAddWorkspaceDialog({
     },
 
     onSuccess: async (data) => {
+      toastSuccess("Workspace created successfully", {
+        description: "Your new workspace has been created.",
+        action: {
+          label: "View",
+          onClick: () => {
+            console.log("Action clicked");
+          },
+        },
+      });
+
       // Invalidate the query to refetch the workspaces
       await queryClient.invalidateQueries({
         queryKey: ["fetch-workspace"],
@@ -139,8 +150,8 @@ export default function SidebarAddWorkspaceDialog({
         status: "success",
       });
 
-      push(`/dashboard/workspace/${newWorkspace._id}`);
       setOpen(false);
+      push(`/dashboard/workspace/${newWorkspace._id}`);
     },
 
     onSettled: () => {},
