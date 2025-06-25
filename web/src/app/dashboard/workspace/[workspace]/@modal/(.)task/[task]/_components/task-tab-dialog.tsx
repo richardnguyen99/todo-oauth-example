@@ -35,7 +35,7 @@ import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import TaskDueDate from "./task-due-date";
+import TaskDueDate from "./task-dialog-due-date";
 import TaskDescription from "./task-description";
 import TaskAddLabel from "./task-add-label";
 import TaskBadge from "./task-add-label/badge";

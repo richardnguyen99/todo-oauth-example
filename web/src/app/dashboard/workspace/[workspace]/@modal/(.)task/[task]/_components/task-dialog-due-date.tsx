@@ -20,13 +20,14 @@ import { invalidateTasks } from "@/lib/fetch-tasks";
 import { invalidateTaskId } from "@/lib/fetch-task-id";
 import { UpdateTaskErrorResponse, UpdateTaskResponse } from "@/_types/task";
 import { createTaskFromFetchedData } from "@/lib/utils";
+import { toastError, toastSuccess } from "@/lib/toast";
 
 type Props = Readonly<{
   disableClose?: boolean;
   align?: React.ComponentProps<typeof TaskDatePicker>["align"];
 }>;
 
-export default function TaskDueDate({
+export default function TaskDialogDueDate({
   disableClose = false,
   align = "end",
 }: Props): JSX.Element {
@@ -62,6 +63,19 @@ export default function TaskDueDate({
         t._id === data.data._id ? newTask : t,
       );
 
+      toastSuccess(`Task id=${newTask._id}`, {
+        description: data.data.dueDate ? (
+          <p>
+            Due date updated to{" "}
+            <span className="font-bold">
+              {format(data.data.dueDate, "MM/dd/yyyy")}
+            </span>
+          </p>
+        ) : (
+          <p>Due date removed</p>
+        ),
+      });
+
       setTask(newTask);
       setTasks(updatedTasks);
 
@@ -72,7 +86,12 @@ export default function TaskDueDate({
     onSettled: (_data, _error) => {},
 
     onError: (error) => {
-      console.log("add due date error: ", error);
+      console.log("add due date error: ", error.response?.data);
+      const errorMessage = `${error.response?.data.message}: ${(error.response?.data.error as { message: string }).message}`;
+
+      toastError("Failed to update due date", {
+        description: errorMessage,
+      });
     },
   });
 

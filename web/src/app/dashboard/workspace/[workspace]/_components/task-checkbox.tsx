@@ -14,6 +14,7 @@ import {
 import { invalidateTasks } from "@/lib/fetch-tasks";
 import { createTaskFromFetchedData } from "@/lib/utils";
 import { AxiosError } from "axios";
+import { toastError, toastSuccess } from "@/lib/toast";
 
 type Props = Readonly<{
   task: Task;
@@ -50,6 +51,18 @@ export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
         return t;
       });
 
+      toastSuccess(`Task id=${updatedTask._id}`, {
+        description: (
+          <p>
+            Task is now{" "}
+            <span className="font-bold">
+              {updatedTask.completed ? "completed" : "not completed"}
+            </span>
+            .
+          </p>
+        ),
+      });
+
       setTasks(updatedTasks);
       setTask?.(updatedTask);
 
@@ -58,7 +71,12 @@ export default function TaskCheckbox({ task, setTask }: Props): JSX.Element {
     },
 
     onError: (error) => {
-      console.error("Error updating task:", error);
+      console.error("Error updating task:", error.response?.data);
+      const errorMessage = `${error.response?.data.message}: ${(error.response?.data.error as { message: string }).message}`;
+
+      toastError("Failed to update task", {
+        description: errorMessage,
+      });
     },
   });
 

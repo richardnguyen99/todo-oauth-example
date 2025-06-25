@@ -15,7 +15,7 @@ import {
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
-import TaskDueDate from "./task-due-date";
+import TaskDialogDueDate from "./task-dialog-due-date";
 import TaskDescription from "./task-description";
 import TaskDialogBadge from "./task-add-label/badge";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
@@ -90,7 +90,7 @@ export default function TaskDialogContent(): JSX.Element {
 
             <div className="mt-2 w-full pl-5 md:pl-14">
               <div className="flex w-fit flex-wrap items-center gap-2 pr-4">
-                <TaskDueDate align="start" />
+                <TaskDialogDueDate align="start" />
               </div>
             </div>
           </div>

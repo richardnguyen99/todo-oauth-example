@@ -3,7 +3,7 @@ import { AlarmClockIcon, SquareCheckBig, History } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import TaskDueDate from "./task-due-date";
+import TaskDueDate from "./task-dialog-due-date";
 import TaskAddLabel from "./task-add-label";
 import TaskAssignMemberDialog from "./task-assign-member-dialog";
 
