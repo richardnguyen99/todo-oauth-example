@@ -8,7 +8,6 @@ import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
-import { ErrorApiResponse } from "@/app/_types/response";
 import { useTaskAddLabelContext } from "./provider";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
@@ -16,6 +15,8 @@ import { UpdateTagErrorResponse, UpdateTagResponse } from "@/_types/tag";
 import { invalidateTaskId } from "@/lib/fetch-task-id";
 import { invalidateTasks } from "@/lib/fetch-tasks";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
+import { UpdateWorkspaceErrorResponse } from "@/_types/workspace";
+import { toastError, toastSuccess } from "@/lib/toast";
 
 type Props = Readonly<{
   text: string;
@@ -151,6 +152,18 @@ export default function UpdateLabelButton({
         };
       });
 
+      toastSuccess(`Workspace id=${activeWorkspace!._id}`, {
+        description: (
+          <p>
+            Label updated:{" "}
+            <span className="font-bold">
+              text=&apos;{data.data.text}&apos;, color=&apos;{data.data.color}
+              &apos;
+            </span>
+          </p>
+        ),
+      });
+
       setWorkspaces({
         workspaces: updatedWorkspaces,
         activeWorkspace: updatedWorkspace,
@@ -164,9 +177,15 @@ export default function UpdateLabelButton({
       setView("list");
     },
 
-    onError: (error: AxiosError<ErrorApiResponse>) => {
-      console.error(error);
-      setErrorMessage(error.response?.data.message || "An error occurred");
+    onError: (error: AxiosError<UpdateWorkspaceErrorResponse>) => {
+      const errorMessage = `${error.response?.data.message}: ${
+        (error.response?.data.error as { message: string }).message
+      }`;
+
+      setErrorMessage(errorMessage);
+      toastError(`Workspace id=${activeWorkspace!._id}`, {
+        description: errorMessage,
+      });
     },
 
     onSettled: () => {

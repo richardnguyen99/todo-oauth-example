@@ -23,8 +23,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
           ? exceptionResponse.message
           : exception.message || exception.name || "failed";
 
-    console.log(exceptionResponse);
-
     response.status(status).json({
       timestamp: new Date().toISOString(),
       path: request.url,

@@ -4,11 +4,10 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import mongoose, { Model, MongooseError } from "mongoose";
+import mongoose, { Model } from "mongoose";
 
 import { User } from "src/users/schemas/user.schema";
 import {
@@ -645,40 +644,25 @@ forbidden.",
 
     let tagResult: TagDocument | null;
 
-    try {
-      tagResult = await this.tagModel
-        .findOneAndUpdate(
-          {
-            _id: tagId,
-            workspaceId: workspace._id,
-          },
-          tagUpdateQuery,
-          {
-            new: true,
-          },
-        )
-        .exec();
+    tagResult = await this.tagModel
+      .findOneAndUpdate(
+        {
+          _id: tagId,
+          workspaceId: workspace._id,
+        },
+        tagUpdateQuery,
+        {
+          new: true,
+        },
+      )
+      .exec();
 
-      if (!tagResult) {
-        throw new NotFoundException(`Tag with ID ${tagId} not found`);
-      }
-
-      const updatedTag = await tagResult.populate("createdBy");
-      return updatedTag;
-    } catch (e) {
-      if (e instanceof mongoose.mongo.MongoError) {
-        if (e.code === 11000) {
-          // Duplicate key error
-          throw new BadRequestException(
-            `Tag with color "${body.color}" already exists in this workspace.`,
-          );
-        }
-      }
-
-      throw new InternalServerErrorException(
-        `Unexpected error updating tag: ${(e as MongooseError).message}`,
-      );
+    if (!tagResult) {
+      throw new NotFoundException(`Tag with ID ${tagId} not found`);
     }
+
+    const updatedTag = await tagResult.populate("createdBy");
+    return updatedTag;
   }
 
   async deleteTagFromWorkspace(

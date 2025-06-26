@@ -117,9 +117,6 @@ export default function TaskDialogAvatar({
 
     if (workspaceMember.role === "admin") {
       if (member.role === "member" || workspaceMember._id === member._id) {
-        console.log(
-          "Admin can only remove members, not owners or other admins",
-        );
         return false;
       }
     }
