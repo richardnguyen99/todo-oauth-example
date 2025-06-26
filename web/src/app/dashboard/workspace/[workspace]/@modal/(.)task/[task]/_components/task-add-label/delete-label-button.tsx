@@ -8,14 +8,17 @@ import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
-import { ErrorApiResponse } from "@/app/_types/response";
 import { useTaskAddLabelContext } from "./provider";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
-import { UpdateWorkspaceResponse } from "@/_types/workspace";
+import {
+  UpdateWorkspaceErrorResponse,
+  UpdateWorkspaceResponse,
+} from "@/_types/workspace";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
 import { invalidateTasks } from "@/lib/fetch-tasks";
 import { invalidateTaskId } from "@/lib/fetch-task-id";
+import { toastError, toastSuccess } from "@/lib/toast";
 
 type Props = Readonly<{
   setErrorMessage: (error: string | null) => void;
@@ -97,6 +100,17 @@ export default function DeleteLabelButton({
         };
       });
 
+      toastSuccess(`Workspace id=${activeWorkspace!._id}`, {
+        description: (
+          <p>
+            Label deleted:{" "}
+            <span className="font-bold">
+              text={editTag.text}, color={editTag.color}
+            </span>
+          </p>
+        ),
+      });
+
       setWorkspaces({
         workspaces: updatedWorkspaces,
         activeWorkspace: updatedWorkspace,
@@ -109,9 +123,15 @@ export default function DeleteLabelButton({
       setView("list");
     },
 
-    onError: (error: AxiosError<ErrorApiResponse>) => {
-      console.error(error);
-      setErrorMessage(error.response?.data.message || "An error occurred");
+    onError: (error: AxiosError<UpdateWorkspaceErrorResponse>) => {
+      const errorMessage = `${error.response?.data.message}: ${
+        (error.response?.data.error as { message: string }).message
+      }`;
+
+      setErrorMessage(errorMessage);
+      toastError(`Workspace id=${activeWorkspace!._id}`, {
+        description: errorMessage,
+      });
     },
 
     onSettled: () => {

@@ -80,7 +80,7 @@ export default function EditPanel(): JSX.Element {
         </Button>
       </div>
 
-      <div className="space-y-4 p-4">
+      <div className="max-h-154 space-y-4 overflow-scroll p-4">
         <div className="space-y-2">
           <Label htmlFor="item-text">Preview</Label>
           <div className="flex items-center gap-2 rounded-md border p-2">
@@ -95,7 +95,7 @@ export default function EditPanel(): JSX.Element {
             </span>
           </div>
 
-          {error && <p className="text-red-500">{error}</p>}
+          {error && <p className="break-words text-red-500">{error}</p>}
         </div>
 
         <div className="space-y-2">
