@@ -22,6 +22,7 @@ import {
 import { Workspace } from "@/_types/workspace";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
 import { invalidateTasks } from "@/lib/fetch-tasks";
+import { toastError, toastSuccess } from "@/lib/toast";
 
 export default function AddPanel(): JSX.Element {
   const [loading, setLoading] = React.useState(false);
@@ -78,6 +79,17 @@ export default function AddPanel(): JSX.Element {
         status: "loading",
       });
 
+      toastSuccess(`Workspace id=${updatedWorkspace._id}`, {
+        description: (
+          <p>
+            Label added:{" "}
+            <span className="font-bold">
+              text={value}, color={color.name}
+            </span>
+          </p>
+        ),
+      });
+
       setView("list");
       setLoading(false);
 
@@ -86,7 +98,14 @@ export default function AddPanel(): JSX.Element {
     },
 
     onError: (error) => {
-      setError(error.response?.data.message || "An error occurred");
+      const errorMessage = `${error.response?.data.message}: ${
+        (error.response?.data.error as { message: string }).message
+      }`;
+
+      setError(errorMessage);
+      toastError(`Workspace id=${activeWorkspace!._id}`, {
+        description: errorMessage,
+      });
     },
 
     onSettled: () => {
@@ -143,7 +162,7 @@ export default function AddPanel(): JSX.Element {
         </Button>
       </div>
 
-      <div className="space-y-4 p-4">
+      <div className="max-h-154 space-y-4 overflow-scroll p-4">
         <div className="space-y-2">
           <Label htmlFor="item-text">Preview</Label>
           <div className="flex items-center gap-2 rounded-md border p-2">
@@ -158,7 +177,7 @@ export default function AddPanel(): JSX.Element {
             </span>
           </div>
 
-          {error && <p className="text-red-500">{error}</p>}
+          {error && <p className="break-words text-red-500">{error}</p>}
         </div>
 
         <div className="space-y-2">
