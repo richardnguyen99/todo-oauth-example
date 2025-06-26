@@ -8,7 +8,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import mongoose, { Error, Model, MongooseError } from "mongoose";
+import mongoose, { Model, MongooseError } from "mongoose";
 
 import { User } from "src/users/schemas/user.schema";
 import {
@@ -595,28 +595,18 @@ forbidden.",
       });
     }
 
-    try {
-      let newTag = await this.tagModel.create({
-        text: body.text,
-        color: body.color,
-        createdBy: userId,
-        workspaceId: workspace._id,
-      });
+    let newTag = await this.tagModel.create({
+      text: body.text,
+      color: body.color,
+      createdBy: userId,
+      workspaceId: workspace._id,
+    });
 
-      workspace.tagIds.push(newTag._id);
-      let savedWorkspace = await workspace.save();
-      savedWorkspace = await savedWorkspace.populate(["tags"]);
+    workspace.tagIds.push(newTag._id);
+    let savedWorkspace = await workspace.save();
+    savedWorkspace = await savedWorkspace.populate(["tags"]);
 
-      return savedWorkspace;
-    } catch (error) {
-      throw new BadRequestException({
-        message: "Error creating tag",
-        error: {
-          name: "BadRequestException",
-          message: `Error creating tag: ${(error as Error).message}`,
-        },
-      });
-    }
+    return savedWorkspace;
   }
 
   async updateTagInWorkspace(

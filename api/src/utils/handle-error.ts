@@ -13,7 +13,29 @@ export const respondWithError = (e: unknown, _res: ResponseType) => {
     );
   }
 
+  if (e instanceof mongoose.mongo.MongoServerError) {
+    // Duplicate key error
+    if (e.code === 11000) {
+      throw new HttpException(
+        {
+          message: "Bad Request",
+          error: {
+            name: "DuplicateKeyError",
+            message: `Key combination already exists: ${JSON.stringify(e.keyValue)}`,
+          },
+        },
+        400,
+      );
+    }
+
+    throw new InternalServerErrorException({
+      message: "Internal server error",
+      error: "There is something wrong with the server and that's all we know.",
+    });
+  }
+
   if (e instanceof mongoose.Error) {
+    console.error("Mongoose error:", e);
     // There is an error with casting the provided string id to an ObjectId
     if (e instanceof mongoose.Error.CastError) {
       throw new HttpException(
@@ -43,13 +65,13 @@ export const respondWithError = (e: unknown, _res: ResponseType) => {
 
     throw new InternalServerErrorException({
       message: "Internal server error",
-      error: e,
+      error: "There is something wrong with the server and that's all we know.",
     });
   }
 
   // Handle other errors
   throw new InternalServerErrorException({
     message: "Internal server error",
-    error: e,
+    error: "There is something wrong with the server and that's all we know.",
   });
 };
