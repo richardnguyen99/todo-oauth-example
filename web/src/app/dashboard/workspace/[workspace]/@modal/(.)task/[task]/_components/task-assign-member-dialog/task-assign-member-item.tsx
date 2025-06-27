@@ -2,6 +2,7 @@
 
 import React, { type JSX } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 import { CommandItem } from "@/components/ui/command";
 import { Workspace } from "@/_types/workspace";
@@ -9,7 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import api from "@/lib/axios";
 import { useTaskWithIdStore } from "@/app/dashboard/workspace/[workspace]/task/_providers/task";
 import { useTaskStore } from "@/app/dashboard/workspace/[workspace]/_providers/task";
-import { UpdateTaskResponse } from "@/_types/task";
+import { UpdateTaskErrorResponse, UpdateTaskResponse } from "@/_types/task";
 import { createTaskFromFetchedData } from "@/lib/utils";
 import { invalidateTasks } from "@/lib/fetch-tasks";
 import {
@@ -18,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { invalidateTaskId } from "@/lib/fetch-task-id";
+import { toastError, toastSuccess } from "@/lib/toast";
 
 type Props = Readonly<{
   member: Workspace["members"][number];
@@ -66,6 +68,10 @@ export default function TaskAssignMemberItem({
         t._id === updatedTask._id ? updatedTask : t,
       );
 
+      toastSuccess(`Task id=${updatedTask._id}`, {
+        description: `Member assigned to task`,
+      });
+
       setTask(updatedTask);
       setTasks(updatedTasks);
     },
@@ -74,8 +80,13 @@ export default function TaskAssignMemberItem({
       setStatus("success");
     },
 
-    onError: (error) => {
-      console.error("Error assigning member to task:", error);
+    onError: (error: AxiosError<UpdateTaskErrorResponse>) => {
+      console.log("Error assigning member to task:", error.response?.data);
+
+      const errorMessage = `${error.response?.data.message}: ${(error.response?.data.error as { message: string }).message}`;
+      toastError(`Task id=${taskId}`, {
+        description: errorMessage,
+      });
     },
   });
 
