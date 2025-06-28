@@ -20,16 +20,7 @@ export class ZodValidationPipe implements PipeTransform {
       return parsedValue;
     } catch (e) {
       const zodError = e as ZodError;
-
-      const detailedMessage = `${zodError.issues[0].path[0]}: ${zodError.issues[0].message}`;
-
-      throw new BadRequestException({
-        message: "Bad Request",
-        error: {
-          name: "BodyValidationError",
-          message: detailedMessage,
-        },
-      });
+      throw new BadRequestException(zodError.format());
     }
   }
 }
@@ -49,13 +40,7 @@ export class ZodQueryValidationPipe implements PipeTransform {
     } catch (e) {
       const zodError = e as ZodError;
 
-      throw new BadRequestException({
-        message: "Bad Request",
-        error: {
-          name: "QueryValidationError",
-          message: zodError.format()._errors.join("\n"),
-        },
-      });
+      throw new BadRequestException(zodError.format());
     }
   }
 }
