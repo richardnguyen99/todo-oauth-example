@@ -1,3 +1,4 @@
+import { BaseErrorResponse, BaseResponse } from "./base";
 import { FetchedUser, User } from "./user";
 
 type MemberBase = {
@@ -24,3 +25,12 @@ export type FetchedMember = MemberBase & {
   updatedAt: string;
   user: FetchedUser;
 };
+
+export type UpdateMemberResponse = BaseResponse<FetchedMember>;
+
+export type UpdateMemberErrorResponse = BaseErrorResponse<{
+  _errors: Record<string, string[]>;
+  role: {
+    _errors: string[];
+  };
+}>;

@@ -15,6 +15,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
@@ -69,7 +71,11 @@ import { useUserStore } from "@/providers/user-store-provider";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import api from "@/lib/axios";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
-import { useRouter } from "next/navigation";
+import { toastError, toastSuccess } from "@/lib/toast";
+import {
+  UpdateMemberErrorResponse,
+  UpdateMemberResponse,
+} from "@/_types/member";
 
 type Props = Readonly<{
   member: Workspace["members"][number];
@@ -104,7 +110,7 @@ const formatDate = (date: Date) => {
 
 const formSchema = z.object({
   role: z.string({
-    required_error: "Please select an email to display.",
+    required_error: "Please select a role to display.",
   }),
 });
 
@@ -149,9 +155,13 @@ function MemberItem({ member }: Props): JSX.Element {
     return false;
   }, [activeWorkspace?.members, activeWorkspace?.ownerId, member, user?.id]);
 
-  const { mutate: updateMutate } = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {
-      const res = await api.put(
+  const { mutate: updateMutate } = useMutation<
+    UpdateMemberResponse,
+    AxiosError<UpdateMemberErrorResponse>,
+    z.infer<typeof formSchema>
+  >({
+    mutationFn: async (values) => {
+      const res = await api.put<UpdateMemberResponse>(
         `/workspaces/${member.workspaceId}/members/${member._id}`,
         {
           role: values.role,
@@ -166,7 +176,7 @@ function MemberItem({ member }: Props): JSX.Element {
     },
 
     onSuccess: async (data) => {
-      await invalidateWorkspaces();
+      invalidateWorkspaces();
 
       const newActiveWorkspace = {
         ...activeWorkspace!,
@@ -190,6 +200,10 @@ function MemberItem({ member }: Props): JSX.Element {
         return workspace;
       });
 
+      toastSuccess(`Workspace ${newActiveWorkspace.title}`, {
+        description: `Member role updated to ${data.data.role}.`,
+      });
+
       setWorkspaces({
         workspaces: newWorkspaces,
         activeWorkspace: newActiveWorkspace,
@@ -197,10 +211,21 @@ function MemberItem({ member }: Props): JSX.Element {
       });
 
       setUpdateDialogOpen(false);
-      setUpdateLoading(false);
       form.reset({
         role: data.data.role,
       });
+    },
+
+    onError: (error) => {
+      const errorMessage = error.response?.data.error.role._errors.join(" ");
+
+      toastError(`Workspace ${activeWorkspace?.title}`, {
+        description: errorMessage || "An unexpected error occurred.",
+      });
+    },
+
+    onSettled: () => {
+      setUpdateLoading(false);
     },
   });
 
