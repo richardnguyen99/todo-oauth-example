@@ -363,12 +363,12 @@ export class WorkspacesController {
         workspaceId as string,
         memberId,
       );
+
+      res.status(HttpStatus.NO_CONTENT).send();
     } catch (e) {
       respondWithError(e, res);
       return;
     }
-
-    res.status(HttpStatus.NO_CONTENT).send();
   }
 
   @UseGuards(JwtAuthGuard)

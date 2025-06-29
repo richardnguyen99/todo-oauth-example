@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Workspace, WorkspaceDocument } from "../schemas/workspaces.schema";
+import { WorkspaceDocument } from "../schemas/workspaces.schema";
 
 export default interface DeleteWorkspaceResult {
   taskDeleteCount: number;

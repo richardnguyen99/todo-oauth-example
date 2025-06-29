@@ -376,9 +376,17 @@ export class WorkspacesService {
     workspaceId: string,
     memberId: string,
   ): Promise<void> {
-    const currentUserObjectId = new ObjectId(currentUserId);
-    const workspaceObjectId = new ObjectId(workspaceId);
-    const memberObjectId = new ObjectId(memberId);
+    let currentUserObjectId: ObjectId;
+    let workspaceObjectId: ObjectId;
+    let memberObjectId: ObjectId;
+
+    try {
+      currentUserObjectId = new ObjectId(currentUserId);
+      workspaceObjectId = new ObjectId(workspaceId);
+      memberObjectId = new ObjectId(memberId);
+    } catch (_e) {
+      throw new BadRequestException(`Invalid IDs`);
+    }
 
     // Check if the current user is a member of the workspace
     const currentUserMember = await this.memberModel.findOne({
