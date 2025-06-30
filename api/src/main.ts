@@ -5,11 +5,13 @@ import * as compression from "compression";
 
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./filters/http-exception.filter";
+import { ZodExceptionFilter } from "./filters/zod-exception.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new ZodExceptionFilter());
 
   app.setGlobalPrefix("/v1/api");
   app.useGlobalPipes(new ValidationPipe());

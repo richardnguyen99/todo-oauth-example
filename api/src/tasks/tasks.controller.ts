@@ -150,13 +150,13 @@ export class TasksController {
   }
 
   @UseGuards(AuthGuard("jwt"))
-  @Put(":id")
+  @Put(":task_id")
   @Header("Content-Type", "application/json")
   @UsePipes(new ZodValidationPipe(updateTaskDtoSchema))
   async updateTask(
     @Req() req: RequestType,
     @Res() res: ResponseType,
-    @Param("id") id: string,
+    @Param("task_id") id: string,
     @Body() updateTaskDto: UpdateTaskDto,
     @Query("workspace_id") workspaceId?: string,
   ) {

@@ -15,13 +15,7 @@ export class ZodValidationPipe implements PipeTransform {
       return value;
     }
 
-    try {
-      const parsedValue = this.schema.parse(value);
-      return parsedValue;
-    } catch (e) {
-      const zodError = e as ZodError;
-      throw new BadRequestException(zodError.format());
-    }
+    return this.schema.parse(value);
   }
 }
 
@@ -34,13 +28,6 @@ export class ZodQueryValidationPipe implements PipeTransform {
       return value;
     }
 
-    try {
-      const parsedValue = this.schema.parse(value);
-      return parsedValue;
-    } catch (e) {
-      const zodError = e as ZodError;
-
-      throw new BadRequestException(zodError.format());
-    }
+    return this.schema.parse(value);
   }
 }
