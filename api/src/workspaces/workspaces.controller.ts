@@ -268,24 +268,22 @@ export class WorkspacesController {
     @JwtUser() user: JwtUserPayload,
     @Body() body: AddNewMemberDto,
   ) {
-    let workspace: WorkspaceDocument;
-
     try {
-      workspace = await this.workspaceService.addMemberToWorkspace(
+      const newMember = await this.workspaceService.addMemberToWorkspace(
         user.userId as string,
         workspaceId as string,
         body,
       );
+
+      res.status(HttpStatus.OK).json({
+        statusCode: HttpStatus.OK,
+        message: "OK",
+        data: newMember,
+      } satisfies ResponsePayloadDto);
     } catch (e) {
       respondWithError(e, res);
       return;
     }
-
-    res.status(HttpStatus.OK).json({
-      statusCode: HttpStatus.OK,
-      message: "OK",
-      data: workspace,
-    } satisfies ResponsePayloadDto);
   }
 
   @UseGuards(JwtAuthGuard)

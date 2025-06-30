@@ -263,7 +263,7 @@ export class WorkspacesService {
     userId: string,
     workspaceId: string,
     addNewMemberDto: AddNewMemberDto,
-  ): Promise<WorkspaceDocument> {
+  ): Promise<MemberDocument> {
     // Check if the workspace exists
     let workspace = await this._getWorkspaceWithAdminAccess(
       userId,
@@ -272,60 +272,21 @@ export class WorkspacesService {
 
     const { newMemberId, role } = addNewMemberDto; // Destructure to get newMemberId and role
 
-    // Check if the user to be added exists
-    const user = await this.userModel.findById(newMemberId);
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${newMemberId} not found`);
-    }
-
-    // Check if the user is already a member of the workspace
-    const existingMember = await this.memberModel.findOne({
-      userId: newMemberId,
-      workspaceId,
-    });
-
-    if (existingMember) {
-      throw new BadRequestException(
-        `User with ID ${newMemberId} is already a member of this workspace.`,
-      );
-    }
-
-    // Create a new member
-    const newMember = new this.memberModel({
+    const newMember = await this.memberModel.create({
       userId: newMemberId,
       workspaceId: workspace._id,
       role,
       isActive: true,
     });
-    workspace.memberIds.push(newMember._id);
 
-    await newMember.save();
-    workspace = await workspace.save();
-    workspace = await workspace.populate([
+    const savedMember = await newMember.save();
+
+    return await savedMember.populate([
       {
-        path: "owner",
-        model: User.name,
-        select: "-accounts",
-      },
-      {
-        path: "tags",
-        model: Tag.name,
-        select: "_id color text",
-      },
-      {
-        path: "members",
-        model: Member.name,
-        select: "-updatedAt",
-        populate: {
-          path: "user",
-          model: User.name,
-          select: "-createdAt -updatedAt -accounts",
-        },
+        path: "user",
+        select: "-createdAt -updatedAt -accounts -workspaces",
       },
     ]);
-
-    return workspace;
   }
 
   async updateMemberInWorkspace(

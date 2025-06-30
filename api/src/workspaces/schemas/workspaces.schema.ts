@@ -144,6 +144,19 @@ MemberSchema.pre(
   },
 );
 
+MemberSchema.pre("save", async function (next) {
+  // Add member id to workspace memberIds array if it's a new member
+
+  if (this.isNew) {
+    await this.model<WorkspaceDocument>(Workspace.name).updateOne(
+      { _id: this.workspaceId },
+      { $addToSet: { memberIds: this._id } },
+    );
+  }
+
+  next();
+});
+
 @Schema({
   collection: "workspaces",
   timestamps: true,
