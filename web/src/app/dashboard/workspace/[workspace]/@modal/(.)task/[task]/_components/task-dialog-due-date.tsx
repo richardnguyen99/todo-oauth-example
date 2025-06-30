@@ -63,7 +63,7 @@ export default function TaskDialogDueDate({
         t._id === data.data._id ? newTask : t,
       );
 
-      toastSuccess(`Task id=${newTask._id}`, {
+      toastSuccess(`Task ${newTask.title}`, {
         description: data.data.dueDate ? (
           <p>
             Due date updated to{" "}
@@ -86,10 +86,15 @@ export default function TaskDialogDueDate({
     onSettled: (_data, _error) => {},
 
     onError: (error) => {
-      console.log("add due date error: ", error.response?.data);
-      const errorMessage = `${error.response?.data.message}: ${(error.response?.data.error as { message: string }).message}`;
+      const err = error.response?.data.error as {
+        _errors: [];
+        dueDate: {
+          _errors: string[];
+        };
+      };
+      const errorMessage = `${err.dueDate._errors.join(" ")}`;
 
-      toastError("Failed to update due date", {
+      toastError(`Task ${task.title}`, {
         description: errorMessage,
       });
     },
