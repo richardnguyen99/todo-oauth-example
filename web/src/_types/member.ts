@@ -34,3 +34,10 @@ export type UpdateMemberErrorResponse = BaseErrorResponse<{
     _errors: string[];
   };
 }>;
+
+export type DeleteMemberResponse = void;
+
+export type DeleteMemberErrorResponse = BaseErrorResponse<{
+  error: { message: string; error: string; statusCode: number };
+  message: string;
+}>;

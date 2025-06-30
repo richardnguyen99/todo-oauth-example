@@ -73,6 +73,8 @@ import api from "@/lib/axios";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
 import { toastError, toastSuccess } from "@/lib/toast";
 import {
+  DeleteMemberErrorResponse,
+  DeleteMemberResponse,
   UpdateMemberErrorResponse,
   UpdateMemberResponse,
 } from "@/_types/member";
@@ -229,7 +231,11 @@ function MemberItem({ member }: Props): JSX.Element {
     },
   });
 
-  const { mutate: deleteMutate } = useMutation({
+  const { mutate: deleteMutate } = useMutation<
+    DeleteMemberResponse,
+    AxiosError<DeleteMemberErrorResponse>,
+    void
+  >({
     mutationFn: async () => {
       const res = await api.delete(
         `/workspaces/${member.workspaceId}/members/${member._id}`,
@@ -269,16 +275,30 @@ function MemberItem({ member }: Props): JSX.Element {
           return workspace;
         });
 
+        toastSuccess(`Workspace ${newActiveWorkspace.title}`, {
+          description: `Member ${member.user.username} removed successfully.`,
+        });
+
         setWorkspaces({
           workspaces: newWorkspaces,
           activeWorkspace: newActiveWorkspace,
           status: "success",
         });
 
-        setDeleteLoading(false);
         setAlertDialogOpen(false);
         form.reset();
       }
+    },
+
+    onError: (error) => {
+      const errorMessage = `${error.response?.data.error.error.error}: ${error.response?.data.error.error.message}`;
+      toastError(`Workspace ${activeWorkspace?.title}`, {
+        description: errorMessage,
+      });
+    },
+
+    onSettled: () => {
+      setDeleteLoading(false);
     },
   });
 

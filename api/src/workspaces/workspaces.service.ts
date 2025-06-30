@@ -385,7 +385,7 @@ export class WorkspacesService {
       workspaceObjectId = new ObjectId(workspaceId);
       memberObjectId = new ObjectId(memberId);
     } catch (_e) {
-      throw new BadRequestException(`Invalid IDs`);
+      throw new BadRequestException(`Provided IDs are not valid`);
     }
 
     // Check if the current user is a member of the workspace
