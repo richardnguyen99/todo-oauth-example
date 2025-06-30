@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "@uidotdev/usehooks";
+import { AxiosError } from "axios";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -44,11 +45,12 @@ import { FetchedUser, UsersResponse } from "@/_types/user";
 import MemberSearchResultItem from "./member-search-result-item";
 import { useWorkspaceStore } from "@/app/dashboard/_providers/workspace";
 import { invalidateWorkspaces } from "@/lib/fetch-workspaces";
-import { FetchedMember } from "@/_types/member";
+import { AddMemberErrorResponse, AddMemberResponse } from "@/_types/member";
+import { toastError, toastSuccess } from "@/lib/toast";
 
 const FormSchema = z.object({
   userId: z.string({
-    required_error: "Please select a language.",
+    required_error: "Please select a user id.",
   }),
 });
 
@@ -96,9 +98,13 @@ export default function MemberAddDialog(): JSX.Element {
     },
   });
 
-  const { mutate } = useMutation({
+  const { mutate } = useMutation<
+    AddMemberResponse,
+    AxiosError<AddMemberErrorResponse>,
+    string
+  >({
     mutationFn: async (userId: string) => {
-      const response = await api.post(
+      const response = await api.post<AddMemberResponse>(
         `/workspaces/${activeWorkspace!._id}/members`,
         {
           newMemberId: userId,
@@ -106,42 +112,47 @@ export default function MemberAddDialog(): JSX.Element {
         },
       );
 
-      return response;
+      return response.data;
     },
 
     onMutate: () => {
       setLoading(true);
     },
 
-    onSuccess: async (res) => {
+    onSuccess: async (data) => {
       await invalidateWorkspaces();
-      form.reset();
 
       const newActiveWorkspace = {
         ...activeWorkspace!,
-        members: res.data.data.members.map((member: FetchedMember) => ({
-          _id: member._id,
-          userId: member.userId,
-          workspaceId: member.workspaceId,
-          role: member.role,
-          isActive: member.isActive,
-          createdAt: new Date(member.createdAt),
-          user: {
-            _id: member.user._id,
-            username: member.user.username,
-            email: member.user.email,
-            emailVerified: member.user.emailVerified,
-            avatar: member.user.avatar,
+        members: [
+          ...(activeWorkspace?.members || []),
+          {
+            _id: data.data._id,
+            userId: data.data.userId,
+            workspaceId: activeWorkspace!._id,
+            role: data.data.role,
+            isActive: true,
+            createdAt: new Date(data.data.createdAt),
+            updatedAt: new Date(data.data.updatedAt),
+            user: {
+              _id: data.data.user._id,
+              email: data.data.user.email,
+              username: data.data.user.username,
+              emailVerified: data.data.user.emailVerified,
+              avatar: data.data.user.avatar,
+            },
           },
-        })),
-        memberIds: res.data.data.memberIds,
-
-        updatedAt: new Date(res.data.data.updatedAt),
+        ],
+        memberIds: [...(activeWorkspace?.memberIds || []), data.data._id],
       };
 
       const newWorkspaces = workspaces.map((workspace) =>
         workspace._id === activeWorkspace!._id ? newActiveWorkspace : workspace,
       );
+
+      toastSuccess(`Workspace ${activeWorkspace?.title}`, {
+        description: `${data.data.user.email} has been invited to the workspace.`,
+      });
 
       setWorkspaces({
         workspaces: newWorkspaces,
@@ -150,10 +161,35 @@ export default function MemberAddDialog(): JSX.Element {
       });
 
       setDialogOpen(false);
+      form.reset();
     },
 
     onSettled: () => {
       setLoading(false);
+    },
+
+    onError: (error) => {
+      const err = error.response?.data.error;
+
+      if (err && typeof err === "object") {
+        if (err.role) {
+          const errorMessage = err.role._errors.join(" ");
+          toastError(`Workspace ${activeWorkspace?.title}`, {
+            description: `Error on inviting: ${errorMessage}`,
+          });
+        } else if (err.newMemberId) {
+          const errorMessage = err.newMemberId._errors.join(" ");
+          toastError(`Workspace ${activeWorkspace?.title}`, {
+            description: `Error on inviting: ${errorMessage}`,
+          });
+        }
+
+        return;
+      }
+
+      toastError(`Workspace ${activeWorkspace?.title}`, {
+        description: `Error on inviting: ${error.message}`,
+      });
     },
   });
 
@@ -190,7 +226,19 @@ export default function MemberAddDialog(): JSX.Element {
   }
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog
+      open={dialogOpen}
+      onOpenChange={(val) => {
+        setDialogOpen(val);
+        if (!val) {
+          // Reset form and popover state when dialog is closed
+          form.reset();
+          setSearchTerm("");
+          setSelectedItem(null);
+          setPopoverOpen(false);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="secondary" className="p-2">
           <UserPlus className="h-4 w-4 sm:mr-1" />

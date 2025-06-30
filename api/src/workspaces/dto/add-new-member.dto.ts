@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { z } from "zod";
 
 export const addNewMemberDtoSchema = z.object({
@@ -6,7 +7,10 @@ export const addNewMemberDtoSchema = z.object({
       required_error: "New member ID is required",
       invalid_type_error: "New member ID must be a string",
     })
-    .min(1, "New member ID cannot be empty"),
+    .refine((val) => {
+      // check if the string is a valid MongoDB ObjectId
+      return mongoose.Types.ObjectId.isValid(val);
+    }, "New member ID must be valid"),
 
   role: z.enum(["admin", "member"], {
     required_error: "Role is required",

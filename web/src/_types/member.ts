@@ -26,6 +26,18 @@ export type FetchedMember = MemberBase & {
   user: FetchedUser;
 };
 
+export type AddMemberResponse = BaseResponse<FetchedMember>;
+
+export type AddMemberErrorResponse = BaseErrorResponse<{
+  _errors: Record<string, string[]>;
+  role?: {
+    _errors: string[];
+  };
+  newMemberId?: {
+    _errors: string[];
+  };
+}>;
+
 export type UpdateMemberResponse = BaseResponse<FetchedMember>;
 
 export type UpdateMemberErrorResponse = BaseErrorResponse<{
